@@ -13,3 +13,11 @@ Motivo: un mvn verify construye todo y las
  versiones se fijan una vez en el padre.
 Consecuencias: cada módulo con su versión; al
  cambiar la del padre, actualizar <parent>.
+ ...
+ ## D-003 · Prioridad casos de uso
+ Fecha: 23/10 · It. 0 · Acta: 23/10 · Issue: 
+ Contexto: necesitamos un orden de prioridad para
+ los casos de uso.
+ Decisión: Asignaremos valores de prioridad del
+ 1 al 4 siendo 1 el mas prioritario y 4 el menos.
+ Alternativas: asignar valores del 1 al 5
