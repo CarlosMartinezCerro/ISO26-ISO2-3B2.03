@@ -15,7 +15,7 @@ Consecuencias: cada módulo con su versión; al
  cambiar la del padre, actualizar <parent>.
  ...
  ## D-003 · Prioridad casos de uso
- Fecha: 19/10 · It. 0 · Acta: 19/10 · Issue: 
+ Fecha: 23/10 · It. 0 · Acta: 23/10 · Issue: 
  Contexto: necesitamos un orden de prioridad para
  los casos de uso.
  Decisión: Asignaremos valores de prioridad del
