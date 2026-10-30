@@ -15,9 +15,20 @@ Consecuencias: cada módulo con su versión; al
  cambiar la del padre, actualizar <parent>.
  ...
  ## D-003 · Prioridad casos de uso
- Fecha: 23/10 · It. 0 · Acta: 23/10 · Issue: 
+ Fecha: 23/10 · It. 0 · Acta: 23/10 · Issue: #4
  Contexto: necesitamos un orden de prioridad para
  los casos de uso.
  Decisión: Asignaremos valores de prioridad del
  1 al 4 siendo 1 el mas prioritario y 4 el menos.
  Alternativas: asignar valores del 1 al 5
+
+ ## D-004 · Organización de grupos funcionales
+Fecha: 30/10 · It. 0 · Acta: 30/10 · Issue: #8
+
+**Contexto:** necesitamos decidir cómo organizar los grupos de trabajo del proyecto, teniendo en cuenta las funciones que desempeñan el cliente y el servidor.
+
+**Decisión:** Como hemos observado que tanto el cliente como el servidor realizan las mismas funciones, hemos decidido organizar los grupos de trabajo en función de las funcionalidades del sistema, creando así grupos funcionales en lugar de separarlos por cliente y servidor.
+
+**Alternativas:** organizar los grupos diferenciando entre cliente y servidor.
+
+ 
