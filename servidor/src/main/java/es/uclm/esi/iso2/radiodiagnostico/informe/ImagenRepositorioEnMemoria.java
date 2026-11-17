@@ -28,6 +28,13 @@ public class ImagenRepositorioEnMemoria implements ImagenRepositorio {
     }
 
     @Override
+    public List<Imagen> buscarPorPaciente(String dniPaciente) {
+        return imagenes.stream()
+                .filter(imagen -> imagen.dniPaciente().equals(dniPaciente))
+                .toList();
+    }
+
+    @Override
     public int contar() {
         return imagenes.size();
     }
