@@ -31,4 +31,13 @@ Fecha: 30/10 · It. 0 · Acta: 30/10 · Issue: #8
 
 **Alternativas:** organizar los grupos diferenciando entre cliente y servidor.
 
+ ## D-005 · Definición de la línea base 
+ Fecha: 03/10 · It. 0 · Acta:  · Issue: 
+ **Contexto:** necesitamos concretar como vamos a organizar el trabajo.
+ **Decisión:** - Cada caso de uso será realizado por una persona 
+               - En un día vamos a poder realizar varios casos de uso 
+               - La jornada laboral será de 40 horas(8 horas/día durante 5 días)
+ **Alternativas:** 
+
+
  
