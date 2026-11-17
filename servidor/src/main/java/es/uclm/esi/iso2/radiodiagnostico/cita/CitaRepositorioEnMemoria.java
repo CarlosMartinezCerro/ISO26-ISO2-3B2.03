@@ -26,4 +26,16 @@ public class CitaRepositorioEnMemoria implements CitaRepositorio {
         return citas.stream()
                 .anyMatch(cita -> cita.sala().equals(sala) && cita.fechaHora().equals(fechaHora));
     }
+
+    @Override
+    public Optional<Cita> buscarPorId(String id) {
+        return citas.stream()
+                .filter(cita -> cita.id().equals(id))
+                .findFirst();
+    }
+
+    @Override
+    public void actualizar(Cita cita) {
+        citas.replaceAll(actual -> actual.id().equals(cita.id()) ? cita : actual);
+    }
 }

@@ -9,5 +9,10 @@ public interface CitaRepositorio {
 
     Optional<Cita> buscarPorSolicitud(String idSolicitud);
 
+    Optional<Cita> buscarPorId(String id);
+
+    /** Sustituye la cita con el mismo id por la versión recibida. */
+    void actualizar(Cita cita);
+
     boolean existeCitaEn(String sala, LocalDateTime fechaHora);
 }
