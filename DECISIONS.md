@@ -38,6 +38,11 @@ Fecha: 30/10 · It. 0 · Acta: 30/10 · Issue: #8
                - En un día vamos a poder realizar varios casos de uso 
                - La jornada laboral será de 40 horas(8 horas/día durante 5 días)
  **Alternativas:** 
-
+## D-006 · Reutilización del paquete informe para imágenes
+Fecha: 17/11 · It. 2 · Acta:  · Issue: CdU19
+**Contexto:** el CdU17 (crear imagen) y el CdU19 (consultar imagen) trabajan con las mismas imágenes.
+**Decisión:** - El CdU19 amplía las clases del paquete `informe` del CdU17 (Imagen, ImagenRepositorio, ServicioImagenes, ControladorImagenes) en lugar de crear otras.
+              - En el cliente se usa una interfaz separada (`ClienteConsultaImagenes`) para no obligar al CdU17 a implementar métodos que no usa.
+**Alternativas:** paquete `imagen` propio para el CdU19 (descartado: duplicaba Imagen y el repositorio).
 
  
