@@ -22,6 +22,13 @@ public class SolicitudRepositorioEnMemoria implements SolicitudRepositorio {
     }
 
     @Override
+    public List<SolicitudPrueba> buscarPorPaciente(String dniPaciente) {
+        return solicitudes.values().stream()
+                .filter(solicitud -> solicitud.dniPaciente().equalsIgnoreCase(dniPaciente))
+                .toList();
+    }
+
+    @Override
     public void guardar(SolicitudPrueba solicitud) {
         solicitudes.put(solicitud.id(), solicitud);
     }

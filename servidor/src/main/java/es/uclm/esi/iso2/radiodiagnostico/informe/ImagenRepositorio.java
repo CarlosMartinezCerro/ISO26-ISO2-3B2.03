@@ -11,6 +11,8 @@ public interface ImagenRepositorio {
 
     List<Imagen> buscarPorInforme(String idInforme);
 
+    List<Imagen> buscarPorPaciente(String dniPaciente);
+
     /** Número de imágenes guardadas; se usa para generar el siguiente identificador. */
     int contar();
 }
