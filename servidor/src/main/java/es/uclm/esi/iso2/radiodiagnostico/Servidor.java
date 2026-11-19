@@ -1,4 +1,3 @@
-
 package es.uclm.esi.iso2.radiodiagnostico;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,9 +9,15 @@ import es.uclm.esi.iso2.radiodiagnostico.cita.CitaRepositorioMySql;
 import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioCitas;
 import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioCitasImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCitas;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorPacientes;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.Rutas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasCitas;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasPacientes;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioEnMemoria;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioImagenesImpl;
+import es.uclm.esi.iso2.radiodiagnostico.informe.SistemaPacsSimulado;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorio;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioMySql;
@@ -29,6 +34,12 @@ public final class Servidor {
 
     public static final int PUERTO_POR_DEFECTO = 7070;
 
+    /**
+     * Tamaño máximo de una petición. Se amplía para permitir el envío
+     * de imágenes médicas en Base64.
+     */
+    static final long TAMANO_MAXIMO_PETICION = 30L * 1024 * 1024;
+
     private Servidor() {
     }
 
@@ -38,31 +49,64 @@ public final class Servidor {
 
         ServicioCitas servicioCitas = servicioCitas();
 
-        crear(servicioPacientes, servicioCitas).start(puerto());
+        Javalin app = crear(servicioPacientes, servicioCitas);
+
+        RutasImagenes rutasImagenes = new RutasImagenes(
+                new ControladorImagenes(
+                        new ServicioImagenesImpl(
+                                new ImagenRepositorioEnMemoria(),
+                                new SistemaPacsSimulado())));
+
+        rutasImagenes.registrar(app);
+
+        app.start(puerto());
     }
 
+    /**
+     * Crea la aplicación solo con las rutas de pacientes.
+     * La utilizan los tests del alta de pacientes.
+     */
     public static Javalin crear(ServicioPacientes servicioPacientes) {
-        return crear(servicioPacientes, servicioCitas());
+        return crear(
+                new RutasPacientes(
+                        new ControladorPacientes(servicioPacientes)));
     }
 
+    /**
+     * Crea la aplicación con las rutas de pacientes y citas.
+     */
     public static Javalin crear(
             ServicioPacientes servicioPacientes,
             ServicioCitas servicioCitas) {
 
-        ObjectMapper json = new ObjectMapper()
-                .registerModule(new JavaTimeModule())
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-        Javalin app = Javalin.create(config ->
-                config.jsonMapper(new JavalinJackson(json, false)));
-
-        new RutasPacientes(
-                new ControladorPacientes(servicioPacientes)
-        ).registrar(app);
+        Javalin app = crear(
+                new RutasPacientes(
+                        new ControladorPacientes(servicioPacientes)));
 
         new RutasCitas(
                 new ControladorCitas(servicioCitas)
         ).registrar(app);
+
+        return app;
+    }
+
+    /**
+     * Crea la aplicación con los bloques de rutas indicados,
+     * sin arrancarla.
+     */
+    public static Javalin crear(Rutas... rutas) {
+        ObjectMapper json = new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        Javalin app = Javalin.create(config -> {
+            config.jsonMapper(new JavalinJackson(json, false));
+            config.http.maxRequestSize = TAMANO_MAXIMO_PETICION;
+        });
+
+        for (Rutas bloque : rutas) {
+            bloque.registrar(app);
+        }
 
         return app;
     }
@@ -108,4 +152,3 @@ public final class Servidor {
                 : Integer.parseInt(puerto);
     }
 }
-

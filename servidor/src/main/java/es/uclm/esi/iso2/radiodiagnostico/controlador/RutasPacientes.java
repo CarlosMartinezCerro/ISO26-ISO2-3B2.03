@@ -16,7 +16,7 @@ import java.util.Objects;
  *   respuesta: {"correcto", "mensaje"}  con 201 si se da de alta y 400 si se rechaza
  * </pre>
  */
-public class RutasPacientes {
+public class RutasPacientes implements Rutas {
 
     public static final String RUTA_PACIENTES = "/pacientes";
     static final String PETICION_MAL_FORMADA = "La petición de alta no tiene un formato válido.";
@@ -27,6 +27,7 @@ public class RutasPacientes {
         this.controlador = Objects.requireNonNull(controlador, "El controlador es obligatorio");
     }
 
+    @Override
     public void registrar(Javalin app) {
         app.post(RUTA_PACIENTES, this::darDeAlta);
     }
