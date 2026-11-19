@@ -1,12 +1,16 @@
 package es.uclm.esi.iso2.radiodiagnostico;
 
+import es.uclm.esi.iso2.radiodiagnostico.cita.ClienteConfirmacionCitasHttp;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPacienteImpl;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConfirmarCita;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConfirmarCitaImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagenImpl;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteImagenesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ClientePacientesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAltaPaciente;
+import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConfirmarCita;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearImagen;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -36,7 +40,8 @@ public class AplicacionCliente extends Application {
 
         VBox menu = new VBox(10,
                 botonMenu("CdU22 · Dar de alta paciente", () -> abrirAltaPaciente(url)),
-                botonMenu("CdU17 · Crear imagen", () -> abrirCrearImagen(url)));
+                botonMenu("CdU17 · Crear imagen", () -> abrirCrearImagen(url)),
+                botonMenu("CdU2 · Confirmar cita", () -> abrirConfirmarCita(url)));
         menu.setPadding(new Insets(16));
 
         ventana.setTitle(TITULO);
@@ -58,6 +63,14 @@ public class AplicacionCliente extends Application {
                 new ControladorCrearImagenImpl(vista, new ClienteImagenesHttp(url));
         vista.alPulsarCrear(controlador::crearImagen);
         abrir(VentanaCrearImagen.TITULO, vista);
+    }
+
+    private static void abrirConfirmarCita(String url) {
+        VentanaConfirmarCita vista = new VentanaConfirmarCita();
+        ControladorConfirmarCita controlador =
+                new ControladorConfirmarCitaImpl(vista, new ClienteConfirmacionCitasHttp(url));
+        vista.alPulsarConfirmar(controlador::confirmarCita);
+        abrir(VentanaConfirmarCita.TITULO, vista);
     }
 
     private static Button botonMenu(String texto, Runnable accion) {

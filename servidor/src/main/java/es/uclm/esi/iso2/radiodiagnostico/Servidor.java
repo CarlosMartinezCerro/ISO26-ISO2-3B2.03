@@ -3,9 +3,14 @@ package es.uclm.esi.iso2.radiodiagnostico;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import es.uclm.esi.iso2.radiodiagnostico.cita.CitaRepositorio;
+import es.uclm.esi.iso2.radiodiagnostico.cita.CitaRepositorioEnMemoria;
+import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioConfirmacionCitasImpl;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConfirmacionCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorPacientes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.Rutas;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasConfirmacionCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasPacientes;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioEnMemoria;
@@ -43,11 +48,16 @@ public final class Servidor {
     }
 
     public static void main(String[] args) {
+        // Un único repositorio de citas para todos los casos de uso de citas
+        // (CdU25 asignar, CdU2 confirmar, CdU4 cancelar...), para que vean las mismas citas.
+        CitaRepositorio citas = new CitaRepositorioEnMemoria();
         crear(
                 new RutasPacientes(new ControladorPacientes(
                         new ServicioPacientesImpl(repositorioPacientes()))),
                 new RutasImagenes(new ControladorImagenes(
-                        new ServicioImagenesImpl(new ImagenRepositorioEnMemoria(), new SistemaPacsSimulado())))
+                        new ServicioImagenesImpl(new ImagenRepositorioEnMemoria(), new SistemaPacsSimulado()))),
+                new RutasConfirmacionCitas(new ControladorConfirmacionCitas(
+                        new ServicioConfirmacionCitasImpl(citas)))
         ).start(puerto());
     }
 
