@@ -1,50 +1,43 @@
 package es.uclm.esi.iso2.radiodiagnostico.vista;
 
 import es.uclm.esi.iso2.radiodiagnostico.cita.DatosConfirmacionCita;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 
-/** Vista de escritorio (Swing) del CdU2. No contiene lógica: todo lo decide el controlador. */
-public class VentanaConfirmarCita extends JFrame implements VistaConfirmarCita {
+/** Vista de escritorio (JavaFX, D-008) del CdU2. No contiene lógica: todo lo decide el controlador. */
+public class VentanaConfirmarCita extends GridPane implements VistaConfirmarCita {
 
-    private static final long serialVersionUID = 1L;
+    public static final String TITULO = "Radiodiagnóstico - CdU2: Confirmar cita";
 
-    private final JTextField campoCita = new JTextField(14);
-    private final JTextField campoDni = new JTextField(14);
-    private final JButton botonConfirmar = new JButton("Confirmar cita");
+    private final TextField campoCita = new TextField();
+    private final TextField campoDni = new TextField();
+    private final Button botonConfirmar = new Button("Confirmar cita");
 
     public VentanaConfirmarCita() {
-        super("Radiodiagnóstico - CdU2: Confirmar cita");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(420, 180);
-        setLocationRelativeTo(null);
-        setLayout(new BorderLayout(10, 10));
+        setPadding(new Insets(16));
+        setHgap(10);
+        setVgap(10);
 
-        JPanel formulario = new JPanel(new GridLayout(0, 2, 8, 8));
-        formulario.setBorder(BorderFactory.createEmptyBorder(15, 15, 0, 15));
-        formulario.add(new JLabel("Código de la cita:"));
-        formulario.add(campoCita);
-        formulario.add(new JLabel("DNI:"));
-        formulario.add(campoDni);
+        campoCita.setId("campoCita");
+        campoDni.setId("campoDni");
+        botonConfirmar.setId("botonConfirmar");
 
-        JPanel botones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        botones.add(botonConfirmar);
+        campoCita.setPromptText("CITA-SOL-001");
+        campoDni.setPromptText("12345678Z");
 
-        add(formulario, BorderLayout.CENTER);
-        add(botones, BorderLayout.SOUTH);
+        addRow(0, new Label("Código de la cita:"), campoCita);
+        addRow(1, new Label("DNI:"), campoDni);
+        add(botonConfirmar, 1, 2);
+        botonConfirmar.setDefaultButton(true);
     }
 
     /** El controlador se engancha aquí al botón (la vista no lo conoce). */
     public void alPulsarConfirmar(Runnable accion) {
-        botonConfirmar.addActionListener(evento -> accion.run());
+        botonConfirmar.setOnAction(evento -> accion.run());
     }
 
     @Override
@@ -59,11 +52,18 @@ public class VentanaConfirmarCita extends JFrame implements VistaConfirmarCita {
 
     @Override
     public void mostrarExito(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, "Cita confirmada", JOptionPane.INFORMATION_MESSAGE);
+        mostrarDialogo(Alert.AlertType.INFORMATION, "Cita confirmada", mensaje);
     }
 
     @Override
     public void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, "No se pudo confirmar", JOptionPane.ERROR_MESSAGE);
+        mostrarDialogo(Alert.AlertType.ERROR, "No se pudo confirmar", mensaje);
+    }
+
+    private void mostrarDialogo(Alert.AlertType tipo, String titulo, String mensaje) {
+        Alert alerta = new Alert(tipo, mensaje);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(null);
+        alerta.showAndWait();
     }
 }
