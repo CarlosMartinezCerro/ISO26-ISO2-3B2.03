@@ -10,6 +10,7 @@ import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoConsultaImagen;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoCreacionImagen;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoListadoImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioImagenes;
+import es.uclm.esi.iso2.radiodiagnostico.persistencia.ErrorBaseDatosException;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,6 +20,9 @@ import java.util.Objects;
  * excepciones en respuestas con un mensaje que el cliente puede mostrar.
  */
 public class ControladorImagenes {
+
+    static final String MENSAJE_BASE_DATOS =
+            "No se ha podido acceder a la base de datos. Inténtelo de nuevo más tarde.";
 
     private final ServicioImagenes servicio;
 
@@ -33,6 +37,8 @@ public class ControladorImagenes {
                     + " creada para el informe " + imagen.idInforme() + ".");
         } catch (DatosImagenInvalidosException | PacsNoDisponibleException e) {
             return new ResultadoCreacionImagen(false, e.getMessage());
+        } catch (ErrorBaseDatosException e) {
+            return new ResultadoCreacionImagen(false, MENSAJE_BASE_DATOS);
         }
     }
 
@@ -46,6 +52,8 @@ public class ControladorImagenes {
             return new ResultadoListadoImagenes(true, mensaje, imagenes);
         } catch (DatosImagenInvalidosException e) {
             return new ResultadoListadoImagenes(false, e.getMessage(), List.of());
+        } catch (ErrorBaseDatosException e) {
+            return new ResultadoListadoImagenes(false, MENSAJE_BASE_DATOS, List.of());
         }
     }
 
@@ -57,6 +65,8 @@ public class ControladorImagenes {
         } catch (DatosImagenInvalidosException | ImagenNoEncontradaException
                  | AccesoDenegadoException e) {
             return new ResultadoConsultaImagen(false, e.getMessage(), null);
+        } catch (ErrorBaseDatosException e) {
+            return new ResultadoConsultaImagen(false, MENSAJE_BASE_DATOS, null);
         }
     }
 }

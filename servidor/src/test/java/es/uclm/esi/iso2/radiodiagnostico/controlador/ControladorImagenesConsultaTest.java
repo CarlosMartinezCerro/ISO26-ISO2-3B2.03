@@ -7,10 +7,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import es.uclm.esi.iso2.radiodiagnostico.informe.DatosImagen;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioEnMemoria;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioMySql;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoConsultaImagen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoCreacionImagen;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoListadoImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioImagenesImpl;
 import es.uclm.esi.iso2.radiodiagnostico.informe.SistemaPacsSimulado;
+import java.sql.SQLException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -79,5 +82,37 @@ class ControladorImagenesConsultaTest {
     @Test
     void consultaSinImagenDevuelveError() {
         assertFalse(controlador.consultarImagen("MED-001", " ").correcto());
+    }
+
+    @Test
+    void siFallaLaBaseDeDatosElListadoDevuelveUnMensaje() {
+        ResultadoListadoImagenes resultado = controladorSinBaseDeDatos().imagenesPaciente("MED-001", "FICTICIO-001");
+
+        assertFalse(resultado.correcto());
+        assertEquals(ControladorImagenes.MENSAJE_BASE_DATOS, resultado.mensaje());
+    }
+
+    @Test
+    void siFallaLaBaseDeDatosLaConsultaDevuelveUnMensaje() {
+        ResultadoConsultaImagen resultado = controladorSinBaseDeDatos().consultarImagen("MED-001", "IMG-001");
+
+        assertFalse(resultado.correcto());
+        assertEquals(ControladorImagenes.MENSAJE_BASE_DATOS, resultado.mensaje());
+    }
+
+    @Test
+    void siFallaLaBaseDeDatosCrearImagenDevuelveUnMensaje() {
+        ResultadoCreacionImagen resultado = controladorSinBaseDeDatos().crearImagen(new DatosImagen(
+                "INF-001", "FICTICIO-001", "MED-001", "TAC", "craneo.dcm", new byte[] {1}));
+
+        assertFalse(resultado.correcto());
+        assertEquals(ControladorImagenes.MENSAJE_BASE_DATOS, resultado.mensaje());
+    }
+
+    private static ControladorImagenes controladorSinBaseDeDatos() {
+        ImagenRepositorioMySql caido = new ImagenRepositorioMySql(() -> {
+            throw new SQLException("Connection refused");
+        });
+        return new ControladorImagenes(new ServicioImagenesImpl(caido, new SistemaPacsSimulado()));
     }
 }
