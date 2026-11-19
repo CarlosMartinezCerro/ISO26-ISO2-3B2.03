@@ -15,7 +15,7 @@ import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 
 /** API REST para crear informes y consultar antecedentes. */
-public class RutasInforme {
+public class RutasInforme implements Rutas {
 
     public static final String RUTA_INFORMES = "/informes";
     public static final String RUTA_ANTECEDENTES = "/informes/antecedentes";
@@ -29,6 +29,7 @@ public class RutasInforme {
         this.controlador = Objects.requireNonNull(controlador, "El controlador es obligatorio");
     }
 
+    @Override
     public void registrar(Javalin app) {
         app.post(RUTA_INFORMES, this::crearInforme);
         app.get(RUTA_ANTECEDENTES, this::obtenerAntecedentes);

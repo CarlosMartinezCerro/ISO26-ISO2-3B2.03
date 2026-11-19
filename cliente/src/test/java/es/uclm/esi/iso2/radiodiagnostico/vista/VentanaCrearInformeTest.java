@@ -1,7 +1,6 @@
 package es.uclm.esi.iso2.radiodiagnostico.vista;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -286,42 +285,6 @@ class VentanaCrearInformeTest {
             return null;
         });
         assertTrue(ejecutada.get());
-    }
-
-    @Test
-    @DisplayName("Mensaje vacío de éxito es aceptado")
-    void mensajeExitoVacio() throws Exception {
-        Assumptions.assumeTrue(false, "El diálogo modal no puede probarse automáticamente");
-    }
-
-    @Test
-    @DisplayName("Mensaje nulo de éxito es aceptado")
-    void mensajeExitoNulo() throws Exception {
-        Assumptions.assumeTrue(false, "El diálogo modal no puede probarse automáticamente");
-    }
-
-    @Test
-    @DisplayName("Mensaje normal de éxito es aceptado")
-    void mensajeExitoNormal() throws Exception {
-        Assumptions.assumeTrue(false, "El diálogo modal no puede probarse automáticamente");
-    }
-
-    @Test
-    @DisplayName("Mensaje vacío de error es aceptado")
-    void mensajeErrorVacio() throws Exception {
-        Assumptions.assumeTrue(false, "El diálogo modal no puede probarse automáticamente");
-    }
-
-    @Test
-    @DisplayName("Mensaje nulo de error es aceptado")
-    void mensajeErrorNulo() throws Exception {
-        Assumptions.assumeTrue(false, "El diálogo modal no puede probarse automáticamente");
-    }
-
-    @Test
-    @DisplayName("Mensaje normal de error es aceptado")
-    void mensajeErrorNormal() throws Exception {
-        Assumptions.assumeTrue(false, "El diálogo modal no puede probarse automáticamente");
     }
 
     @Test
