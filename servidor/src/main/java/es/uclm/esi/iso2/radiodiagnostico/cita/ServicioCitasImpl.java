@@ -63,6 +63,11 @@ public class ServicioCitasImpl implements ServicioCitas {
         return citas.buscarPorSolicitud(idSolicitud);
     }
 
+    @Override
+    public List<Cita> buscarCitasPorPaciente(String dniPaciente) {
+        return citas.buscarPorDniPaciente(dniPaciente);
+    }
+
     private void validar(DatosAsignacionCita datos) {
         if (datos == null) {
             throw new DatosAsignacionInvalidosException("Los datos de la cita son obligatorios.");

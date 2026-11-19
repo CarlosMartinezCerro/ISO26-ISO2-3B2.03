@@ -1,13 +1,18 @@
+
 package es.uclm.esi.iso2.radiodiagnostico.cita;
 
 import java.util.List;
 
-/** Comunicación del cliente con el servidor para el CdU25. */
+/** Comunicación del cliente con el servidor para las operaciones de citas. */
 public interface ClienteCitas {
 
-    /** @throws ErrorComunicacionException si no se puede contactar con el servidor */
+    /** Obtiene las solicitudes pendientes de asignación. */
     List<SolicitudPendiente> obtenerSolicitudesPendientes();
 
-    /** @throws ErrorComunicacionException si no se puede contactar con el servidor */
+    /** Asigna una cita a una solicitud. */
     ResultadoAsignacion asignarCita(DatosAsignacionCita datos);
+
+    /** Consulta las citas de un paciente. */
+    List<CitaPaciente> consultarCitas(String dniPaciente);
 }
+

@@ -26,12 +26,15 @@ class ServicioCitasImplTest {
 
     private SolicitudRepositorioEnMemoria solicitudes;
     private ServicioCitas servicio;
+    private CitaRepositorioEnMemoria citas;
 
     @BeforeEach
     void crearServicio() {
         solicitudes = new SolicitudRepositorioEnMemoria();
+        citas = new CitaRepositorioEnMemoria();
+
         Clock reloj = Clock.fixed(AHORA.atZone(ZONA).toInstant(), ZONA);
-        servicio = new ServicioCitasImpl(solicitudes, new CitaRepositorioEnMemoria(), reloj);
+        servicio = new ServicioCitasImpl(solicitudes, citas, reloj);
 
         solicitudes.guardar(solicitud("SOL-001", PrioridadSolicitud.ORDINARIO));
         solicitudes.guardar(solicitud("SOL-002", PrioridadSolicitud.URGENTE));
@@ -169,6 +172,23 @@ class ServicioCitasImplTest {
                 LocalDateTime.now().plusYears(1), "SALA-RX-1"));
 
         assertEquals(EstadoCita.ASIGNADA, cita.estado());
+    }
+
+    @Test
+    void permiteConsultarCitasDeUnPaciente() {
+        Cita cita1 = new Cita("CITA-1", "SOL-1", "12345678A",
+                "Radiografía", MANANA, "SALA-RX-1", EstadoCita.ASIGNADA);
+
+        Cita cita2 = new Cita("CITA-2", "SOL-2", "87654321B",
+                "Resonancia", MANANA.plusDays(1), "SALA-RX-2", EstadoCita.ASIGNADA);
+
+        citas.guardar(cita1);
+        citas.guardar(cita2);
+
+        List<Cita> resultado = servicio.buscarCitasPorPaciente("12345678A");
+
+        assertEquals(1, resultado.size());
+        assertEquals(cita1, resultado.get(0));
     }
 
     private void assertDatoInvalido(DatosAsignacionCita datos, String campo) {
