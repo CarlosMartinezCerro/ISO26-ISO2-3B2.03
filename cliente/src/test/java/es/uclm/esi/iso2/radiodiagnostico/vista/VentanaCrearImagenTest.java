@@ -16,7 +16,6 @@ import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,13 +35,7 @@ class VentanaCrearImagenTest {
 
     @BeforeAll
     static void arrancarJavaFx() {
-        try {
-            Platform.startup(() -> { });
-        } catch (IllegalStateException yaArrancado) {
-            // Otro test ya arrancó JavaFX.
-        } catch (RuntimeException | UnsatisfiedLinkError sinPantalla) {
-            Assumptions.abort("JavaFX no disponible: " + sinPantalla.getMessage());
-        }
+        JavaFxEnTests.arrancarOOmitir();
     }
 
     @BeforeEach
