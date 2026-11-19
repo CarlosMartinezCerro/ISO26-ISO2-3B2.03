@@ -33,9 +33,9 @@ public final class DemoVentanaConsultarImagen {
         SwingUtilities.invokeLater(() -> {
             VentanaConsultarImagen ventana = new VentanaConsultarImagen();
             ControladorConsultarImagen controlador =
-                    new ControladorConsultarImagenImpl(ventana, new ClienteFalso(), "MED-001");
-            ventana.alPulsarBuscar(controlador::buscarImagenes);
-            ventana.alPulsarVer(controlador::verImagen);
+                    new ControladorConsultarImagenImpl(ventana.panel(), new ClienteFalso(), "MED-001");
+            ventana.panel().alPulsarBuscar(controlador::buscarImagenes);
+            ventana.panel().alPulsarVer(controlador::verImagen);
             ventana.setVisible(true);
         });
     }
