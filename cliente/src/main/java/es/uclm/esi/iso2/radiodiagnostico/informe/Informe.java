@@ -1,9 +1,9 @@
-package es.uclm.radiodiagnostico.modelo.medico.informe;
+package es.uclm.esi.iso2.radiodiagnostico.informe;
 
 import java.time.LocalDate;
 
-import es.uclm.radiodiagnostico.modelo.medico.Medico;
-import es.uclm.radiodiagnostico.modelo.paciente.Paciente;
+import es.uclm.esi.iso2.radiodiagnostico.usuario.Medico;
+import es.uclm.esi.iso2.radiodiagnostico.usuario.Paciente;
 
 public class Informe {
 

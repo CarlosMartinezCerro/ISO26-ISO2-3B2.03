@@ -1,8 +1,8 @@
-package es.uclm.radiodiagnostico.modelo.paciente;
+package es.uclm.esi.iso2.radiodiagnostico.usuario;
 
 import java.time.LocalDate;
 
-public class Paciente {
+public class Medico {
 
     private String nombre;
     private String apellido;
@@ -11,10 +11,11 @@ public class Paciente {
     private String numeroSeguridadSocial;
     private LocalDate fechaNacimiento;
     private String domicilio;
+    private String especialidad;
 
-    public Paciente(String nombre, String apellido, String dni, String numeroTelefono,
-                    String numeroSeguridadSocial, LocalDate fechaNacimiento,
-                    String domicilio) {
+    public Medico(String nombre, String apellido, String dni, String numeroTelefono,
+                  String numeroSeguridadSocial, LocalDate fechaNacimiento,
+                  String domicilio, String especialidad) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.dni = dni;
@@ -22,6 +23,7 @@ public class Paciente {
         this.numeroSeguridadSocial = numeroSeguridadSocial;
         this.fechaNacimiento = fechaNacimiento;
         this.domicilio = domicilio;
+        this.especialidad = especialidad;
     }
 
     public String getNombre() {
@@ -78,5 +80,13 @@ public class Paciente {
 
     public void setDomicilio(String domicilio) {
         this.domicilio = domicilio;
+    }
+
+    public String getEspecialidad() {
+        return especialidad;
+    }
+
+    public void setEspecialidad(String especialidad) {
+        this.especialidad = especialidad;
     }
 }

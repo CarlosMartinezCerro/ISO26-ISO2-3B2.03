@@ -1,4 +1,4 @@
-package es.uclm.radiodiagnostico.modelo.medico;
+package es.uclm.esi.iso2.radiodiagnostico.usuario;
 
 import java.time.LocalDate;
 

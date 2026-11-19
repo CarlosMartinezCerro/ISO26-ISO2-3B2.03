@@ -4,12 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorPacientes;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorInforme;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasPacientes;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasInforme;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioInforme;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioInformeImpl;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorio;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioMySql;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ServicioPacientes;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ServicioPacientesImpl;
+import es.uclm.esi.iso2.radiodiagnostico.sistemasexternos.HistorialClinicoSimulado;
 import io.javalin.Javalin;
 import io.javalin.json.JavalinJackson;
 
@@ -31,16 +36,27 @@ public final class Servidor {
     }
 
     public static void main(String[] args) {
-        crear(new ServicioPacientesImpl(repositorioPacientes())).start(puerto());
+        crear(
+                new ServicioPacientesImpl(repositorioPacientes()),
+                new ServicioInformeImpl(new HistorialClinicoSimulado())
+        ).start(puerto());
     }
 
     /** Crea la aplicación con sus rutas, sin arrancarla (los tests la arrancan en un puerto libre). */
     public static Javalin crear(ServicioPacientes servicioPacientes) {
+        return crear(servicioPacientes,
+                new ServicioInformeImpl(new HistorialClinicoSimulado()));
+    }
+
+    /** Permite inyectar el servicio de informes, por ejemplo en pruebas. */
+    public static Javalin crear(ServicioPacientes servicioPacientes,
+                                ServicioInforme servicioInforme) {
         ObjectMapper json = new ObjectMapper()
                 .registerModule(new JavaTimeModule())
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         Javalin app = Javalin.create(config -> config.jsonMapper(new JavalinJackson(json, false)));
         new RutasPacientes(new ControladorPacientes(servicioPacientes)).registrar(app);
+        new RutasInforme(new ControladorInforme(servicioInforme)).registrar(app);
         return app;
     }
 
