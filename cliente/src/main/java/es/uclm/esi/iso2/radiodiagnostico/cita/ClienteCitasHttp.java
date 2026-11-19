@@ -17,7 +17,7 @@ import java.util.Objects;
 /** Cliente HTTP para consultar y gestionar citas mediante la API REST. */
 public class ClienteCitasHttp implements ClienteCitas {
 
-    private static final String RUTA_CITAS = "/citas/";
+    private static final String RUTA_CITAS = "/citas";
     private static final Duration TIEMPO_MAXIMO = Duration.ofSeconds(10);
 
     private final String urlServidor;
@@ -43,14 +43,9 @@ public class ClienteCitasHttp implements ClienteCitas {
     }
 
     @Override
-    public List<CitaPaciente> consultarCitas(String dniPaciente) {
-        if (dniPaciente == null || dniPaciente.isBlank()) {
-            throw new IllegalArgumentException("El DNI es obligatorio.");
-        }
-
+    public List<CitaPaciente> consultarCitas() {
         try {
-            URI uri = URI.create(urlServidor + RUTA_CITAS
-                    + dniPaciente.trim());
+            URI uri = URI.create(urlServidor + RUTA_CITAS);
 
             HttpRequest peticion = HttpRequest.newBuilder(uri)
                     .timeout(TIEMPO_MAXIMO)
@@ -59,6 +54,11 @@ public class ClienteCitasHttp implements ClienteCitas {
 
             HttpResponse<String> respuesta = http.send(
                     peticion, HttpResponse.BodyHandlers.ofString());
+
+            if (respuesta.statusCode() == 401) {
+                throw new ErrorComunicacionException(
+                        "El paciente no está autenticado.", null);
+            }
 
             if (respuesta.statusCode() != 200) {
                 throw new ErrorComunicacionException(

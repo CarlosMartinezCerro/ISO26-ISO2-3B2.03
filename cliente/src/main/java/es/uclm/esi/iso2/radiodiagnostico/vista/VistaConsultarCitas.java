@@ -6,8 +6,6 @@ import java.util.List;
 
 public interface VistaConsultarCitas {
 
-    String obtenerDniPaciente();
-
     void mostrarCitas(List<CitaPaciente> citas);
 
     void mostrarMensaje(String mensaje);

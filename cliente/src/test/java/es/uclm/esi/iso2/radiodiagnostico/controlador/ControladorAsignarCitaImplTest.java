@@ -128,7 +128,7 @@ class ControladorAsignarCitaImplTest {
         DatosAsignacionCita datosRecibidos;
 
         @Override
-        public List<CitaPaciente> consultarCitas(String dniPaciente) {
+        public List<CitaPaciente> consultarCitas() {
             return List.of();
         }
         

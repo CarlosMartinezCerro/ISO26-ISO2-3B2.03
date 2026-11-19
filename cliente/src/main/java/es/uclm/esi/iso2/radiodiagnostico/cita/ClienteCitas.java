@@ -13,6 +13,6 @@ public interface ClienteCitas {
     ResultadoAsignacion asignarCita(DatosAsignacionCita datos);
 
     /** Consulta las citas de un paciente. */
-    List<CitaPaciente> consultarCitas(String dniPaciente);
+    List<CitaPaciente> consultarCitas();
 }
 

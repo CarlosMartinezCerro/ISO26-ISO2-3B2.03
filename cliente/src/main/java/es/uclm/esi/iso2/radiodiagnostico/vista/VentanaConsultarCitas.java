@@ -6,14 +6,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.geometry.Insets;
 
 public class VentanaConsultarCitas extends GridPane
         implements VistaConsultarCitas {
@@ -21,56 +19,63 @@ public class VentanaConsultarCitas extends GridPane
     private static final DateTimeFormatter FORMATO_FECHA =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    private final TextField campoDni = new TextField();
-    private final Button botonConsultar = new Button("Consultar citas");
-    private final TableView<CitaPaciente> tabla = new TableView<>();
+    private final Button botonConsultar =
+            new Button("Consultar mis citas");
+
+    private final TableView<CitaPaciente> tabla =
+            new TableView<>();
 
     public VentanaConsultarCitas() {
         setPadding(new Insets(16));
         setHgap(10);
         setVgap(10);
 
-        campoDni.setPromptText("DNI del paciente");
-        campoDni.setId("campoDniConsulta");
         botonConsultar.setId("botonConsultarCitas");
 
         TableColumn<CitaPaciente, String> columnaId =
                 new TableColumn<>("ID");
+
         columnaId.setCellValueFactory(d ->
                 new SimpleStringProperty(d.getValue().id()));
 
         TableColumn<CitaPaciente, String> columnaPrueba =
                 new TableColumn<>("Tipo de prueba");
+
         columnaPrueba.setCellValueFactory(d ->
                 new SimpleStringProperty(d.getValue().tipoPrueba()));
 
         TableColumn<CitaPaciente, String> columnaFecha =
                 new TableColumn<>("Fecha y hora");
+
         columnaFecha.setCellValueFactory(d ->
                 new SimpleStringProperty(
                         d.getValue().fechaHora().format(FORMATO_FECHA)));
 
         TableColumn<CitaPaciente, String> columnaSala =
                 new TableColumn<>("Sala");
+
         columnaSala.setCellValueFactory(d ->
                 new SimpleStringProperty(d.getValue().sala()));
 
         TableColumn<CitaPaciente, String> columnaEstado =
                 new TableColumn<>("Estado");
+
         columnaEstado.setCellValueFactory(d ->
                 new SimpleStringProperty(d.getValue().estado()));
 
         tabla.getColumns().addAll(
-                columnaId, columnaPrueba, columnaFecha,
-                columnaSala, columnaEstado);
+                columnaId,
+                columnaPrueba,
+                columnaFecha,
+                columnaSala,
+                columnaEstado
+        );
 
         tabla.setColumnResizePolicy(
                 TableView.CONSTRAINED_RESIZE_POLICY);
 
-        add(new Label("DNI del paciente:"), 0, 0);
-        add(campoDni, 1, 0);
-        add(botonConsultar, 2, 0);
-        add(tabla, 0, 1, 3, 1);
+        add(botonConsultar, 0, 0);
+        add(tabla, 0, 1);
 
         botonConsultar.setDefaultButton(true);
     }
@@ -80,29 +85,34 @@ public class VentanaConsultarCitas extends GridPane
     }
 
     @Override
-    public String obtenerDniPaciente() {
-        return campoDni.getText();
-    }
-
-    @Override
     public void mostrarCitas(List<CitaPaciente> citas) {
-        tabla.setItems(FXCollections.observableArrayList(citas));
+        tabla.setItems(
+                FXCollections.observableArrayList(citas));
     }
 
     @Override
     public void mostrarMensaje(String mensaje) {
-        mostrarDialogo(Alert.AlertType.INFORMATION,
-                "Consulta de citas", mensaje);
+        mostrarDialogo(
+                Alert.AlertType.INFORMATION,
+                "Consulta de citas",
+                mensaje
+        );
     }
 
     @Override
     public void mostrarError(String mensaje) {
-        mostrarDialogo(Alert.AlertType.ERROR,
-                "Error en la consulta", mensaje);
+        mostrarDialogo(
+                Alert.AlertType.ERROR,
+                "Error en la consulta",
+                mensaje
+        );
     }
 
     private void mostrarDialogo(
-            Alert.AlertType tipo, String titulo, String mensaje) {
+            Alert.AlertType tipo,
+            String titulo,
+            String mensaje) {
+
         Alert alerta = new Alert(tipo);
         alerta.setTitle(titulo);
         alerta.setHeaderText(null);

@@ -22,28 +22,20 @@ public class ControladorConsultarCitasImpl
 
     @Override
     public void consultarCitas() {
-        String dni = vista.obtenerDniPaciente();
-
-        if (dni == null || dni.isBlank()) {
-            vista.mostrarError("Introduzca el DNI del paciente.");
-            return;
-        }
-
         try {
-            List<CitaPaciente> citas =
-                    cliente.consultarCitas(dni.trim());
+            List<CitaPaciente> citas = cliente.consultarCitas();
 
             vista.mostrarCitas(citas);
 
             if (citas.isEmpty()) {
                 vista.mostrarMensaje(
-                        "El paciente no tiene citas programadas.");
+                        "No tienes citas programadas.");
             }
 
         } catch (ErrorComunicacionException e) {
             vista.mostrarError(
-                    "No se ha podido conectar con el servidor. "
-                    + "Inténtelo de nuevo más tarde.");
+                    "No se ha podido realizar la consulta. "
+                    + "Comprueba que has iniciado sesión e inténtalo de nuevo.");
         }
     }
 }

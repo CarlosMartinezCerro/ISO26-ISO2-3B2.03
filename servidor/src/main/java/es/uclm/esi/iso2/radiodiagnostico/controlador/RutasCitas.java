@@ -13,9 +13,27 @@ public class RutasCitas {
     }
 
     public void registrar(Javalin app) {
-        app.get("/citas/{dniPaciente}", ctx -> {
-            String dniPaciente = ctx.pathParam("dniPaciente");
-            ctx.json(controlador.consultarCitas(dniPaciente));
+        app.get("/citas", ctx -> {
+            String dniPaciente = ctx.sessionAttribute("dniPaciente");
+
+            if (dniPaciente == null || dniPaciente.isBlank()) {
+                ctx.status(401).json(
+                        java.util.Map.of(
+                                "error", "El paciente no está autenticado."
+                        )
+                );
+                return;
+            }
+
+            try {
+                ctx.json(controlador.consultarCitas(dniPaciente));
+            } catch (IllegalStateException e) {
+                ctx.status(500).json(
+                        java.util.Map.of(
+                                "error", "No se pudieron consultar las citas."
+                        )
+                );
+            }
         });
     }
 }
