@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,19 +26,18 @@ import javafx.scene.control.TextField;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * Prueba la creación del informe a partir del formulario. Los diálogos (mostrarExito/mostrarError)
+ * no se prueban porque bloquean hasta que alguien los cierra.
+ * Si no hay pantalla (por ejemplo en un CI sin entorno gráfico) los tests se omiten.
+ */
 class VentanaCrearInformeTest {
 
     private VentanaCrearInforme ventana;
 
     @BeforeAll
     static void arrancarJavaFx() {
-        try {
-            Platform.startup(() -> { });
-        } catch (IllegalStateException yaArrancado) {
-            // JavaFX ya fue iniciado por otra prueba.
-        } catch (RuntimeException | UnsatisfiedLinkError sinPantalla) {
-            Assumptions.abort("JavaFX no disponible: " + sinPantalla.getMessage());
-        }
+        JavaFxEnTests.arrancarOOmitir();
     }
 
     @BeforeEach
