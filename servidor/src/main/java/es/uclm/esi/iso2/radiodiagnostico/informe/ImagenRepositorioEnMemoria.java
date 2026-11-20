@@ -30,7 +30,7 @@ public class ImagenRepositorioEnMemoria implements ImagenRepositorio {
     @Override
     public List<Imagen> buscarPorPaciente(String dniPaciente) {
         return imagenes.stream()
-                .filter(imagen -> imagen.dniPaciente().equals(dniPaciente))
+                .filter(imagen -> imagen.dniPaciente().equalsIgnoreCase(dniPaciente))
                 .toList();
     }
 

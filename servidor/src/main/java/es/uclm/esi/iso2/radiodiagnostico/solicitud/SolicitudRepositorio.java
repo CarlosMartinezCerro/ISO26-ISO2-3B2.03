@@ -9,6 +9,8 @@ public interface SolicitudRepositorio {
 
     List<SolicitudPrueba> buscarPorEstado(EstadoSolicitud estado);
 
+    List<SolicitudPrueba> buscarPorPaciente(String dniPaciente);
+
     /** Guarda la solicitud, sustituyendo la que tenga el mismo id. */
     void guardar(SolicitudPrueba solicitud);
 }
