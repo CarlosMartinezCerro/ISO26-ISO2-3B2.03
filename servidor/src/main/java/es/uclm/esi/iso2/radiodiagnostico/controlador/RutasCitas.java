@@ -4,7 +4,7 @@ package es.uclm.esi.iso2.radiodiagnostico.controlador;
 import io.javalin.Javalin;
 import java.util.Objects;
 
-public class RutasCitas {
+public class RutasCitas implements Rutas {
 
     private final ControladorCitas controlador;
 

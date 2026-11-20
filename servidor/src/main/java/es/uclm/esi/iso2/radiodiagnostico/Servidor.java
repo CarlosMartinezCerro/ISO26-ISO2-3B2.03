@@ -1,3 +1,4 @@
+
 package es.uclm.esi.iso2.radiodiagnostico;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,19 +11,24 @@ import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioCitas;
 import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioCitasImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorImagenes;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorInforme;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorPacientes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.Rutas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasImagenes;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasInforme;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasPacientes;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioImagenesImpl;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioInforme;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioInformeImpl;
 import es.uclm.esi.iso2.radiodiagnostico.informe.SistemaPacsSimulado;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorio;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioMySql;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ServicioPacientes;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ServicioPacientesImpl;
+import es.uclm.esi.iso2.radiodiagnostico.sistemasexternos.HistorialClinicoSimulado;
 import es.uclm.esi.iso2.radiodiagnostico.solicitud.SolicitudRepositorioEnMemoria;
 import io.javalin.Javalin;
 import io.javalin.json.JavalinJackson;
@@ -44,32 +50,45 @@ public final class Servidor {
     }
 
     public static void main(String[] args) {
-        ServicioPacientes servicioPacientes =
-                new ServicioPacientesImpl(repositorioPacientes());
+        crear(
+                new RutasPacientes(new ControladorPacientes(
+                        new ServicioPacientesImpl(repositorioPacientes()))),
 
-        ServicioCitas servicioCitas = servicioCitas();
-
-        Javalin app = crear(servicioPacientes, servicioCitas);
-
-        RutasImagenes rutasImagenes = new RutasImagenes(
-                new ControladorImagenes(
+                new RutasImagenes(new ControladorImagenes(
                         new ServicioImagenesImpl(
                                 new ImagenRepositorioEnMemoria(),
-                                new SistemaPacsSimulado())));
+                                new SistemaPacsSimulado()))),
 
-        rutasImagenes.registrar(app);
+                new RutasInforme(new ControladorInforme(
+                        new ServicioInformeImpl(
+                                new HistorialClinicoSimulado()))),
 
-        app.start(puerto());
+                new RutasCitas(new ControladorCitas(servicioCitas()))
+        ).start(puerto());
     }
 
     /**
-     * Crea la aplicación solo con las rutas de pacientes.
-     * La utilizan los tests del alta de pacientes.
+     * Crea la aplicación con pacientes e informes.
+     * La utilizan los tests del CdU22 y del CU16.
      */
     public static Javalin crear(ServicioPacientes servicioPacientes) {
         return crear(
+                servicioPacientes,
+                new ServicioInformeImpl(new HistorialClinicoSimulado()));
+    }
+
+    /**
+     * Crea la aplicación con pacientes e informes.
+     */
+    public static Javalin crear(
+            ServicioPacientes servicioPacientes,
+            ServicioInforme servicioInforme) {
+
+        return crear(
                 new RutasPacientes(
-                        new ControladorPacientes(servicioPacientes)));
+                        new ControladorPacientes(servicioPacientes)),
+                new RutasInforme(
+                        new ControladorInforme(servicioInforme)));
     }
 
     /**
@@ -79,15 +98,11 @@ public final class Servidor {
             ServicioPacientes servicioPacientes,
             ServicioCitas servicioCitas) {
 
-        Javalin app = crear(
+        return crear(
                 new RutasPacientes(
-                        new ControladorPacientes(servicioPacientes)));
-
-        new RutasCitas(
-                new ControladorCitas(servicioCitas)
-        ).registrar(app);
-
-        return app;
+                        new ControladorPacientes(servicioPacientes)),
+                new RutasCitas(
+                        new ControladorCitas(servicioCitas)));
     }
 
     /**

@@ -1,3 +1,4 @@
+
 package es.uclm.esi.iso2.radiodiagnostico;
 
 import es.uclm.esi.iso2.radiodiagnostico.cita.ClienteCitasHttp;
@@ -7,11 +8,14 @@ import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarCitasImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagenImpl;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearInformeImpl;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteImagenesHttp;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteInformesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ClientePacientesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConsultarCitas;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearImagen;
+import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearInforme;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
@@ -41,6 +45,8 @@ public class AplicacionCliente extends Application {
                         () -> abrirAltaPaciente(url)),
                 botonMenu("CdU17 · Crear imagen",
                         () -> abrirCrearImagen(url)),
+                botonMenu("CdU · Crear informe",
+                        () -> abrirCrearInforme(url)),
                 botonMenu("CU1 · Consultar citas",
                         () -> abrirConsultarCitas(url)));
 
@@ -75,6 +81,24 @@ public class AplicacionCliente extends Application {
         vista.alPulsarCrear(controlador::crearImagen);
 
         abrir(VentanaCrearImagen.TITULO, vista);
+    }
+
+    private static void abrirCrearInforme(String url) {
+        VentanaCrearInforme vista = new VentanaCrearInforme();
+
+        ControladorCrearInformeImpl controlador =
+                new ControladorCrearInformeImpl(
+                        vista,
+                        new ClienteInformesHttp(url));
+
+        vista.alPulsarCargarAntecedentes(
+                () -> controlador.consultarAntecedentes(
+                        vista.obtenerDniPaciente(),
+                        vista.obtenerEspecialidad()));
+
+        vista.alPulsarCrear(controlador::crearInforme);
+
+        abrir(VentanaCrearInforme.TITULO, vista);
     }
 
     private static void abrirConsultarCitas(String url) {
@@ -116,4 +140,3 @@ public class AplicacionCliente extends Application {
         launch(args);
     }
 }
-
