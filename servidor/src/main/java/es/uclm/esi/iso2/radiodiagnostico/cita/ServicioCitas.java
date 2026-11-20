@@ -25,4 +25,5 @@ public interface ServicioCitas {
     Cita asignarCita(DatosAsignacionCita datos);
 
     Optional<Cita> buscarCitaPorSolicitud(String idSolicitud);
+    List<Cita> buscarCitasPorPaciente(String dniPaciente);
 }

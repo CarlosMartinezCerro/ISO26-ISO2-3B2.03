@@ -3,6 +3,7 @@ package es.uclm.esi.iso2.radiodiagnostico.controlador;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import es.uclm.esi.iso2.radiodiagnostico.cita.CitaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.cita.ClienteCitas;
 import es.uclm.esi.iso2.radiodiagnostico.cita.DatosAsignacionCita;
 import es.uclm.esi.iso2.radiodiagnostico.cita.ErrorComunicacionException;
@@ -126,6 +127,11 @@ class ControladorAsignarCitaImplTest {
         ResultadoAsignacion resultado;
         DatosAsignacionCita datosRecibidos;
 
+        @Override
+        public List<CitaPaciente> consultarCitas() {
+            return List.of();
+        }
+        
         @Override
         public List<SolicitudPendiente> obtenerSolicitudesPendientes() {
             comprobarConexion();

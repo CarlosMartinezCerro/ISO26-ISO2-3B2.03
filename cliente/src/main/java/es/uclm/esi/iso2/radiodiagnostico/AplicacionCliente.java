@@ -1,14 +1,19 @@
+
 package es.uclm.esi.iso2.radiodiagnostico;
 
+import es.uclm.esi.iso2.radiodiagnostico.cita.ClienteCitasHttp;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPacienteImpl;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarCitas;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarCitasImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagenImpl;
-import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteImagenesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearInformeImpl;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteImagenesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteInformesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ClientePacientesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAltaPaciente;
+import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConsultarCitas;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearInforme;
 import javafx.application.Application;
@@ -20,13 +25,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
- * Aplicación JavaFX del cliente (D-008): muestra un menú con los casos de uso y,
+ * Aplicación JavaFX del cliente: muestra un menú con los casos de uso y,
  * al elegir uno, crea su vista, modelo y controlador y los conecta.
  *
- * <p>La dirección del servidor se lee de la variable de entorno {@code SERVIDOR_URL}
- * (por defecto {@code http://localhost:7070}).
- *
- * <p>Arranque: {@code mvn -pl cliente javafx:run}.
+ * La dirección del servidor se lee de la variable de entorno SERVIDOR_URL
+ * (por defecto http://localhost:7070).
  */
 public class AplicacionCliente extends Application {
 
@@ -38,9 +41,15 @@ public class AplicacionCliente extends Application {
         String url = urlServidor();
 
         VBox menu = new VBox(10,
-                botonMenu("CdU22 · Dar de alta paciente", () -> abrirAltaPaciente(url)),
-                botonMenu("CdU17 · Crear imagen", () -> abrirCrearImagen(url)),
-                botonMenu("CdU · Crear informe", () -> abrirCrearInforme(url)));
+                botonMenu("CdU22 · Dar de alta paciente",
+                        () -> abrirAltaPaciente(url)),
+                botonMenu("CdU17 · Crear imagen",
+                        () -> abrirCrearImagen(url)),
+                botonMenu("CdU · Crear informe",
+                        () -> abrirCrearInforme(url)),
+                botonMenu("CU1 · Consultar citas",
+                        () -> abrirConsultarCitas(url)));
+
         menu.setPadding(new Insets(16));
 
         ventana.setTitle(TITULO);
@@ -50,30 +59,59 @@ public class AplicacionCliente extends Application {
 
     private static void abrirAltaPaciente(String url) {
         VentanaAltaPaciente vista = new VentanaAltaPaciente();
+
         ControladorAltaPaciente controlador =
-                new ControladorAltaPacienteImpl(vista, new ClientePacientesHttp(url));
+                new ControladorAltaPacienteImpl(
+                        vista,
+                        new ClientePacientesHttp(url));
+
         vista.alPulsarAlta(controlador::darDeAlta);
+
         abrir(VentanaAltaPaciente.TITULO, vista);
     }
 
     private static void abrirCrearImagen(String url) {
         VentanaCrearImagen vista = new VentanaCrearImagen();
+
         ControladorCrearImagen controlador =
-                new ControladorCrearImagenImpl(vista, new ClienteImagenesHttp(url));
+                new ControladorCrearImagenImpl(
+                        vista,
+                        new ClienteImagenesHttp(url));
+
         vista.alPulsarCrear(controlador::crearImagen);
+
         abrir(VentanaCrearImagen.TITULO, vista);
     }
 
     private static void abrirCrearInforme(String url) {
         VentanaCrearInforme vista = new VentanaCrearInforme();
+
         ControladorCrearInformeImpl controlador =
-                new ControladorCrearInformeImpl(vista, new ClienteInformesHttp(url));
+                new ControladorCrearInformeImpl(
+                        vista,
+                        new ClienteInformesHttp(url));
+
         vista.alPulsarCargarAntecedentes(
                 () -> controlador.consultarAntecedentes(
                         vista.obtenerDniPaciente(),
                         vista.obtenerEspecialidad()));
+
         vista.alPulsarCrear(controlador::crearInforme);
+
         abrir(VentanaCrearInforme.TITULO, vista);
+    }
+
+    private static void abrirConsultarCitas(String url) {
+        VentanaConsultarCitas vista = new VentanaConsultarCitas();
+
+        ControladorConsultarCitas controlador =
+                new ControladorConsultarCitasImpl(
+                        vista,
+                        new ClienteCitasHttp(url));
+
+        vista.alPulsarConsultar(controlador::consultarCitas);
+
+        abrir("Radiodiagnóstico - Consultar citas", vista);
     }
 
     private static Button botonMenu(String texto, Runnable accion) {
@@ -92,7 +130,10 @@ public class AplicacionCliente extends Application {
 
     private static String urlServidor() {
         String url = System.getenv("SERVIDOR_URL");
-        return url == null || url.isBlank() ? URL_POR_DEFECTO : url;
+
+        return url == null || url.isBlank()
+                ? URL_POR_DEFECTO
+                : url;
     }
 
     public static void main(String[] args) {
