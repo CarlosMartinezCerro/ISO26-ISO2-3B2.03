@@ -3,12 +3,18 @@ package es.uclm.esi.iso2.radiodiagnostico;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import es.uclm.esi.iso2.radiodiagnostico.cita.CitaRepositorioEnMemoria;
+import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioCitasImpl;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorPacientes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.Rutas;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasPacientes;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorio;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioEnMemoria;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioMySql;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioImagenesImpl;
 import es.uclm.esi.iso2.radiodiagnostico.informe.SistemaPacsSimulado;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorio;
@@ -16,6 +22,11 @@ import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioMySql;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ServicioPacientes;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ServicioPacientesImpl;
+import es.uclm.esi.iso2.radiodiagnostico.solicitud.EstadoSolicitud;
+import es.uclm.esi.iso2.radiodiagnostico.solicitud.PrioridadSolicitud;
+import es.uclm.esi.iso2.radiodiagnostico.solicitud.SolicitudPrueba;
+import es.uclm.esi.iso2.radiodiagnostico.solicitud.SolicitudRepositorio;
+import es.uclm.esi.iso2.radiodiagnostico.solicitud.SolicitudRepositorioEnMemoria;
 import io.javalin.Javalin;
 import io.javalin.json.JavalinJackson;
 
@@ -26,8 +37,11 @@ import io.javalin.json.JavalinJackson;
  * <ul>
  *   <li>{@code PUERTO}: puerto HTTP (por defecto 7070).</li>
  *   <li>{@code MYSQL_URL}, {@code MYSQL_USER}, {@code MYSQL_PASSWORD}: conexión a MySQL (D-010).
- *       Si no se define {@code MYSQL_URL}, los pacientes se guardan en memoria.</li>
+ *       Si no se define {@code MYSQL_URL}, los pacientes y las imágenes se guardan en memoria.</li>
  * </ul>
+ *
+ * <p>Las citas y las solicitudes (CdU25) están en memoria, con solicitudes de ejemplo, hasta que
+ * existan su repositorio MySQL y el CdU12 (solicitar prueba).
  */
 public final class Servidor {
 
@@ -47,7 +61,9 @@ public final class Servidor {
                 new RutasPacientes(new ControladorPacientes(
                         new ServicioPacientesImpl(repositorioPacientes()))),
                 new RutasImagenes(new ControladorImagenes(
-                        new ServicioImagenesImpl(new ImagenRepositorioEnMemoria(), new SistemaPacsSimulado())))
+                        new ServicioImagenesImpl(repositorioImagenes(), new SistemaPacsSimulado()))),
+                new RutasCitas(new ControladorCitas(
+                        new ServicioCitasImpl(solicitudesDeEjemplo(), new CitaRepositorioEnMemoria())))
         ).start(puerto());
     }
 
@@ -81,6 +97,27 @@ public final class Servidor {
             return new PacienteRepositorioEnMemoria();
         }
         return new PacienteRepositorioMySql();
+    }
+
+    private static ImagenRepositorio repositorioImagenes() {
+        String url = System.getenv("MYSQL_URL");
+        if (url == null || url.isBlank()) {
+            System.err.println("MYSQL_URL no está definida: las imágenes se guardarán en memoria.");
+            return new ImagenRepositorioEnMemoria();
+        }
+        return new ImagenRepositorioMySql();
+    }
+
+    /** Solicitudes ficticias (RGPD) para poder probar el CdU25 hasta que exista el CdU12. */
+    static SolicitudRepositorio solicitudesDeEjemplo() {
+        SolicitudRepositorioEnMemoria solicitudes = new SolicitudRepositorioEnMemoria();
+        solicitudes.guardar(new SolicitudPrueba("SOL-001", "FICTICIO-001", "Radiografía",
+                PrioridadSolicitud.ORDINARIO, EstadoSolicitud.PENDIENTE));
+        solicitudes.guardar(new SolicitudPrueba("SOL-002", "FICTICIO-002", "TAC",
+                PrioridadSolicitud.URGENTE, EstadoSolicitud.PENDIENTE));
+        solicitudes.guardar(new SolicitudPrueba("SOL-003", "FICTICIO-003", "Ecografía",
+                PrioridadSolicitud.PREFERENTE, EstadoSolicitud.PENDIENTE));
+        return solicitudes;
     }
 
     private static int puerto() {

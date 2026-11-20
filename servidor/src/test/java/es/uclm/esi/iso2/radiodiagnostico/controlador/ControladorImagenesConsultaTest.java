@@ -7,13 +7,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import es.uclm.esi.iso2.radiodiagnostico.informe.DatosImagen;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioEnMemoria;
-import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioMySql;
+import es.uclm.esi.iso2.radiodiagnostico.informe.Imagen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorio;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoConsultaImagen;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoCreacionImagen;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoListadoImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioImagenesImpl;
 import es.uclm.esi.iso2.radiodiagnostico.informe.SistemaPacsSimulado;
-import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -89,7 +91,7 @@ class ControladorImagenesConsultaTest {
         ResultadoListadoImagenes resultado = controladorSinBaseDeDatos().imagenesPaciente("MED-001", "FICTICIO-001");
 
         assertFalse(resultado.correcto());
-        assertEquals(ControladorImagenes.MENSAJE_BASE_DATOS, resultado.mensaje());
+        assertEquals(ControladorImagenes.ERROR_INTERNO, resultado.mensaje());
     }
 
     @Test
@@ -97,7 +99,7 @@ class ControladorImagenesConsultaTest {
         ResultadoConsultaImagen resultado = controladorSinBaseDeDatos().consultarImagen("MED-001", "IMG-001");
 
         assertFalse(resultado.correcto());
-        assertEquals(ControladorImagenes.MENSAJE_BASE_DATOS, resultado.mensaje());
+        assertEquals(ControladorImagenes.ERROR_INTERNO, resultado.mensaje());
     }
 
     @Test
@@ -106,13 +108,27 @@ class ControladorImagenesConsultaTest {
                 "INF-001", "FICTICIO-001", "MED-001", "TAC", "craneo.dcm", new byte[] {1}));
 
         assertFalse(resultado.correcto());
-        assertEquals(ControladorImagenes.MENSAJE_BASE_DATOS, resultado.mensaje());
+        assertEquals(ControladorImagenes.ERROR_INTERNO, resultado.mensaje());
     }
 
+    /** Repositorio que falla como lo haría ImagenRepositorioMySql sin base de datos. */
     private static ControladorImagenes controladorSinBaseDeDatos() {
-        ImagenRepositorioMySql caido = new ImagenRepositorioMySql(() -> {
-            throw new SQLException("Connection refused");
-        });
+        ImagenRepositorio caido = new ImagenRepositorioEnMemoria() {
+            @Override
+            public List<Imagen> buscarPorPaciente(String dniPaciente) {
+                throw new IllegalStateException("Sin base de datos");
+            }
+
+            @Override
+            public Optional<Imagen> buscarPorId(String id) {
+                throw new IllegalStateException("Sin base de datos");
+            }
+
+            @Override
+            public void guardar(Imagen imagen) {
+                throw new IllegalStateException("Sin base de datos");
+            }
+        };
         return new ControladorImagenes(new ServicioImagenesImpl(caido, new SistemaPacsSimulado()));
     }
 }
