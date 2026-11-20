@@ -5,9 +5,12 @@ import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPacienteImpl
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagenImpl;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteImagenesHttp;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearInformeImpl;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteInformesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ClientePacientesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearImagen;
+import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearInforme;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
@@ -36,7 +39,8 @@ public class AplicacionCliente extends Application {
 
         VBox menu = new VBox(10,
                 botonMenu("CdU22 · Dar de alta paciente", () -> abrirAltaPaciente(url)),
-                botonMenu("CdU17 · Crear imagen", () -> abrirCrearImagen(url)));
+                botonMenu("CdU17 · Crear imagen", () -> abrirCrearImagen(url)),
+                botonMenu("CdU · Crear informe", () -> abrirCrearInforme(url)));
         menu.setPadding(new Insets(16));
 
         ventana.setTitle(TITULO);
@@ -58,6 +62,18 @@ public class AplicacionCliente extends Application {
                 new ControladorCrearImagenImpl(vista, new ClienteImagenesHttp(url));
         vista.alPulsarCrear(controlador::crearImagen);
         abrir(VentanaCrearImagen.TITULO, vista);
+    }
+
+    private static void abrirCrearInforme(String url) {
+        VentanaCrearInforme vista = new VentanaCrearInforme();
+        ControladorCrearInformeImpl controlador =
+                new ControladorCrearInformeImpl(vista, new ClienteInformesHttp(url));
+        vista.alPulsarCargarAntecedentes(
+                () -> controlador.consultarAntecedentes(
+                        vista.obtenerDniPaciente(),
+                        vista.obtenerEspecialidad()));
+        vista.alPulsarCrear(controlador::crearInforme);
+        abrir(VentanaCrearInforme.TITULO, vista);
     }
 
     private static Button botonMenu(String texto, Runnable accion) {
