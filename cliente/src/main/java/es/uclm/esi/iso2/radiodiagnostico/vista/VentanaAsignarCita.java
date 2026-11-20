@@ -2,99 +2,95 @@ package es.uclm.esi.iso2.radiodiagnostico.vista;
 
 import es.uclm.esi.iso2.radiodiagnostico.cita.DatosAsignacionCita;
 import es.uclm.esi.iso2.radiodiagnostico.cita.SolicitudPendiente;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.table.DefaultTableModel;
+import java.util.function.Function;
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 
-/** Vista de escritorio (Swing) del CdU25. No contiene lógica: todo lo decide el controlador. */
-public class VentanaAsignarCita extends JFrame implements VistaAsignarCita {
+/** Vista de escritorio (JavaFX, D-008) del CdU25. No contiene lógica: todo lo decide el controlador. */
+public class VentanaAsignarCita extends BorderPane implements VistaAsignarCita {
 
-    private static final long serialVersionUID = 1L;
+    public static final String TITULO = "Radiodiagnóstico - CdU25: Asignar cita solicitada";
 
-    private final DefaultTableModel modeloTabla;
-    private final JTable tablaSolicitudes;
-    private final JTextField campoFecha = new JTextField(10);
-    private final JTextField campoHora = new JTextField(5);
-    private final JTextField campoSala = new JTextField(10);
-    private final JButton botonAsignar = new JButton("Asignar cita");
-    private final JButton botonRecargar = new JButton("Recargar");
+    private final TableView<SolicitudPendiente> tablaSolicitudes = new TableView<>();
+    private final DatePicker campoFecha = new DatePicker();
+    private final TextField campoHora = new TextField();
+    private final TextField campoSala = new TextField();
+    private final Button botonAsignar = new Button("Asignar cita");
+    private final Button botonRecargar = new Button("Recargar");
 
     public VentanaAsignarCita() {
-        super("Radiodiagnóstico - CdU25: Asignar cita solicitada");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(750, 400);
-        setLocationRelativeTo(null);
-        setLayout(new BorderLayout(10, 10));
+        setPadding(new Insets(16));
 
-        modeloTabla = new DefaultTableModel(
-                new String[] {"Solicitud", "Paciente", "Tipo de prueba", "Prioridad"}, 0) {
-            private static final long serialVersionUID = 1L;
+        tablaSolicitudes.setId("tablaSolicitudes");
+        campoFecha.setId("campoFecha");
+        campoHora.setId("campoHora");
+        campoSala.setId("campoSala");
+        botonAsignar.setId("botonAsignar");
+        botonRecargar.setId("botonRecargar");
 
-            @Override
-            public boolean isCellEditable(int fila, int columna) {
-                return false;
-            }
-        };
-        tablaSolicitudes = new JTable(modeloTabla);
-        tablaSolicitudes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tablaSolicitudes.getColumns().add(columna("Solicitud", SolicitudPendiente::id));
+        tablaSolicitudes.getColumns().add(columna("Paciente", SolicitudPendiente::dniPaciente));
+        tablaSolicitudes.getColumns().add(columna("Tipo de prueba", SolicitudPendiente::tipoPrueba));
+        tablaSolicitudes.getColumns().add(columna("Prioridad", SolicitudPendiente::prioridad));
+        tablaSolicitudes.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tablaSolicitudes.setPrefHeight(260);
 
-        JPanel panelDatos = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
-        panelDatos.add(new JLabel("Fecha (aaaa-mm-dd):"));
-        panelDatos.add(campoFecha);
-        panelDatos.add(new JLabel("Hora (hh:mm):"));
-        panelDatos.add(campoHora);
-        panelDatos.add(new JLabel("Sala:"));
-        panelDatos.add(campoSala);
-        panelDatos.add(botonAsignar);
-        panelDatos.add(botonRecargar);
+        campoHora.setPromptText("09:30");
+        campoHora.setPrefColumnCount(5);
+        campoSala.setPromptText("SALA-RX-1");
+        botonAsignar.setDefaultButton(true);
 
-        add(new JScrollPane(tablaSolicitudes), BorderLayout.CENTER);
-        add(panelDatos, BorderLayout.SOUTH);
+        HBox datos = new HBox(10, new Label("Fecha:"), campoFecha, new Label("Hora:"), campoHora,
+                new Label("Sala:"), campoSala, botonAsignar, botonRecargar);
+        datos.setPadding(new Insets(10, 0, 0, 0));
+        datos.setAlignment(Pos.CENTER_LEFT);
+        // Que ninguna etiqueta ni botón se recorte ("Fec...") aunque la ventana sea estrecha.
+        datos.getChildren().forEach(nodo -> ((Region) nodo).setMinWidth(Region.USE_PREF_SIZE));
+
+        setCenter(tablaSolicitudes);
+        setBottom(datos);
     }
 
     /** El controlador se engancha aquí a los botones (la vista no lo conoce). */
     public void alPulsarAsignar(Runnable accion) {
-        botonAsignar.addActionListener(evento -> accion.run());
+        botonAsignar.setOnAction(evento -> accion.run());
     }
 
     public void alPulsarRecargar(Runnable accion) {
-        botonRecargar.addActionListener(evento -> accion.run());
+        botonRecargar.setOnAction(evento -> accion.run());
     }
 
     @Override
     public void mostrarSolicitudes(List<SolicitudPendiente> solicitudes) {
-        modeloTabla.setRowCount(0);
-        for (SolicitudPendiente s : solicitudes) {
-            modeloTabla.addRow(new Object[] {s.id(), s.dniPaciente(), s.tipoPrueba(), s.prioridad()});
-        }
+        tablaSolicitudes.getItems().setAll(solicitudes);
     }
 
+    /** @return los datos introducidos, o null si falta la solicitud o la fecha, o la hora está mal escrita */
     @Override
     public DatosAsignacionCita obtenerDatos() {
-        int fila = tablaSolicitudes.getSelectedRow();
-        if (fila < 0) {
+        SolicitudPendiente solicitud = tablaSolicitudes.getSelectionModel().getSelectedItem();
+        LocalDate fecha = campoFecha.getValue();
+        if (solicitud == null || fecha == null) {
             return null;
         }
         try {
-            LocalDateTime fechaHora = LocalDateTime.of(
-                    LocalDate.parse(campoFecha.getText().trim()),
-                    LocalTime.parse(campoHora.getText().trim()));
-            String idSolicitud = (String) modeloTabla.getValueAt(fila, 0);
-            return new DatosAsignacionCita(idSolicitud, fechaHora, campoSala.getText().trim());
+            LocalTime hora = LocalTime.parse(campoHora.getText().trim());
+            return new DatosAsignacionCita(solicitud.id(), fecha.atTime(hora), campoSala.getText().trim());
         } catch (DateTimeParseException e) {
             return null;
         }
@@ -102,11 +98,25 @@ public class VentanaAsignarCita extends JFrame implements VistaAsignarCita {
 
     @Override
     public void mostrarExito(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, "Cita asignada", JOptionPane.INFORMATION_MESSAGE);
+        mostrarDialogo(Alert.AlertType.INFORMATION, "Cita asignada", mensaje);
     }
 
     @Override
     public void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, "No se pudo asignar", JOptionPane.ERROR_MESSAGE);
+        mostrarDialogo(Alert.AlertType.ERROR, "No se pudo asignar la cita", mensaje);
+    }
+
+    private static TableColumn<SolicitudPendiente, String> columna(
+            String titulo, Function<SolicitudPendiente, String> valor) {
+        TableColumn<SolicitudPendiente, String> columna = new TableColumn<>(titulo);
+        columna.setCellValueFactory(celda -> new ReadOnlyStringWrapper(valor.apply(celda.getValue())));
+        return columna;
+    }
+
+    private void mostrarDialogo(Alert.AlertType tipo, String titulo, String mensaje) {
+        Alert alerta = new Alert(tipo, mensaje);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(null);
+        alerta.showAndWait();
     }
 }
