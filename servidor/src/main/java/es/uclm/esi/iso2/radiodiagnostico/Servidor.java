@@ -18,6 +18,8 @@ import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasInforme;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasPacientes;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorSolicitudSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasSolicitudSeguimiento;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioImagenesImpl;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioInforme;
@@ -28,6 +30,10 @@ import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioMySql;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ServicioPacientes;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ServicioPacientesImpl;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.CatalogoTiposPruebaSimulado;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.RegistroMedicosSimulado;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ServicioSolicitudSeguimientoImpl;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.SolicitudSeguimientoRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.sistemasexternos.HistorialClinicoSimulado;
 import es.uclm.esi.iso2.radiodiagnostico.solicitud.SolicitudRepositorioEnMemoria;
 import io.javalin.Javalin;
@@ -63,7 +69,13 @@ public final class Servidor {
                         new ServicioInformeImpl(
                                 new HistorialClinicoSimulado()))),
 
-                new RutasCitas(new ControladorCitas(servicioCitas()))
+                new RutasCitas(new ControladorCitas(servicioCitas())),
+
+                new RutasSolicitudSeguimiento(new ControladorSolicitudSeguimiento(
+                        new ServicioSolicitudSeguimientoImpl(
+                                new SolicitudSeguimientoRepositorioEnMemoria(),
+                                new CatalogoTiposPruebaSimulado(),
+                                new RegistroMedicosSimulado())))
         ).start(puerto());
     }
 
