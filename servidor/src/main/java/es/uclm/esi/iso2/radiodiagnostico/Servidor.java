@@ -12,17 +12,24 @@ import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioCitasImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorInforme;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorNotificaciones;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorPacientes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.Rutas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasInforme;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasNotificaciones;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasPacientes;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioImagenesImpl;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioInforme;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioInformeImpl;
 import es.uclm.esi.iso2.radiodiagnostico.informe.SistemaPacsSimulado;
+import es.uclm.esi.iso2.radiodiagnostico.notificacion.NotificacionRepositorio;
+import es.uclm.esi.iso2.radiodiagnostico.notificacion.NotificacionRepositorioEnMemoria;
+import es.uclm.esi.iso2.radiodiagnostico.notificacion.NotificacionRepositorioMySql;
+import es.uclm.esi.iso2.radiodiagnostico.notificacion.PasarelaNotificacionesSimulada;
+import es.uclm.esi.iso2.radiodiagnostico.notificacion.ServicioNotificacionesImpl;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorio;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioMySql;
@@ -50,9 +57,11 @@ public final class Servidor {
     }
 
     public static void main(String[] args) {
+        // Un único repositorio de pacientes: los que se dan de alta (CdU22) son los que se notifican (CdU5).
+        PacienteRepositorio pacientes = repositorioPacientes();
         crear(
                 new RutasPacientes(new ControladorPacientes(
-                        new ServicioPacientesImpl(repositorioPacientes()))),
+                        new ServicioPacientesImpl(pacientes))),
 
                 new RutasImagenes(new ControladorImagenes(
                         new ServicioImagenesImpl(
@@ -63,7 +72,13 @@ public final class Servidor {
                         new ServicioInformeImpl(
                                 new HistorialClinicoSimulado()))),
 
-                new RutasCitas(new ControladorCitas(servicioCitas()))
+                new RutasCitas(new ControladorCitas(servicioCitas())),
+
+                new RutasNotificaciones(new ControladorNotificaciones(
+                        new ServicioNotificacionesImpl(
+                                pacientes,
+                                repositorioNotificaciones(),
+                                new PasarelaNotificacionesSimulada())))
         ).start(puerto());
     }
 
@@ -157,6 +172,20 @@ public final class Servidor {
         }
 
         return new PacienteRepositorioMySql();
+    }
+
+    /** CdU5: las notificaciones van a MySQL (D-010) si está configurado. */
+    private static NotificacionRepositorio repositorioNotificaciones() {
+        String url = System.getenv("MYSQL_URL");
+
+        if (url == null || url.isBlank()) {
+            System.err.println(
+                    "MYSQL_URL no está definida: las notificaciones se guardarán en memoria."
+            );
+            return new NotificacionRepositorioEnMemoria();
+        }
+
+        return new NotificacionRepositorioMySql();
     }
 
     private static int puerto() {

@@ -18,3 +18,16 @@ CREATE TABLE IF NOT EXISTS cita (
     CONSTRAINT fk_cita_paciente
         FOREIGN KEY (dni_paciente) REFERENCES paciente(dni)
 );
+
+-- CdU5 Notificar (también CdU6 y CdU7, con otro tipo)
+CREATE TABLE IF NOT EXISTS notificacion (
+    id VARCHAR(20) NOT NULL PRIMARY KEY,
+    dni_paciente VARCHAR(255) NOT NULL,
+    tipo VARCHAR(20) NOT NULL,
+    canal VARCHAR(20) NOT NULL,
+    destino VARCHAR(255) NOT NULL,
+    asunto VARCHAR(100) NOT NULL,
+    mensaje VARCHAR(500) NOT NULL,
+    fecha_envio DATETIME(6) NOT NULL,
+    INDEX idx_notificacion_paciente (dni_paciente)
+);
