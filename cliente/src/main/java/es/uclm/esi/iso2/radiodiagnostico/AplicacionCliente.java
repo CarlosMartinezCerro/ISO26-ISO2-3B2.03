@@ -9,13 +9,17 @@ import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarCitasIm
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagenImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearInformeImpl;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorNotificar;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorNotificarImpl;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteImagenesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteInformesHttp;
+import es.uclm.esi.iso2.radiodiagnostico.notificacion.ClienteNotificacionesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ClientePacientesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConsultarCitas;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearInforme;
+import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaNotificar;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
@@ -48,7 +52,9 @@ public class AplicacionCliente extends Application {
                 botonMenu("CdU · Crear informe",
                         () -> abrirCrearInforme(url)),
                 botonMenu("CU1 · Consultar citas",
-                        () -> abrirConsultarCitas(url)));
+                        () -> abrirConsultarCitas(url)),
+                botonMenu("CdU5 · Notificar",
+                        () -> abrirNotificar(url)));
 
         menu.setPadding(new Insets(16));
 
@@ -112,6 +118,20 @@ public class AplicacionCliente extends Application {
         vista.alPulsarConsultar(controlador::consultarCitas);
 
         abrir("Radiodiagnóstico - Consultar citas", vista);
+    }
+
+    private static void abrirNotificar(String url) {
+        VentanaNotificar vista = new VentanaNotificar();
+
+        ControladorNotificar controlador =
+                new ControladorNotificarImpl(
+                        vista,
+                        new ClienteNotificacionesHttp(url));
+
+        vista.alPulsarEnviar(controlador::notificar);
+        vista.alPulsarHistorial(controlador::verHistorial);
+
+        abrir(VentanaNotificar.TITULO, vista);
     }
 
     private static Button botonMenu(String texto, Runnable accion) {
