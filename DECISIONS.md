@@ -118,3 +118,22 @@ Fecha: 18/11 · It. 0 · Acta:5   · Issue:
 - El cliente no accederá directamente a la base de datos.
 
  
+
+---
+
+## D-011 · Reutilización del bloque prueba del CdU13 en el CdU11
+Fecha: 22/11 · It. 2 · Acta:   · Issue: CU11
+
+**Contexto:** el CdU11 (consultar prueba de seguimiento periódica) consulta las mismas pruebas de seguimiento que crea el CdU13 (solicitar prueba de seguimiento periódica). Además valida el DNI igual que el CdU10 (consultar historial de pruebas).
+
+**Decisión:**
+- El CdU11 no crea entidades ni repositorios nuevos: reutiliza las clases del paquete `prueba` del CdU13 (`SolicitudSeguimiento`, `PeriodicidadSeguimiento`, `RepeticionSeguimiento`) y llama a `ServicioSolicitudSeguimiento.buscarPorPaciente()`.
+- Solo añade un resumen para la consulta (`SeguimientoPeriodico`), su servicio (`ServicioConsultaSeguimiento`), su controlador y la ruta `GET /seguimientos`, que comparte ruta con el `POST /seguimientos` del CdU13.
+- Reutiliza del CdU10 la excepción `DniPacienteInvalidoException` (servidor), la `ErrorComunicacionException` del paquete `informe` y el mensaje de sin conexión del controlador del historial (cliente).
+- En `Servidor.main` el CdU11 y el CdU13 comparten la misma instancia de `ServicioSolicitudSeguimiento`, para que lo que se solicita aparezca en la consulta.
+
+**Alternativas:** un repositorio propio de seguimientos para el CdU11 (descartada: duplicaba datos y no vería lo creado en el CdU13); añadir el GET dentro de `RutasSolicitudSeguimiento` (descartada: mezclaba dos casos de uso en una clase y provocaba conflictos al integrar).
+
+**Consecuencias:**
+- La rama del CdU11 parte de la del CdU13 y debe integrarse en `develop` después de ella.
+- Si el CdU13 cambia `SolicitudSeguimiento` o `ServicioSolicitudSeguimiento`, hay que revisar `ServicioConsultaSeguimientoImpl`.

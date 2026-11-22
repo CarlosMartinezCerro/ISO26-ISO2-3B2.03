@@ -20,6 +20,8 @@ import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasInforme;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasPacientes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorSolicitudSeguimiento;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasSolicitudSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultaSeguimientos;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasConsultaSeguimientos;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioImagenesImpl;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioInforme;
@@ -32,6 +34,8 @@ import es.uclm.esi.iso2.radiodiagnostico.paciente.ServicioPacientes;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ServicioPacientesImpl;
 import es.uclm.esi.iso2.radiodiagnostico.prueba.CatalogoTiposPruebaSimulado;
 import es.uclm.esi.iso2.radiodiagnostico.prueba.RegistroMedicosSimulado;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ServicioConsultaSeguimientoImpl;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ServicioSolicitudSeguimiento;
 import es.uclm.esi.iso2.radiodiagnostico.prueba.ServicioSolicitudSeguimientoImpl;
 import es.uclm.esi.iso2.radiodiagnostico.prueba.SolicitudSeguimientoRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.sistemasexternos.HistorialClinicoSimulado;
@@ -56,6 +60,8 @@ public final class Servidor {
     }
 
     public static void main(String[] args) {
+        ServicioSolicitudSeguimiento seguimientos = servicioSeguimientos();
+
         crear(
                 new RutasPacientes(new ControladorPacientes(
                         new ServicioPacientesImpl(repositorioPacientes()))),
@@ -71,12 +77,22 @@ public final class Servidor {
 
                 new RutasCitas(new ControladorCitas(servicioCitas())),
 
-                new RutasSolicitudSeguimiento(new ControladorSolicitudSeguimiento(
-                        new ServicioSolicitudSeguimientoImpl(
-                                new SolicitudSeguimientoRepositorioEnMemoria(),
-                                new CatalogoTiposPruebaSimulado(),
-                                new RegistroMedicosSimulado())))
+                new RutasSolicitudSeguimiento(new ControladorSolicitudSeguimiento(seguimientos)),
+
+                new RutasConsultaSeguimientos(new ControladorConsultaSeguimientos(
+                        new ServicioConsultaSeguimientoImpl(seguimientos)))
         ).start(puerto());
+    }
+
+    /**
+     * Servicio de seguimientos del CdU13. El CdU11 consulta esta misma instancia: si cada caso de
+     * uso creara la suya, las solicitudes registradas no aparecerían en la consulta.
+     */
+    private static ServicioSolicitudSeguimiento servicioSeguimientos() {
+        return new ServicioSolicitudSeguimientoImpl(
+                new SolicitudSeguimientoRepositorioEnMemoria(),
+                new CatalogoTiposPruebaSimulado(),
+                new RegistroMedicosSimulado());
     }
 
     /**
