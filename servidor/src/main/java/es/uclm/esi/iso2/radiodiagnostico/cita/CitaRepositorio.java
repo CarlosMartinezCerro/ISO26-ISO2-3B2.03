@@ -1,6 +1,8 @@
+
 package es.uclm.esi.iso2.radiodiagnostico.cita;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface CitaRepositorio {
@@ -15,4 +17,6 @@ public interface CitaRepositorio {
     void actualizar(Cita cita);
 
     boolean existeCitaEn(String sala, LocalDateTime fechaHora);
+
+    List<Cita> buscarPorDniPaciente(String dniPaciente);
 }
