@@ -6,14 +6,18 @@ import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPacienteImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarCitasImpl;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarSeguimientos;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarSeguimientosImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagenImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearInformeImpl;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteImagenesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteInformesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ClientePacientesHttp;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ClienteSeguimientosHttp;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConsultarCitas;
+import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConsultarSeguimientos;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearInforme;
 import javafx.application.Application;
@@ -48,7 +52,9 @@ public class AplicacionCliente extends Application {
                 botonMenu("CdU · Crear informe",
                         () -> abrirCrearInforme(url)),
                 botonMenu("CU1 · Consultar citas",
-                        () -> abrirConsultarCitas(url)));
+                        () -> abrirConsultarCitas(url)),
+                botonMenu("CdU11 · Consultar pruebas de seguimiento",
+                        () -> abrirConsultarSeguimientos(url)));
 
         menu.setPadding(new Insets(16));
 
@@ -112,6 +118,19 @@ public class AplicacionCliente extends Application {
         vista.alPulsarConsultar(controlador::consultarCitas);
 
         abrir("Radiodiagnóstico - Consultar citas", vista);
+    }
+
+    private static void abrirConsultarSeguimientos(String url) {
+        VentanaConsultarSeguimientos vista = new VentanaConsultarSeguimientos();
+
+        ControladorConsultarSeguimientos controlador =
+                new ControladorConsultarSeguimientosImpl(
+                        vista,
+                        new ClienteSeguimientosHttp(url));
+
+        vista.alPulsarConsultar(controlador::consultarSeguimientos);
+
+        abrir(VentanaConsultarSeguimientos.TITULO, vista);
     }
 
     private static Button botonMenu(String texto, Runnable accion) {
