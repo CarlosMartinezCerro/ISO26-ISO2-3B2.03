@@ -39,6 +39,15 @@ class RutasCitasErrorTest {
             }
 
             @Override
+            public Optional<Cita> buscarPorId(String id) {
+                return Optional.empty();
+            }
+
+            @Override
+            public void actualizar(Cita cita) {
+            }
+
+            @Override
             public boolean existeCitaEn(
                     String sala, LocalDateTime fechaHora) {
                 return false;

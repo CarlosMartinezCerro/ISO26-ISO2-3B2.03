@@ -118,5 +118,47 @@ class CitaRepositorioMySqlTest {
         verify(statement).setString(7, "ASIGNADA");
         verify(statement).executeUpdate();
     }
-}
 
+    @Test
+    void buscarPorIdDevuelveLaCita() throws Exception {
+        LocalDateTime fecha = LocalDateTime.of(2026, 12, 1, 10, 0);
+
+        when(resultado.next()).thenReturn(true);
+        when(resultado.getString("id")).thenReturn("CITA-1");
+        when(resultado.getString("id_solicitud")).thenReturn("SOL-1");
+        when(resultado.getString("dni_paciente")).thenReturn("12345678A");
+        when(resultado.getString("tipo_prueba")).thenReturn("Radiografía");
+        when(resultado.getTimestamp("fecha_hora")).thenReturn(Timestamp.valueOf(fecha));
+        when(resultado.getString("sala")).thenReturn("SALA-RX-1");
+        when(resultado.getString("estado")).thenReturn("CONFIRMADA");
+
+        var cita = repositorio.buscarPorId("CITA-1");
+
+        assertTrue(cita.isPresent());
+        assertEquals(EstadoCita.CONFIRMADA, cita.get().estado());
+
+        verify(statement).setString(1, "CITA-1");
+    }
+
+    @Test
+    void buscarPorIdInexistenteDevuelveVacio() throws Exception {
+        when(resultado.next()).thenReturn(false);
+
+        assertTrue(repositorio.buscarPorId("CITA-999").isEmpty());
+    }
+
+    @Test
+    void actualizarGuardaElNuevoEstadoDeLaCita() throws Exception {
+        LocalDateTime fecha = LocalDateTime.of(2026, 12, 1, 10, 0);
+        Cita confirmada = new Cita("CITA-1", "SOL-1", "12345678A", "Radiografía",
+                fecha, "SALA-RX-1", EstadoCita.CONFIRMADA);
+
+        when(statement.executeUpdate()).thenReturn(1);
+
+        repositorio.actualizar(confirmada);
+
+        verify(statement).setString(6, "CONFIRMADA");
+        verify(statement).setString(7, "CITA-1");
+        verify(statement).executeUpdate();
+    }
+}

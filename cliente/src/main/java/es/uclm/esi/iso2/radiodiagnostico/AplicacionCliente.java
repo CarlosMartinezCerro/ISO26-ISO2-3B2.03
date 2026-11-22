@@ -2,8 +2,11 @@
 package es.uclm.esi.iso2.radiodiagnostico;
 
 import es.uclm.esi.iso2.radiodiagnostico.cita.ClienteCitasHttp;
+import es.uclm.esi.iso2.radiodiagnostico.cita.ClienteConfirmacionCitasHttp;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPacienteImpl;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConfirmarCita;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConfirmarCitaImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarCitasImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagen;
@@ -13,6 +16,7 @@ import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteImagenesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteInformesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ClientePacientesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAltaPaciente;
+import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConfirmarCita;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConsultarCitas;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearInforme;
@@ -48,7 +52,9 @@ public class AplicacionCliente extends Application {
                 botonMenu("CdU · Crear informe",
                         () -> abrirCrearInforme(url)),
                 botonMenu("CU1 · Consultar citas",
-                        () -> abrirConsultarCitas(url)));
+                        () -> abrirConsultarCitas(url)),
+                botonMenu("CdU2 · Confirmar cita",
+                        () -> abrirConfirmarCita(url)));
 
         menu.setPadding(new Insets(16));
 
@@ -112,6 +118,19 @@ public class AplicacionCliente extends Application {
         vista.alPulsarConsultar(controlador::consultarCitas);
 
         abrir("Radiodiagnóstico - Consultar citas", vista);
+    }
+
+    private static void abrirConfirmarCita(String url) {
+        VentanaConfirmarCita vista = new VentanaConfirmarCita();
+
+        ControladorConfirmarCita controlador =
+                new ControladorConfirmarCitaImpl(
+                        vista,
+                        new ClienteConfirmacionCitasHttp(url));
+
+        vista.alPulsarConfirmar(controlador::confirmarCita);
+
+        abrir(VentanaConfirmarCita.TITULO, vista);
     }
 
     private static Button botonMenu(String texto, Runnable accion) {

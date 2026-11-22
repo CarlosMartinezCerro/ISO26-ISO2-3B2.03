@@ -9,12 +9,15 @@ import es.uclm.esi.iso2.radiodiagnostico.cita.CitaRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.cita.CitaRepositorioMySql;
 import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioCitas;
 import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioCitasImpl;
+import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioConfirmacionCitasImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCitas;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConfirmacionCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorInforme;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorPacientes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.Rutas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasCitas;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasConfirmacionCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasInforme;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasPacientes;
@@ -50,6 +53,10 @@ public final class Servidor {
     }
 
     public static void main(String[] args) {
+        // Un único repositorio de citas para todos los casos de uso de citas
+        // (CdU1 consultar, CdU25 asignar, CdU2 confirmar...), para que vean las mismas citas.
+        CitaRepositorio citas = repositorioCitas();
+
         crear(
                 new RutasPacientes(new ControladorPacientes(
                         new ServicioPacientesImpl(repositorioPacientes()))),
@@ -63,7 +70,10 @@ public final class Servidor {
                         new ServicioInformeImpl(
                                 new HistorialClinicoSimulado()))),
 
-                new RutasCitas(new ControladorCitas(servicioCitas()))
+                new RutasCitas(new ControladorCitas(servicioCitas(citas))),
+
+                new RutasConfirmacionCitas(new ControladorConfirmacionCitas(
+                        new ServicioConfirmacionCitasImpl(citas)))
         ).start(puerto());
     }
 
@@ -126,10 +136,10 @@ public final class Servidor {
         return app;
     }
 
-    private static ServicioCitas servicioCitas() {
+    private static ServicioCitas servicioCitas(CitaRepositorio citas) {
         return new ServicioCitasImpl(
                 new SolicitudRepositorioEnMemoria(),
-                repositorioCitas()
+                citas
         );
     }
 
