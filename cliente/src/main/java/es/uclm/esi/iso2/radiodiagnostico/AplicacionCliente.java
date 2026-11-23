@@ -16,10 +16,13 @@ import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarImagenI
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagenImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearInformeImpl;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorSolicitarSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorSolicitarSeguimientoImpl;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteConsultaImagenesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteImagenesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteInformesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ClientePacientesHttp;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ClienteSeguimientosHttp;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAsignarCita;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConfirmarCita;
@@ -27,6 +30,7 @@ import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConsultarCitas;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConsultarImagen;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearInforme;
+import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaSolicitarSeguimiento;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
@@ -65,6 +69,8 @@ public class AplicacionCliente extends Application {
                         () -> abrirCrearInforme(url)),
                 botonMenu("CU1 · Consultar citas",
                         () -> abrirConsultarCitas(url)),
+                botonMenu("CdU13 · Solicitar prueba de seguimiento",
+                        () -> abrirSolicitarSeguimiento(url)),
                 botonMenu("CdU2 · Confirmar cita",
                         () -> abrirConfirmarCita(url)),
                 botonMenu("CdU25 · Asignar cita solicitada",
@@ -153,6 +159,19 @@ public class AplicacionCliente extends Application {
         abrir("Radiodiagnóstico - Consultar citas", vista);
     }
 
+    private static void abrirSolicitarSeguimiento(String url) {
+        VentanaSolicitarSeguimiento vista = new VentanaSolicitarSeguimiento();
+
+        ControladorSolicitarSeguimiento controlador =
+                new ControladorSolicitarSeguimientoImpl(
+                        vista,
+                        new ClienteSeguimientosHttp(url));
+
+        vista.alPulsarSolicitar(controlador::solicitar);
+
+        abrir(VentanaSolicitarSeguimiento.TITULO, vista);
+    }
+  
     private static void abrirConfirmarCita(String url) {
         VentanaConfirmarCita vista = new VentanaConfirmarCita();
 

@@ -21,6 +21,8 @@ import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasConfirmacionCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasInforme;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasPacientes;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorSolicitudSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasSolicitudSeguimiento;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorio;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioMySql;
@@ -33,6 +35,10 @@ import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioMySql;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ServicioPacientes;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ServicioPacientesImpl;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.CatalogoTiposPruebaSimulado;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.RegistroMedicosSimulado;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ServicioSolicitudSeguimientoImpl;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.SolicitudSeguimientoRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.sistemasexternos.HistorialClinicoSimulado;
 import es.uclm.esi.iso2.radiodiagnostico.solicitud.EstadoSolicitud;
 import es.uclm.esi.iso2.radiodiagnostico.solicitud.PrioridadSolicitud;
@@ -86,6 +92,14 @@ public final class Servidor {
                         new ServicioInformeImpl(
                                 new HistorialClinicoSimulado()))),
 
+
+
+                new RutasSolicitudSeguimiento(new ControladorSolicitudSeguimiento(
+                        new ServicioSolicitudSeguimientoImpl(
+                                new SolicitudSeguimientoRepositorioEnMemoria(),
+                                new CatalogoTiposPruebaSimulado(),
+                                new RegistroMedicosSimulado()))),
+          
                 new RutasCitas(new ControladorCitas(servicioCitas(citas))),
 
                 new RutasConfirmacionCitas(new ControladorConfirmacionCitas(
