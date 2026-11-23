@@ -9,13 +9,17 @@ import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarCitasIm
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagenImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearInformeImpl;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorSolicitarSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorSolicitarSeguimientoImpl;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteImagenesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteInformesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ClientePacientesHttp;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ClienteSeguimientosHttp;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConsultarCitas;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearInforme;
+import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaSolicitarSeguimiento;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
@@ -48,7 +52,9 @@ public class AplicacionCliente extends Application {
                 botonMenu("CdU · Crear informe",
                         () -> abrirCrearInforme(url)),
                 botonMenu("CU1 · Consultar citas",
-                        () -> abrirConsultarCitas(url)));
+                        () -> abrirConsultarCitas(url)),
+                botonMenu("CdU13 · Solicitar prueba de seguimiento",
+                        () -> abrirSolicitarSeguimiento(url)));
 
         menu.setPadding(new Insets(16));
 
@@ -112,6 +118,19 @@ public class AplicacionCliente extends Application {
         vista.alPulsarConsultar(controlador::consultarCitas);
 
         abrir("Radiodiagnóstico - Consultar citas", vista);
+    }
+
+    private static void abrirSolicitarSeguimiento(String url) {
+        VentanaSolicitarSeguimiento vista = new VentanaSolicitarSeguimiento();
+
+        ControladorSolicitarSeguimiento controlador =
+                new ControladorSolicitarSeguimientoImpl(
+                        vista,
+                        new ClienteSeguimientosHttp(url));
+
+        vista.alPulsarSolicitar(controlador::solicitar);
+
+        abrir(VentanaSolicitarSeguimiento.TITULO, vista);
     }
 
     private static Button botonMenu(String texto, Runnable accion) {
