@@ -28,6 +28,9 @@ public class ControladorCitas {
     public List<SolicitudPrueba> solicitudesPendientes() {
         return servicio.listarSolicitudesPendientes();
     }
+    public List<Cita> consultarCitas(String dniPaciente) {
+        return servicio.buscarCitasPorPaciente(dniPaciente);
+    }
 
     public ResultadoAsignacion asignarCita(DatosAsignacionCita datos) {
         try {

@@ -1,78 +1,85 @@
 package es.uclm.esi.iso2.radiodiagnostico.vista;
 
 import es.uclm.esi.iso2.radiodiagnostico.informe.DatosImagen;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
 
-/** Vista de escritorio (Swing) del CdU17. No contiene lógica: todo lo decide el controlador. */
-public class VentanaCrearImagen extends JFrame implements VistaCrearImagen {
+/** Vista de escritorio (JavaFX, D-008) del CdU17. No contiene lógica: todo lo decide el controlador. */
+public class VentanaCrearImagen extends GridPane implements VistaCrearImagen {
 
-    private static final long serialVersionUID = 1L;
-    private static final String SIN_FICHERO = "Ningún fichero seleccionado";
+    public static final String TITULO = "Radiodiagnóstico - CdU17: Crear imagen";
+    static final String SIN_FICHERO = "Ningún fichero seleccionado";
 
-    private final JTextField campoInforme = new JTextField(12);
-    private final JTextField campoPaciente = new JTextField(12);
-    private final JTextField campoMedico = new JTextField(12);
-    private final JComboBox<String> comboTipoPrueba = new JComboBox<>(new String[] {
-        "Radiografía", "Ecografía", "Mamografía", "TAC", "Resonancia magnética"});
-    private final JLabel etiquetaFichero = new JLabel(SIN_FICHERO);
-    private final JButton botonSeleccionar = new JButton("Seleccionar imagen...");
-    private final JButton botonCrear = new JButton("Crear imagen");
+    private final TextField campoInforme = new TextField();
+    private final TextField campoPaciente = new TextField();
+    private final TextField campoMedico = new TextField();
+    private final ComboBox<String> comboTipoPrueba = new ComboBox<>();
+    private final Label etiquetaFichero = new Label(SIN_FICHERO);
+    private final Button botonSeleccionar = new Button("Seleccionar imagen...");
+    private final Button botonCrear = new Button("Crear imagen");
     private Path ficheroSeleccionado;
 
     public VentanaCrearImagen() {
-        super("Radiodiagnóstico - CdU17: Crear imagen");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(520, 300);
-        setLocationRelativeTo(null);
-        setLayout(new BorderLayout(10, 10));
+        setPadding(new Insets(16));
+        setHgap(10);
+        setVgap(10);
 
-        JPanel formulario = new JPanel(new GridLayout(0, 2, 8, 8));
-        formulario.setBorder(BorderFactory.createEmptyBorder(15, 15, 0, 15));
-        formulario.add(new JLabel("Informe:"));
-        formulario.add(campoInforme);
-        formulario.add(new JLabel("DNI paciente:"));
-        formulario.add(campoPaciente);
-        formulario.add(new JLabel("Médico:"));
-        formulario.add(campoMedico);
-        formulario.add(new JLabel("Tipo de prueba:"));
-        formulario.add(comboTipoPrueba);
-        formulario.add(botonSeleccionar);
-        formulario.add(etiquetaFichero);
+        campoInforme.setId("campoInforme");
+        campoPaciente.setId("campoPaciente");
+        campoMedico.setId("campoMedico");
+        comboTipoPrueba.setId("comboTipoPrueba");
+        etiquetaFichero.setId("etiquetaFichero");
+        botonSeleccionar.setId("botonSeleccionar");
+        botonCrear.setId("botonCrear");
 
-        JPanel botones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        botones.add(botonCrear);
+        campoInforme.setPromptText("INF-001");
+        campoPaciente.setPromptText("12345678Z");
+        campoMedico.setPromptText("MED-001");
+        comboTipoPrueba.getItems().addAll(
+                "Radiografía", "Ecografía", "Mamografía", "TAC", "Resonancia magnética");
+        comboTipoPrueba.getSelectionModel().selectFirst();
 
-        add(formulario, BorderLayout.CENTER);
-        add(botones, BorderLayout.SOUTH);
+        addRow(0, new Label("Informe:"), campoInforme);
+        addRow(1, new Label("DNI paciente:"), campoPaciente);
+        addRow(2, new Label("Médico:"), campoMedico);
+        addRow(3, new Label("Tipo de prueba:"), comboTipoPrueba);
+        addRow(4, botonSeleccionar, etiquetaFichero);
+        add(botonCrear, 1, 5);
+        botonCrear.setDefaultButton(true);
 
-        botonSeleccionar.addActionListener(evento -> seleccionarFichero());
+        botonSeleccionar.setOnAction(evento -> elegirFichero());
     }
 
     /** El controlador se engancha aquí al botón (la vista no lo conoce). */
     public void alPulsarCrear(Runnable accion) {
-        botonCrear.addActionListener(evento -> accion.run());
+        botonCrear.setOnAction(evento -> accion.run());
     }
 
-    private void seleccionarFichero() {
-        JFileChooser selector = new JFileChooser();
-        if (selector.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            ficheroSeleccionado = selector.getSelectedFile().toPath();
-            etiquetaFichero.setText(ficheroSeleccionado.getFileName().toString());
+    private void elegirFichero() {
+        FileChooser selector = new FileChooser();
+        selector.setTitle("Seleccionar imagen médica");
+        selector.getExtensionFilters().add(new FileChooser.ExtensionFilter(
+                "Imágenes médicas (*.dcm, *.png, *.jpg, *.jpeg)", "*.dcm", "*.png", "*.jpg", "*.jpeg"));
+        File fichero = selector.showOpenDialog(getScene() == null ? null : getScene().getWindow());
+        if (fichero != null) {
+            seleccionarFichero(fichero.toPath());
         }
+    }
+
+    /** Separado del diálogo para poder probarlo sin abrir el selector de ficheros. */
+    void seleccionarFichero(Path fichero) {
+        ficheroSeleccionado = fichero;
+        etiquetaFichero.setText(fichero.getFileName().toString());
     }
 
     @Override
@@ -85,7 +92,7 @@ public class VentanaCrearImagen extends JFrame implements VistaCrearImagen {
                     campoInforme.getText().trim(),
                     campoPaciente.getText().trim(),
                     campoMedico.getText().trim(),
-                    (String) comboTipoPrueba.getSelectedItem(),
+                    comboTipoPrueba.getValue(),
                     ficheroSeleccionado.getFileName().toString(),
                     Files.readAllBytes(ficheroSeleccionado));
         } catch (IOException e) {
@@ -95,21 +102,29 @@ public class VentanaCrearImagen extends JFrame implements VistaCrearImagen {
 
     @Override
     public void mostrarExito(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, "Imagen creada", JOptionPane.INFORMATION_MESSAGE);
+        mostrarDialogo(Alert.AlertType.INFORMATION, "Imagen creada", mensaje);
     }
 
     @Override
     public void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, "No se pudo crear la imagen", JOptionPane.ERROR_MESSAGE);
+        mostrarDialogo(Alert.AlertType.ERROR, "No se pudo crear la imagen", mensaje);
     }
 
     @Override
     public void limpiar() {
-        campoInforme.setText("");
-        campoPaciente.setText("");
-        campoMedico.setText("");
-        comboTipoPrueba.setSelectedIndex(0);
+        campoInforme.clear();
+        campoPaciente.clear();
+        campoMedico.clear();
+        comboTipoPrueba.getSelectionModel().selectFirst();
         ficheroSeleccionado = null;
         etiquetaFichero.setText(SIN_FICHERO);
+        campoInforme.requestFocus();
+    }
+
+    private void mostrarDialogo(Alert.AlertType tipo, String titulo, String mensaje) {
+        Alert alerta = new Alert(tipo, mensaje);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(null);
+        alerta.showAndWait();
     }
 }
