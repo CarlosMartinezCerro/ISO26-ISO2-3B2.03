@@ -5,11 +5,12 @@ import java.util.List;
 
 /**
  * Prueba de seguimiento periódica recibida del servidor (CdU11). Tiene los mismos campos que el
- * JSON de GET /seguimientos. La prioridad y el estado llegan como texto para que el cliente no
- * dependa de los enumerados del servidor.
+ * JSON de GET /seguimientos. Reutiliza {@link PrioridadSeguimiento} y {@link RepeticionSeguimiento}
+ * del CdU13; el estado (EN_CURSO o FINALIZADO) llega como texto.
  */
 public record SeguimientoPeriodico(String idSolicitud, String dniPaciente, String dniMedico,
-                                   String tipoPrueba, String indicacionClinica, String prioridad,
+                                   String tipoPrueba, String indicacionClinica,
+                                   PrioridadSeguimiento prioridad,
                                    String periodicidad, LocalDate fechaInicio, LocalDate fechaFin,
                                    int repeticionesTotales, int repeticionesCitadas,
                                    LocalDate proximaFecha, String estado,

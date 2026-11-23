@@ -129,7 +129,8 @@ Fecha: 22/11 · It. 2 · Acta:   · Issue: CU11
 **Decisión:**
 - El CdU11 no crea entidades ni repositorios nuevos: reutiliza las clases del paquete `prueba` del CdU13 (`SolicitudSeguimiento`, `PeriodicidadSeguimiento`, `RepeticionSeguimiento`) y llama a `ServicioSolicitudSeguimiento.buscarPorPaciente()`.
 - Solo añade un resumen para la consulta (`SeguimientoPeriodico`), su servicio (`ServicioConsultaSeguimiento`), su controlador y la ruta `GET /seguimientos`, que comparte ruta con el `POST /seguimientos` del CdU13.
-- Reutiliza del CdU10 la excepción `DniPacienteInvalidoException` (servidor), la `ErrorComunicacionException` del paquete `informe` y el mensaje de sin conexión del controlador del historial (cliente).
+- En el cliente reutiliza del CdU13 `ClienteSeguimientosHttp` (se le añade el método `consultarSeguimientos`, GET), `RepeticionSeguimiento`, `PrioridadSeguimiento` y `ErrorComunicacionException` del paquete `prueba`. La consulta tiene su propia interfaz, `ClienteConsultaSeguimientos`, que `ClienteSeguimientosHttp` implementa junto a `ClienteSeguimientos`, para no obligar a los dobles de prueba del CdU13 a implementar la consulta.
+- Reutiliza del CdU10 la excepción `DniPacienteInvalidoException` (servidor) y el mensaje de sin conexión del controlador del historial (cliente).
 - En `Servidor.main` el CdU11 y el CdU13 comparten la misma instancia de `ServicioSolicitudSeguimiento`, para que lo que se solicita aparezca en la consulta.
 
 **Alternativas:** un repositorio propio de seguimientos para el CdU11 (descartada: duplicaba datos y no vería lo creado en el CdU13); añadir el GET dentro de `RutasSolicitudSeguimiento` (descartada: mezclaba dos casos de uso en una clase y provocaba conflictos al integrar).

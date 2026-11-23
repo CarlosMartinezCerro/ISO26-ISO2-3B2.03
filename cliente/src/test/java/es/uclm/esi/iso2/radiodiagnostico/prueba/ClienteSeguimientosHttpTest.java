@@ -2,11 +2,13 @@ package es.uclm.esi.iso2.radiodiagnostico.prueba;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpServer;
-import es.uclm.esi.iso2.radiodiagnostico.informe.ErrorComunicacionException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -17,26 +19,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/** Prueba el cliente HTTP del CdU11 contra un servidor falso del JDK que imita GET /seguimientos. */
+/** Prueba el cliente HTTP contra un servidor falso del JDK que imita la API del CdU13. */
 class ClienteSeguimientosHttpTest {
 
-    private static final String RESPUESTA_CON_SEGUIMIENTO = """
-            {"correcto":true,"mensaje":"Se ha encontrado 1 prueba de seguimiento periódica.",
-             "seguimientos":[{"idSolicitud":"SEG-1","dniPaciente":"12345678Z",
-               "dniMedico":"00000001R","tipoPrueba":"TAC","indicacionClinica":"Indicación ficticia",
-               "prioridad":"URGENTE","periodicidad":"Cada 2 semanas","fechaInicio":"2026-11-20",
-               "fechaFin":"2026-12-04","repeticionesTotales":2,"repeticionesCitadas":1,
-               "proximaFecha":"2026-12-04","estado":"EN_CURSO","campoNuevo":"se ignora",
-               "repeticiones":[
-                 {"id":"SEG-1-1","idSolicitudSeguimiento":"SEG-1","numero":1,
-                  "fechaPrevista":"2026-11-20","estado":"CITADA"},
-                 {"id":"SEG-1-2","idSolicitudSeguimiento":"SEG-1","numero":2,
-                  "fechaPrevista":"2026-12-04","estado":"PENDIENTE_CITA"}]}]}
-            """;
+    private static final DatosSolicitudSeguimiento CON_REPETICIONES = new DatosSolicitudSeguimiento(
+            "12345678Z", "00000001R", "Mamografía", "Cribado (caso ficticio)",
+            "Programa de cribado (caso ficticio)", PrioridadSeguimiento.PREFERENTE, 2,
+            UnidadPeriodicidad.SEMANAS, LocalDate.of(2026, 11, 20), 3, null);
 
     private HttpServer servidor;
+    private String cuerpoRecibido;
     private String metodoRecibido;
-    private String consultaRecibida;
     private int codigoRespuesta;
     private String cuerpoRespuesta;
 
@@ -45,7 +38,8 @@ class ClienteSeguimientosHttpTest {
         servidor = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
         servidor.createContext(ClienteSeguimientosHttp.RUTA_SEGUIMIENTOS, intercambio -> {
             metodoRecibido = intercambio.getRequestMethod();
-            consultaRecibida = intercambio.getRequestURI().getRawQuery();
+            cuerpoRecibido = new String(intercambio.getRequestBody().readAllBytes(),
+                    StandardCharsets.UTF_8);
             byte[] respuesta = cuerpoRespuesta.getBytes(StandardCharsets.UTF_8);
             intercambio.sendResponseHeaders(codigoRespuesta, respuesta.length);
             try (OutputStream salida = intercambio.getResponseBody()) {
@@ -61,90 +55,109 @@ class ClienteSeguimientosHttpTest {
     }
 
     @Test
-    void consultaPorDniYConvierteElJsonEnSeguimientos() {
-        codigoRespuesta = 200;
-        cuerpoRespuesta = RESPUESTA_CON_SEGUIMIENTO;
+    void enviaLosDatosEnJsonConElFormatoDelServidor() throws Exception {
+        codigoRespuesta = 201;
+        cuerpoRespuesta = "{\"correcto\":true,\"mensaje\":\"ok\",\"idSolicitud\":\"SEG-1\","
+                + "\"repeticiones\":[]}";
 
-        ResultadoConsultaSeguimientos resultado = cliente().consultarSeguimientos("12345678Z");
+        cliente().solicitar(CON_REPETICIONES);
 
-        assertEquals("GET", metodoRecibido);
-        assertEquals("dniPaciente=12345678Z", consultaRecibida);
+        assertEquals("POST", metodoRecibido);
+        JsonNode enviado = new ObjectMapper().readTree(cuerpoRecibido);
+        assertEquals("12345678Z", enviado.get("dniPaciente").asText());
+        assertEquals("00000001R", enviado.get("dniMedico").asText());
+        assertEquals("Mamografía", enviado.get("tipoPrueba").asText());
+        assertEquals("PREFERENTE", enviado.get("prioridad").asText());
+        assertEquals(2, enviado.get("cada").asInt());
+        assertEquals("SEMANAS", enviado.get("unidad").asText());
+        assertEquals("2026-11-20", enviado.get("fechaInicio").asText());
+        assertEquals(3, enviado.get("numeroRepeticiones").asInt());
+        assertTrue(enviado.get("fechaLimite").isNull());
+    }
+
+    @Test
+    void enviaLaFechaLimiteComoAaaaMmDd() throws Exception {
+        codigoRespuesta = 201;
+        cuerpoRespuesta = "{\"correcto\":true,\"mensaje\":\"ok\",\"idSolicitud\":\"SEG-1\","
+                + "\"repeticiones\":[]}";
+
+        cliente().solicitar(new DatosSolicitudSeguimiento("12345678Z", "00000001R", "TAC",
+                "Indicación ficticia", "Justificación ficticia", PrioridadSeguimiento.URGENTE, 1,
+                UnidadPeriodicidad.MESES, LocalDate.of(2026, 11, 20), null, LocalDate.of(2027, 5, 20)));
+
+        JsonNode enviado = new ObjectMapper().readTree(cuerpoRecibido);
+        assertTrue(enviado.get("numeroRepeticiones").isNull());
+        assertEquals("2027-05-20", enviado.get("fechaLimite").asText());
+    }
+
+    @Test
+    void convierteLaRespuestaCorrectaConSusRepeticiones() {
+        codigoRespuesta = 201;
+        cuerpoRespuesta = """
+                {"correcto":true,"mensaje":"Solicitud registrada con 2 solicitudes pendientes de cita.",
+                 "idSolicitud":"SEG-1","repeticiones":[
+                  {"id":"SEG-1-1","idSolicitudSeguimiento":"SEG-1","numero":1,
+                   "fechaPrevista":"2026-11-20","estado":"PENDIENTE_CITA"},
+                  {"id":"SEG-1-2","idSolicitudSeguimiento":"SEG-1","numero":2,
+                   "fechaPrevista":"2026-12-04","estado":"PENDIENTE_CITA"}]}
+                """;
+
+        ResultadoSolicitudSeguimiento resultado = cliente().solicitar(CON_REPETICIONES);
+
         assertTrue(resultado.correcto());
-        assertEquals(1, resultado.seguimientos().size());
-        SeguimientoPeriodico s = resultado.seguimientos().get(0);
-        assertEquals("TAC", s.tipoPrueba());
-        assertEquals("URGENTE", s.prioridad());
-        assertEquals("Cada 2 semanas", s.periodicidad());
-        assertEquals(LocalDate.of(2026, 12, 4), s.proximaFecha());
-        assertEquals(1, s.repeticionesCitadas());
+        assertEquals("SEG-1", resultado.idSolicitud());
         assertEquals(List.of(
-                new RepeticionSeguimiento("SEG-1-1", "SEG-1", 1, LocalDate.of(2026, 11, 20), "CITADA"),
+                new RepeticionSeguimiento("SEG-1-1", "SEG-1", 1, LocalDate.of(2026, 11, 20),
+                        "PENDIENTE_CITA"),
                 new RepeticionSeguimiento("SEG-1-2", "SEG-1", 2, LocalDate.of(2026, 12, 4),
-                        "PENDIENTE_CITA")), s.repeticiones());
+                        "PENDIENTE_CITA")), resultado.repeticiones());
     }
 
     @Test
-    void codificaElDniEnLaUrl() {
-        codigoRespuesta = 200;
-        cuerpoRespuesta = "{\"correcto\":true,\"mensaje\":\"\",\"seguimientos\":[]}";
-
-        cliente().consultarSeguimientos("12 34&x");
-
-        assertEquals("dniPaciente=12+34%26x", consultaRecibida);
-    }
-
-    @Test
-    void devuelveElRechazoDelServidorCon400() {
+    void devuelveElRechazoDelServidor() {
         codigoRespuesta = 400;
-        cuerpoRespuesta = "{\"correcto\":false,\"mensaje\":\"El DNI del paciente es obligatorio.\","
-                + "\"seguimientos\":[]}";
+        cuerpoRespuesta = "{\"correcto\":false,\"mensaje\":\"El tipo de prueba Radiografía no admite "
+                + "seguimiento periódico.\",\"idSolicitud\":null,\"repeticiones\":[]}";
 
-        ResultadoConsultaSeguimientos resultado = cliente().consultarSeguimientos("");
+        ResultadoSolicitudSeguimiento resultado = cliente().solicitar(CON_REPETICIONES);
 
         assertFalse(resultado.correcto());
-        assertEquals("El DNI del paciente es obligatorio.", resultado.mensaje());
-        assertTrue(resultado.seguimientos().isEmpty());
+        assertEquals("El tipo de prueba Radiografía no admite seguimiento periódico.",
+                resultado.mensaje());
+        assertNull(resultado.idSolicitud());
+        assertTrue(resultado.repeticiones().isEmpty());
     }
 
     @Test
-    void otroCodigoEsUnErrorDeComunicacion() {
+    void sinListaDeRepeticionesDevuelveListaVacia() {
+        codigoRespuesta = 400;
+        cuerpoRespuesta = "{\"correcto\":false,\"mensaje\":\"Error\"}";
+
+        assertTrue(cliente().solicitar(CON_REPETICIONES).repeticiones().isEmpty());
+    }
+
+    @Test
+    void respuestaQueNoEsUnResultadoEsErrorDeComunicacion() {
         codigoRespuesta = 500;
-        cuerpoRespuesta = "Error interno";
+        cuerpoRespuesta = "Internal server error";
 
-        assertThrows(ErrorComunicacionException.class,
-                () -> cliente().consultarSeguimientos("12345678Z"));
+        assertThrows(ErrorComunicacionException.class, () -> cliente().solicitar(CON_REPETICIONES));
     }
 
     @Test
-    void respuestaQueNoEsJsonEsUnErrorDeComunicacion() {
-        codigoRespuesta = 200;
-        cuerpoRespuesta = "<html>no es json</html>";
-
-        assertThrows(ErrorComunicacionException.class,
-                () -> cliente().consultarSeguimientos("12345678Z"));
-    }
-
-    @Test
-    void servidorParadoEsUnErrorDeComunicacion() {
-        String url = "http://localhost:" + servidor.getAddress().getPort();
+    void servidorParadoEsErrorDeComunicacion() {
+        String url = url();
         servidor.stop(0);
 
         assertThrows(ErrorComunicacionException.class,
-                () -> new ClienteSeguimientosHttp(url).consultarSeguimientos("12345678Z"));
-    }
-
-    @Test
-    void quitaLaBarraFinalDeLaUrl() {
-        codigoRespuesta = 200;
-        cuerpoRespuesta = "{\"correcto\":true,\"mensaje\":\"\",\"seguimientos\":[]}";
-
-        new ClienteSeguimientosHttp("http://localhost:" + servidor.getAddress().getPort() + "/")
-                .consultarSeguimientos("12345678Z");
-
-        assertEquals("GET", metodoRecibido);
+                () -> new ClienteSeguimientosHttp(url).solicitar(CON_REPETICIONES));
     }
 
     private ClienteSeguimientosHttp cliente() {
-        return new ClienteSeguimientosHttp("http://localhost:" + servidor.getAddress().getPort());
+        return new ClienteSeguimientosHttp(url() + "/");
+    }
+
+    private String url() {
+        return "http://localhost:" + servidor.getAddress().getPort();
     }
 }

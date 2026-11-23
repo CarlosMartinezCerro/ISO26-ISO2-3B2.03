@@ -1,14 +1,12 @@
 package es.uclm.esi.iso2.radiodiagnostico.prueba;
 
-import es.uclm.esi.iso2.radiodiagnostico.informe.ErrorComunicacionException;
-
-/** Comunicación del cliente con el servidor para las pruebas de seguimiento periódicas. */
+/** Comunicación del cliente con el servidor para el CdU13. */
 public interface ClienteSeguimientos {
 
     /**
-     * Consulta las pruebas de seguimiento periódicas de un paciente (CdU11).
+     * Envía la solicitud al servidor y devuelve su respuesta, tanto si la acepta como si no.
      *
-     * @throws ErrorComunicacionException si no se puede hablar con el servidor
+     * @throws ErrorComunicacionException si no se puede contactar con el servidor
      */
-    ResultadoConsultaSeguimientos consultarSeguimientos(String dniPaciente);
+    ResultadoSolicitudSeguimiento solicitar(DatosSolicitudSeguimiento datos);
 }

@@ -3,6 +3,7 @@ package es.uclm.esi.iso2.radiodiagnostico.vista;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import es.uclm.esi.iso2.radiodiagnostico.prueba.PrioridadSeguimiento;
 import es.uclm.esi.iso2.radiodiagnostico.prueba.RepeticionSeguimiento;
 import es.uclm.esi.iso2.radiodiagnostico.prueba.SeguimientoPeriodico;
 import java.time.LocalDate;
@@ -29,7 +30,8 @@ class VentanaConsultarSeguimientosTest {
     private static final RepeticionSeguimiento SEGUNDA = new RepeticionSeguimiento("SEG-1-2", "SEG-1",
             2, LocalDate.of(2026, 12, 4), "PENDIENTE_CITA");
     private static final SeguimientoPeriodico SEGUIMIENTO = new SeguimientoPeriodico("SEG-1",
-            "12345678Z", "00000001R", "TAC", "Indicación ficticia", "URGENTE", "Cada 2 semanas",
+            "12345678Z", "00000001R", "TAC", "Indicación ficticia", PrioridadSeguimiento.URGENTE,
+            "Cada 2 semanas",
             LocalDate.of(2026, 11, 20), LocalDate.of(2026, 12, 4), 2, 1,
             LocalDate.of(2026, 12, 4), "EN_CURSO", List.of(PRIMERA, SEGUNDA));
 
@@ -87,6 +89,7 @@ class VentanaConsultarSeguimientosTest {
         assertEquals(VentanaConsultarSeguimientos.SIN_FECHA, VentanaConsultarSeguimientos.fecha(null));
         assertEquals("En curso", VentanaConsultarSeguimientos.textoEstado("EN_CURSO"));
         assertEquals("Pendiente cita", VentanaConsultarSeguimientos.textoEstado("PENDIENTE_CITA"));
+        assertEquals("Urgente", VentanaConsultarSeguimientos.textoEstado(PrioridadSeguimiento.URGENTE.name()));
     }
 
     private TableView<?> tabla(String id) {

@@ -2,8 +2,8 @@ package es.uclm.esi.iso2.radiodiagnostico.prueba;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import es.uclm.esi.iso2.radiodiagnostico.informe.ErrorComunicacionException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -15,35 +15,57 @@ import java.time.Duration;
 import java.util.Objects;
 
 /**
- * Cliente HTTP del CdU11 contra la API REST GET /seguimientos?dniPaciente=...
- * Sigue el mismo esquema que {@code ClienteCitasHttp} (CdU1) y reutiliza la
- * {@link ErrorComunicacionException} del paquete {@code informe} (CdU10).
+ * Implementación de {@link ClienteSeguimientos} (CdU13, POST /seguimientos) y de
+ * {@link ClienteConsultaSeguimientos} (CdU11, GET /seguimientos) sobre la API REST del servidor
+ * (D-009, D-011).
  */
-public class ClienteSeguimientosHttp implements ClienteSeguimientos {
+public class ClienteSeguimientosHttp implements ClienteSeguimientos, ClienteConsultaSeguimientos {
 
-    public static final String RUTA_SEGUIMIENTOS = "/seguimientos";
+    static final String RUTA_SEGUIMIENTOS = "/seguimientos";
     private static final Duration TIEMPO_MAXIMO = Duration.ofSeconds(10);
 
-    private final String urlServidor;
+    private final URI urlSeguimientos;
     private final HttpClient http;
     private final ObjectMapper json = new ObjectMapper()
             .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
+    /** @param urlServidor dirección base del servidor, por ejemplo {@code http://localhost:7070} */
     public ClienteSeguimientosHttp(String urlServidor) {
         this(urlServidor, HttpClient.newBuilder().connectTimeout(TIEMPO_MAXIMO).build());
     }
 
     public ClienteSeguimientosHttp(String urlServidor, HttpClient http) {
-        this.urlServidor = Objects.requireNonNull(urlServidor, "La URL del servidor es obligatoria")
-                .replaceAll("/+$", "");
+        Objects.requireNonNull(urlServidor, "La URL del servidor es obligatoria");
+        this.urlSeguimientos = URI.create(urlServidor.replaceAll("/+$", "") + RUTA_SEGUIMIENTOS);
         this.http = Objects.requireNonNull(http, "El cliente HTTP es obligatorio");
+    }
+
+    @Override
+    public ResultadoSolicitudSeguimiento solicitar(DatosSolicitudSeguimiento datos) {
+        try {
+            HttpRequest peticion = HttpRequest.newBuilder(urlSeguimientos)
+                    .timeout(TIEMPO_MAXIMO)
+                    .header("Content-Type", "application/json; charset=utf-8")
+                    .POST(HttpRequest.BodyPublishers.ofString(json.writeValueAsString(datos)))
+                    .build();
+            HttpResponse<String> respuesta = http.send(peticion, HttpResponse.BodyHandlers.ofString());
+            // El servidor responde con un ResultadoSolicitudSeguimiento tanto si acepta (201)
+            // como si rechaza (400).
+            return json.readValue(respuesta.body(), ResultadoSolicitudSeguimiento.class);
+        } catch (IOException e) {
+            throw new ErrorComunicacionException("No se pudo contactar con el servidor", e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ErrorComunicacionException("Se interrumpió la petición al servidor", e);
+        }
     }
 
     @Override
     public ResultadoConsultaSeguimientos consultarSeguimientos(String dniPaciente) {
         String dni = dniPaciente == null ? "" : dniPaciente;
-        URI uri = URI.create(urlServidor + RUTA_SEGUIMIENTOS + "?dniPaciente="
+        URI uri = URI.create(urlSeguimientos + "?dniPaciente="
                 + URLEncoder.encode(dni, StandardCharsets.UTF_8));
         HttpRequest peticion = HttpRequest.newBuilder(uri)
                 .timeout(TIEMPO_MAXIMO)

@@ -5,8 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import es.uclm.esi.iso2.radiodiagnostico.informe.ErrorComunicacionException;
-import es.uclm.esi.iso2.radiodiagnostico.prueba.ClienteSeguimientos;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ClienteConsultaSeguimientos;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ErrorComunicacionException;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.PrioridadSeguimiento;
 import es.uclm.esi.iso2.radiodiagnostico.prueba.ResultadoConsultaSeguimientos;
 import es.uclm.esi.iso2.radiodiagnostico.prueba.SeguimientoPeriodico;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VistaConsultarSeguimientos;
@@ -19,7 +20,8 @@ import org.junit.jupiter.api.Test;
 class ControladorConsultarSeguimientosImplTest {
 
     private static final SeguimientoPeriodico SEGUIMIENTO = new SeguimientoPeriodico("SEG-1",
-            "12345678Z", "00000001R", "TAC", "Indicación ficticia", "URGENTE", "Cada 2 semanas",
+            "12345678Z", "00000001R", "TAC", "Indicación ficticia", PrioridadSeguimiento.URGENTE,
+            "Cada 2 semanas",
             LocalDate.of(2026, 11, 20), LocalDate.of(2026, 12, 4), 2, 0,
             LocalDate.of(2026, 11, 20), "EN_CURSO", List.of());
 
@@ -80,7 +82,7 @@ class ControladorConsultarSeguimientosImplTest {
     @Test
     void sinConexionMuestraElMismoAvisoQueElCdU10() {
         vista.dni = "12345678Z";
-        ClienteSeguimientos sinConexion = dni -> {
+        ClienteConsultaSeguimientos sinConexion = dni -> {
             throw new ErrorComunicacionException("Servidor parado", null);
         };
 
@@ -98,7 +100,7 @@ class ControladorConsultarSeguimientosImplTest {
                 () -> new ControladorConsultarSeguimientosImpl(vista, null));
     }
 
-    private static final class ClienteFalso implements ClienteSeguimientos {
+    private static final class ClienteFalso implements ClienteConsultaSeguimientos {
 
         private final ResultadoConsultaSeguimientos respuesta;
         private String dniRecibido;

@@ -53,7 +53,8 @@ public class VentanaConsultarSeguimientos extends GridPane implements VistaConsu
 
         agregarColumna(tablaSeguimientos, "Tipo de prueba", SeguimientoPeriodico::tipoPrueba);
         agregarColumna(tablaSeguimientos, "Periodicidad", SeguimientoPeriodico::periodicidad);
-        agregarColumna(tablaSeguimientos, "Prioridad", SeguimientoPeriodico::prioridad);
+        agregarColumna(tablaSeguimientos, "Prioridad",
+                (SeguimientoPeriodico s) -> s.prioridad() == null ? SIN_FECHA : textoEstado(s.prioridad().name()));
         agregarColumna(tablaSeguimientos, "Inicio", (SeguimientoPeriodico s) -> fecha(s.fechaInicio()));
         agregarColumna(tablaSeguimientos, "Fin", (SeguimientoPeriodico s) -> fecha(s.fechaFin()));
         agregarColumna(tablaSeguimientos, "Próxima", (SeguimientoPeriodico s) -> fecha(s.proximaFecha()));

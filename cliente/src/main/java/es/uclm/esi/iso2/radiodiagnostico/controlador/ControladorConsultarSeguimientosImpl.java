@@ -1,7 +1,7 @@
 package es.uclm.esi.iso2.radiodiagnostico.controlador;
 
-import es.uclm.esi.iso2.radiodiagnostico.informe.ErrorComunicacionException;
-import es.uclm.esi.iso2.radiodiagnostico.prueba.ClienteSeguimientos;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ClienteConsultaSeguimientos;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ErrorComunicacionException;
 import es.uclm.esi.iso2.radiodiagnostico.prueba.ResultadoConsultaSeguimientos;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VistaConsultarSeguimientos;
 import java.util.List;
@@ -18,10 +18,10 @@ public class ControladorConsultarSeguimientosImpl implements ControladorConsulta
             "Introduzca el DNI del paciente para consultar sus pruebas de seguimiento.";
 
     private final VistaConsultarSeguimientos vista;
-    private final ClienteSeguimientos cliente;
+    private final ClienteConsultaSeguimientos cliente;
 
     public ControladorConsultarSeguimientosImpl(VistaConsultarSeguimientos vista,
-                                                ClienteSeguimientos cliente) {
+                                                ClienteConsultaSeguimientos cliente) {
         this.vista = Objects.requireNonNull(vista, "La vista es obligatoria");
         this.cliente = Objects.requireNonNull(cliente, "El cliente es obligatorio");
     }
