@@ -1,6 +1,7 @@
 package es.uclm.esi.iso2.radiodiagnostico.informe;
 
 import java.util.Objects;
+import java.util.List;
 
 import es.uclm.esi.iso2.radiodiagnostico.sistemasexternos.HistorialClinico;
 
@@ -24,5 +25,15 @@ public class ServicioInformeImpl implements ServicioInforme {
     public String obtenerAntecedentes(Informe informe) {
         historialClinico.getAntecedentes(informe);
         return informe.obtenerAntecedentes();
+    }
+
+    @Override
+    public List<InformeResumen> listarInformes(String dni) {
+        return historialClinico.getInformes(dni);
+    }
+
+    @Override
+    public Informe obtenerInforme(long id) {
+        return historialClinico.getInforme(id);
     }
 }

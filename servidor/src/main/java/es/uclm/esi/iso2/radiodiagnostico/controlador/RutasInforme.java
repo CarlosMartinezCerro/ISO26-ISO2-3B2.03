@@ -2,10 +2,13 @@ package es.uclm.esi.iso2.radiodiagnostico.controlador;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.List;
+import java.util.Map;
 
 import es.uclm.esi.iso2.radiodiagnostico.informe.DatosCreacionInforme;
 import es.uclm.esi.iso2.radiodiagnostico.informe.Informe;
 import es.uclm.esi.iso2.radiodiagnostico.informe.InformeRespuesta;
+import es.uclm.esi.iso2.radiodiagnostico.informe.InformeResumen;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoAntecedentes;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoCreacionInforme;
 import es.uclm.esi.iso2.radiodiagnostico.usuario.Medico;
@@ -33,6 +36,8 @@ public class RutasInforme implements Rutas {
     public void registrar(Javalin app) {
         app.post(RUTA_INFORMES, this::crearInforme);
         app.get(RUTA_ANTECEDENTES, this::obtenerAntecedentes);
+        app.get(RUTA_INFORMES, this::listarInformes);
+        app.get(RUTA_INFORMES + "/{idInforme}", this::obtenerInforme);
     }
 
     private void crearInforme(Context ctx) {
@@ -118,6 +123,57 @@ public class RutasInforme implements Rutas {
         }
     }
 
+    private void listarInformes(Context ctx) {
+        String dni = ctx.queryParam("dniPaciente");
+        if (textoAusente(dni)) {
+            ctx.status(HttpStatus.BAD_REQUEST).json(Map.of(
+                    "correcto", false,
+                    "mensaje", "dniPaciente es obligatorio."));
+            return;
+        }
+        try {
+            List<InformeResumen> informes = controlador.listarInformes(dni.trim());
+            ctx.status(HttpStatus.OK).json(informes);
+        } catch (IllegalArgumentException excepcion) {
+            ctx.status(HttpStatus.BAD_REQUEST).json(Map.of(
+                    "correcto", false, "mensaje", excepcion.getMessage()));
+        } catch (IllegalStateException excepcion) {
+            ctx.status(HttpStatus.SERVICE_UNAVAILABLE).json(Map.of(
+                    "correcto", false, "mensaje", SISTEMA_NO_DISPONIBLE));
+        }
+    }
+
+    private void obtenerInforme(Context ctx) {
+        final long id;
+        try {
+            id = Long.parseLong(ctx.pathParam("idInforme").trim());
+        } catch (Exception excepcion) {
+            ctx.status(HttpStatus.BAD_REQUEST).json(Map.of(
+                    "correcto", false, "mensaje", "idInforme no es valido."));
+            return;
+        }
+        if (id <= 0) {
+            ctx.status(HttpStatus.BAD_REQUEST).json(Map.of(
+                    "correcto", false, "mensaje", "idInforme no es valido."));
+            return;
+        }
+        try {
+            Informe informe = controlador.obtenerInforme(id);
+            if (informe == null) {
+                ctx.status(HttpStatus.NOT_FOUND).json(Map.of(
+                        "correcto", false, "mensaje", "Informe no encontrado."));
+                return;
+            }
+            ctx.status(HttpStatus.OK).json(aRespuesta(informe));
+        } catch (IllegalArgumentException excepcion) {
+            ctx.status(HttpStatus.BAD_REQUEST).json(Map.of(
+                    "correcto", false, "mensaje", excepcion.getMessage()));
+        } catch (IllegalStateException excepcion) {
+            ctx.status(HttpStatus.SERVICE_UNAVAILABLE).json(Map.of(
+                    "correcto", false, "mensaje", SISTEMA_NO_DISPONIBLE));
+        }
+    }
+
     private static InformeRespuesta aRespuesta(Informe informe) {
         if (informe == null) {
             return null;
@@ -125,6 +181,7 @@ public class RutasInforme implements Rutas {
         String dniMedico = informe.getMedico() == null ? null : informe.getMedico().getDni();
         String dniPaciente = informe.getPaciente() == null ? null : informe.getPaciente().getDni();
         return new InformeRespuesta(
+                informe.getId(),
                 dniMedico,
                 dniPaciente,
                 informe.getEspecialidad(),

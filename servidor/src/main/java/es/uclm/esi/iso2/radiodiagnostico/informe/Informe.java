@@ -7,6 +7,7 @@ import es.uclm.esi.iso2.radiodiagnostico.usuario.Paciente;
 
 public class Informe {
 
+    private long id;
     private Medico medico;
     private Paciente paciente;
     private String antecedentes;
@@ -36,6 +37,31 @@ public class Informe {
         this.alta = alta;
         this.fecha = fecha;
         this.anamnesis = anamnesis;
+    }
+
+    public Informe(long id, Medico medico, Paciente paciente, String especialidad,
+                   String motivoConsulta, String consultaActual, String diagnostico,
+                   String pruebas, String tratamiento, boolean alta,
+                   LocalDate fecha, String anamnesis) {
+        this(medico, paciente, especialidad, motivoConsulta, consultaActual, diagnostico,
+                pruebas, tratamiento, alta, fecha, anamnesis);
+        this.id = id;
+    }
+
+    public Informe(Medico medico, Paciente paciente, String especialidad,
+                   String motivoConsulta, String consultaActual, String diagnostico,
+                   String pruebas, String tratamiento, boolean alta,
+                   LocalDate fecha, String anamnesis, long id) {
+        this(id, medico, paciente, especialidad, motivoConsulta, consultaActual, diagnostico,
+                pruebas, tratamiento, alta, fecha, anamnesis);
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String obtenerAntecedentes() {
@@ -115,6 +141,14 @@ public class Informe {
     }
 
     public void settratamiento(String tratamiento) {
+        this.tratamiento = tratamiento;
+    }
+
+    public String getTratamiento() {
+        return tratamiento;
+    }
+
+    public void setTratamiento(String tratamiento) {
         this.tratamiento = tratamiento;
     }
 

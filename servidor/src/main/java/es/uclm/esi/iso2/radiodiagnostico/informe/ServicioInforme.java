@@ -1,5 +1,7 @@
 package es.uclm.esi.iso2.radiodiagnostico.informe;
 
+import java.util.List;
+
 /** Operaciones del servicio de informes. */
 public interface ServicioInforme {
 
@@ -18,4 +20,8 @@ public interface ServicioInforme {
      * @return los antecedentes generales obtenidos
      */
     String obtenerAntecedentes(Informe informe);
+
+    List<InformeResumen> listarInformes(String dni);
+
+    Informe obtenerInforme(long id);
 }

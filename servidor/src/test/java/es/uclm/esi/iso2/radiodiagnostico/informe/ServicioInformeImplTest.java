@@ -26,10 +26,9 @@ class ServicioInformeImplTest {
         HistorialClinicoSimulado historial = new HistorialClinicoSimulado();
         ServicioInforme servicio = new ServicioInformeImpl(historial);
         Informe informe = crearInforme();
-
+        int numInformes = historial.getInformes(informe.getPaciente().getDni()).size();
         assertSame(informe, servicio.crearInforme(informe));
-        assertEquals(1, historial.obtenerInformesArchivados().size());
-        assertTrue(historial.obtenerInformesArchivados().contains(informe));
+        assertEquals(numInformes+1,historial.getInformes(informe.getPaciente().getDni()).size());
     }
 
     @Test

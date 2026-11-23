@@ -1,6 +1,8 @@
 package es.uclm.esi.iso2.radiodiagnostico.sistemasexternos;
 
 import es.uclm.esi.iso2.radiodiagnostico.informe.Informe;
+import es.uclm.esi.iso2.radiodiagnostico.informe.InformeResumen;
+import java.util.List;
 
 /**
  * Contrato con el sistema externo de historial clínico.
@@ -27,4 +29,8 @@ public interface HistorialClinico {
      * @throws IllegalStateException si el sistema externo no está disponible
      */
     void archivar(Informe informe);
+
+    List<InformeResumen> getInformes(String dniPaciente);
+
+    Informe getInforme(long idInforme);
 }
