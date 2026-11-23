@@ -2,6 +2,7 @@ package es.uclm.esi.iso2.radiodiagnostico.informe;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -45,6 +46,30 @@ public class ServicioImagenesImpl implements ServicioImagenes {
     @Override
     public List<Imagen> listarImagenesDeInforme(String idInforme) {
         return imagenes.buscarPorInforme(idInforme);
+    }
+
+    @Override
+    public List<Imagen> listarImagenesPaciente(String idMedico, String dniPaciente) {
+        obligatorio(idMedico, "médico");
+        obligatorio(dniPaciente, "paciente");
+        return imagenes.buscarPorPaciente(dniPaciente).stream()
+                .filter(imagen -> imagen.idMedico().equals(idMedico))
+                .sorted(Comparator.comparing(Imagen::fechaCreacion).reversed())
+                .toList();
+    }
+
+    @Override
+    public Imagen consultarImagen(String idMedico, String idImagen) {
+        obligatorio(idMedico, "médico");
+        obligatorio(idImagen, "imagen");
+        Imagen imagen = imagenes.buscarPorId(idImagen)
+                .orElseThrow(() -> new ImagenNoEncontradaException(
+                        "No existe la imagen " + idImagen + "."));
+        if (!imagen.idMedico().equals(idMedico)) {
+            throw new AccesoDenegadoException(
+                    "La imagen " + idImagen + " no pertenece a un paciente de este médico.");
+        }
+        return imagen;
     }
 
     private void validar(DatosImagen datos) {

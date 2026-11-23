@@ -5,19 +5,26 @@ import es.uclm.esi.iso2.radiodiagnostico.cita.ClienteCitasHttp;
 import es.uclm.esi.iso2.radiodiagnostico.cita.ClienteConfirmacionCitasHttp;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPacienteImpl;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAsignarCita;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAsignarCitaImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConfirmarCita;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConfirmarCitaImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarCitasImpl;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarImagen;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarImagenImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagenImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearInformeImpl;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteConsultaImagenesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteImagenesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteInformesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ClientePacientesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAltaPaciente;
+import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAsignarCita;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConfirmarCita;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConsultarCitas;
+import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConsultarImagen;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearInforme;
 import javafx.application.Application;
@@ -32,8 +39,11 @@ import javafx.stage.Stage;
  * Aplicación JavaFX del cliente: muestra un menú con los casos de uso y,
  * al elegir uno, crea su vista, modelo y controlador y los conecta.
  *
- * La dirección del servidor se lee de la variable de entorno SERVIDOR_URL
- * (por defecto http://localhost:7070).
+ * <p>La dirección del servidor se lee de la variable de entorno {@code SERVIDOR_URL}
+ * (por defecto {@code http://localhost:7070}). Hasta que exista el inicio de sesión, el médico
+ * que consulta imágenes (CdU19) se lee de {@code MEDICO} (por defecto {@code MED-001}).
+ *
+ * <p>Arranque: {@code mvn -pl cliente javafx:run}.
  */
 public class AplicacionCliente extends Application {
 
@@ -49,12 +59,16 @@ public class AplicacionCliente extends Application {
                         () -> abrirAltaPaciente(url)),
                 botonMenu("CdU17 · Crear imagen",
                         () -> abrirCrearImagen(url)),
+                botonMenu("CdU19 · Consultar imagen",
+                        () -> abrirConsultarImagen(url, medico())),
                 botonMenu("CdU · Crear informe",
                         () -> abrirCrearInforme(url)),
                 botonMenu("CU1 · Consultar citas",
                         () -> abrirConsultarCitas(url)),
                 botonMenu("CdU2 · Confirmar cita",
-                        () -> abrirConfirmarCita(url)));
+                        () -> abrirConfirmarCita(url)),
+                botonMenu("CdU25 · Asignar cita solicitada",
+                        () -> abrirAsignarCita(url)));
 
         menu.setPadding(new Insets(16));
 
@@ -87,6 +101,25 @@ public class AplicacionCliente extends Application {
         vista.alPulsarCrear(controlador::crearImagen);
 
         abrir(VentanaCrearImagen.TITULO, vista);
+    }
+
+    private static void abrirConsultarImagen(String url, String idMedico) {
+        VentanaConsultarImagen vista = new VentanaConsultarImagen();
+        ControladorConsultarImagen controlador =
+                new ControladorConsultarImagenImpl(vista, new ClienteConsultaImagenesHttp(url), idMedico);
+        vista.alPulsarBuscar(controlador::buscarImagenes);
+        vista.alPulsarVer(controlador::verImagen);
+        abrir(VentanaConsultarImagen.TITULO, vista);
+    }
+
+    private static void abrirAsignarCita(String url) {
+        VentanaAsignarCita vista = new VentanaAsignarCita();
+        ControladorAsignarCita controlador =
+                new ControladorAsignarCitaImpl(vista, new ClienteCitasHttp(url));
+        vista.alPulsarAsignar(controlador::asignarCita);
+        vista.alPulsarRecargar(controlador::cargarSolicitudes);
+        abrir(VentanaAsignarCita.TITULO, vista);
+        controlador.cargarSolicitudes();
     }
 
     private static void abrirCrearInforme(String url) {
@@ -145,6 +178,11 @@ public class AplicacionCliente extends Application {
         ventana.setTitle(titulo);
         ventana.setScene(new Scene(vista));
         ventana.show();
+    }
+
+    private static String medico() {
+        String medico = System.getenv("MEDICO");
+        return medico == null || medico.isBlank() ? "MED-001" : medico;
     }
 
     private static String urlServidor() {

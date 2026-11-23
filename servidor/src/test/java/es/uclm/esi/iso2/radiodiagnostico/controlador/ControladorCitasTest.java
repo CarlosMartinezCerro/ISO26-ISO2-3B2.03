@@ -50,6 +50,27 @@ class ControladorCitasTest {
     }
 
     @Test
+    void falloDeLaBaseDeDatosDevuelveUnMensajeSinDetallesInternos() {
+        SolicitudRepositorioEnMemoria solicitudes = new SolicitudRepositorioEnMemoria();
+        solicitudes.guardar(new SolicitudPrueba("SOL-001", "FICTICIO-001", "Radiografía",
+                PrioridadSolicitud.URGENTE, EstadoSolicitud.PENDIENTE));
+        CitaRepositorioEnMemoria citasCaidas = new CitaRepositorioEnMemoria() {
+            @Override
+            public void guardar(es.uclm.esi.iso2.radiodiagnostico.cita.Cita cita) {
+                throw new IllegalStateException("fk_cita_paciente");
+            }
+        };
+        Clock reloj = Clock.fixed(AHORA.atZone(ZONA).toInstant(), ZONA);
+        ControladorCitas conMySqlFallando = new ControladorCitas(
+                new ServicioCitasImpl(solicitudes, citasCaidas, reloj));
+
+        ResultadoAsignacion resultado = conMySqlFallando.asignarCita(
+                new DatosAsignacionCita("SOL-001", MANANA, "SALA-RX-1"));
+
+        assertEquals(new ResultadoAsignacion(false, ControladorCitas.ERROR_GUARDAR_CITA), resultado);
+    }
+
+    @Test
     void datosInvalidosDevuelvenErrorConMensaje() {
         ResultadoAsignacion resultado = controlador.asignarCita(
                 new DatosAsignacionCita("SOL-001", MANANA, ""));

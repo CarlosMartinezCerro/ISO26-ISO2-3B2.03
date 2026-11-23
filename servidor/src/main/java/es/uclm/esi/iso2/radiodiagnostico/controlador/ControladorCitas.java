@@ -19,6 +19,9 @@ import java.util.Objects;
  */
 public class ControladorCitas {
 
+    static final String ERROR_GUARDAR_CITA = "No se ha podido guardar la cita. Compruebe que el paciente "
+            + "está dado de alta (CdU22) e inténtelo de nuevo.";
+
     private final ServicioCitas servicio;
 
     public ControladorCitas(ServicioCitas servicio) {
@@ -40,6 +43,10 @@ public class ControladorCitas {
         } catch (DatosAsignacionInvalidosException | SolicitudNoEncontradaException
                  | SolicitudNoPendienteException | HuecoOcupadoException e) {
             return new ResultadoAsignacion(false, e.getMessage());
+        } catch (IllegalStateException e) {
+            // Fallo de la base de datos (por ejemplo, el paciente no existe en MySQL):
+            // no se muestran detalles internos al cliente.
+            return new ResultadoAsignacion(false, ERROR_GUARDAR_CITA);
         }
     }
 }
