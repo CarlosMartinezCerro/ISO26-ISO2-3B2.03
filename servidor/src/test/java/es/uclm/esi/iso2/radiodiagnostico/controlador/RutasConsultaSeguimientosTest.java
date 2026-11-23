@@ -21,12 +21,16 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Prueba la API REST del CdU11 de extremo a extremo junto con la del CdU13: el médico registra
  * un seguimiento con POST /seguimientos y después se consulta con GET /seguimientos.
  */
+@DisplayName("CdU11 · API REST GET /seguimientos")
 class RutasConsultaSeguimientosTest {
 
     private static final ZoneId ZONA = ZoneId.of("Europe/Madrid");
@@ -60,7 +64,9 @@ class RutasConsultaSeguimientosTest {
         app.stop();
     }
 
+    // CP-R01 · Flujo principal de extremo a extremo con el CdU13
     @Test
+    @DisplayName("Devuelve 200 con los seguimientos registrados por el CdU13")
     void consultaLosSeguimientosRegistradosPorElCdU13() throws Exception {
         assertEquals(201, post(SOLICITUD_VALIDA).statusCode());
 
@@ -77,7 +83,9 @@ class RutasConsultaSeguimientosTest {
         assertTrue(cuerpo.contains("\"estado\":\"EN_CURSO\""), cuerpo);
     }
 
+    // CP-R02 · Paciente sin seguimientos (A2)
     @Test
+    @DisplayName("Un paciente sin seguimientos devuelve 200 con la lista vacía")
     void pacienteSinSeguimientosDevuelve200ConListaVacia() throws Exception {
         HttpResponse<String> respuesta = get("?dniPaciente=87654321X");
 
@@ -87,18 +95,16 @@ class RutasConsultaSeguimientosTest {
         assertTrue(respuesta.body().contains("no tiene pruebas de seguimiento"));
     }
 
-    @Test
-    void sinDniDevuelve400ConMensaje() throws Exception {
-        HttpResponse<String> respuesta = get("");
+    // CP-R03 · DNI ausente, vacío o en blanco (A1): clase no válida
+    @ParameterizedTest(name = "consulta [{0}] → 400")
+    @ValueSource(strings = {"", "?dniPaciente=", "?dniPaciente=%20%20"})
+    @DisplayName("Sin DNI, con DNI vacío o en blanco devuelve 400 con mensaje")
+    void dniNoValidoDevuelve400(String consulta) throws Exception {
+        HttpResponse<String> respuesta = get(consulta);
 
         assertEquals(400, respuesta.statusCode());
         assertTrue(respuesta.body().contains("\"correcto\":false"));
         assertTrue(respuesta.body().contains("El DNI del paciente es obligatorio."));
-    }
-
-    @Test
-    void dniVacioDevuelve400() throws Exception {
-        assertEquals(400, get("?dniPaciente=%20%20").statusCode());
     }
 
     private HttpResponse<String> post(String cuerpo) throws IOException, InterruptedException {

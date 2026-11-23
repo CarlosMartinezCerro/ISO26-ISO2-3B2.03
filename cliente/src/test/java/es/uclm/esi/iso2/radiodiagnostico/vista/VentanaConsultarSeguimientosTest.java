@@ -16,13 +16,17 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 /**
  * Prueba la lectura del DNI, el relleno de las tablas y el vaciado de la vista del CdU11.
  * Los diálogos no se prueban porque bloquean hasta que alguien los cierra.
  * Si no hay pantalla (por ejemplo en el CI) los tests se omiten.
  */
+@DisplayName("CdU11 · Vista JavaFX de la consulta")
 class VentanaConsultarSeguimientosTest {
 
     private static final RepeticionSeguimiento PRIMERA = new RepeticionSeguimiento("SEG-1-1", "SEG-1",
@@ -47,7 +51,9 @@ class VentanaConsultarSeguimientosTest {
         ventana = enHiloFx(VentanaConsultarSeguimientos::new);
     }
 
+    // CP-V01
     @Test
+    @DisplayName("Lee el DNI quitando los espacios")
     void obtenerDniQuitaLosEspacios() throws Exception {
         String dni = enHiloFx(() -> {
             ((TextField) ventana.lookup("#campoDniSeguimiento")).setText("  12345678Z ");
@@ -57,7 +63,9 @@ class VentanaConsultarSeguimientosTest {
         assertEquals("12345678Z", dni);
     }
 
+    // CP-V02
     @Test
+    @DisplayName("Al mostrar los seguimientos selecciona el primero y enseña sus repeticiones")
     void mostrarSeguimientosSeleccionaElPrimeroYMuestraSusRepeticiones() throws Exception {
         List<?> repeticiones = enHiloFx(() -> {
             ventana.mostrarSeguimientos(List.of(SEGUIMIENTO));
@@ -69,7 +77,9 @@ class VentanaConsultarSeguimientosTest {
         assertEquals(List.of(PRIMERA, SEGUNDA), repeticiones);
     }
 
+    // CP-V03
     @Test
+    @DisplayName("Limpiar vacía el DNI y las dos tablas")
     void limpiarVaciaElDniYLasTablas() throws Exception {
         boolean vacia = enHiloFx(() -> {
             ((TextField) ventana.lookup("#campoDniSeguimiento")).setText("12345678Z");
@@ -83,13 +93,34 @@ class VentanaConsultarSeguimientosTest {
         assertTrue(vacia);
     }
 
+    // CP-V04 · Fechas: con valor y sin valor (seguimiento finalizado)
     @Test
-    void formateaFechasYEstados() {
+    @DisplayName("Formatea las fechas como dd/MM/yyyy y muestra un guion si no hay fecha")
+    void formateaFechas() {
         assertEquals("04/12/2026", VentanaConsultarSeguimientos.fecha(LocalDate.of(2026, 12, 4)));
         assertEquals(VentanaConsultarSeguimientos.SIN_FECHA, VentanaConsultarSeguimientos.fecha(null));
-        assertEquals("En curso", VentanaConsultarSeguimientos.textoEstado("EN_CURSO"));
-        assertEquals("Pendiente cita", VentanaConsultarSeguimientos.textoEstado("PENDIENTE_CITA"));
-        assertEquals("Urgente", VentanaConsultarSeguimientos.textoEstado(PrioridadSeguimiento.URGENTE.name()));
+    }
+
+    // CP-V05 · Textos de estado y prioridad que llegan del servidor
+    @ParameterizedTest(name = "{0} → {1}")
+    @CsvSource({
+        "EN_CURSO,       En curso",
+        "FINALIZADO,     Finalizado",
+        "PENDIENTE_CITA, Pendiente cita",
+        "CITADA,         Citada",
+        "URGENTE,        Urgente"
+    })
+    @DisplayName("Convierte los estados y prioridades del servidor en texto legible")
+    void textoDeEstados(String estado, String esperado) {
+        assertEquals(esperado, VentanaConsultarSeguimientos.textoEstado(estado));
+    }
+
+    // CP-V06 · Conjetura de errores: estado ausente
+    @Test
+    @DisplayName("Un estado nulo o vacío se muestra como guion")
+    void estadoAusente() {
+        assertEquals(VentanaConsultarSeguimientos.SIN_FECHA, VentanaConsultarSeguimientos.textoEstado(null));
+        assertEquals(VentanaConsultarSeguimientos.SIN_FECHA, VentanaConsultarSeguimientos.textoEstado(" "));
     }
 
     private TableView<?> tabla(String id) {

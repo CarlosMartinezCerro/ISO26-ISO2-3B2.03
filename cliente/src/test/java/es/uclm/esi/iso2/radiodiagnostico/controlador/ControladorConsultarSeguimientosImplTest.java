@@ -14,9 +14,14 @@ import es.uclm.esi.iso2.radiodiagnostico.vista.VistaConsultarSeguimientos;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /** Prueba el controlador del cliente del CdU11 con una vista y un cliente falsos. */
+@DisplayName("CdU11 · Controlador del cliente")
 class ControladorConsultarSeguimientosImplTest {
 
     private static final SeguimientoPeriodico SEGUIMIENTO = new SeguimientoPeriodico("SEG-1",
@@ -27,7 +32,9 @@ class ControladorConsultarSeguimientosImplTest {
 
     private final VistaFalsa vista = new VistaFalsa();
 
+    // CP-K01 · Flujo principal
     @Test
+    @DisplayName("Muestra en la vista los seguimientos del paciente")
     void muestraLosSeguimientosDelPaciente() {
         vista.dni = " 12345678Z ";
         ClienteFalso cliente = new ClienteFalso(new ResultadoConsultaSeguimientos(true,
@@ -41,7 +48,9 @@ class ControladorConsultarSeguimientosImplTest {
         assertTrue(vista.errores.isEmpty());
     }
 
+    // CP-K02 · Paciente sin seguimientos (A2)
     @Test
+    @DisplayName("Sin seguimientos muestra el mensaje informativo del servidor")
     void sinSeguimientosMuestraElMensajeDelServidor() {
         vista.dni = "12345678Z";
         String mensaje = "El paciente 12345678Z no tiene pruebas de seguimiento periódicas.";
@@ -55,9 +64,13 @@ class ControladorConsultarSeguimientosImplTest {
         assertTrue(vista.errores.isEmpty());
     }
 
-    @Test
-    void dniVacioNoLlamaAlServidor() {
-        vista.dni = "   ";
+    // CP-K03 · DNI vacío en la vista (A1): clase no válida
+    @ParameterizedTest(name = "DNI en la vista: [{0}]")
+    @NullAndEmptySource
+    @ValueSource(strings = {"   "})
+    @DisplayName("Con el DNI vacío avisa sin llamar al servidor")
+    void dniVacioNoLlamaAlServidor(String dni) {
+        vista.dni = dni;
         ClienteFalso cliente = new ClienteFalso(null);
 
         new ControladorConsultarSeguimientosImpl(vista, cliente).consultarSeguimientos();
@@ -66,7 +79,9 @@ class ControladorConsultarSeguimientosImplTest {
         assertEquals(List.of(ControladorConsultarSeguimientosImpl.MENSAJE_DNI_VACIO), vista.errores);
     }
 
+    // CP-K04 · Rechazo del servidor (A1)
     @Test
+    @DisplayName("Si el servidor rechaza la consulta vacía la tabla y muestra el error")
     void rechazoDelServidorVaciaLaTablaYMuestraElError() {
         vista.dni = "12345678Z";
         vista.seguimientos = List.of(SEGUIMIENTO);
@@ -79,7 +94,9 @@ class ControladorConsultarSeguimientosImplTest {
         assertEquals(List.of("El DNI del paciente es obligatorio."), vista.errores);
     }
 
+    // CP-K05 · Servidor no disponible (A3)
     @Test
+    @DisplayName("Sin conexión muestra el mismo aviso que el CdU10")
     void sinConexionMuestraElMismoAvisoQueElCdU10() {
         vista.dni = "12345678Z";
         ClienteConsultaSeguimientos sinConexion = dni -> {
@@ -91,7 +108,9 @@ class ControladorConsultarSeguimientosImplTest {
         assertEquals(List.of(ControladorHistorialPruebasImpl.MENSAJE_SIN_CONEXION), vista.errores);
     }
 
+    // CP-K06 · Conjetura de errores: dependencias obligatorias
     @Test
+    @DisplayName("La vista y el cliente son obligatorios")
     void vistaYClienteSonObligatorios() {
         ClienteFalso cliente = new ClienteFalso(null);
         assertThrows(NullPointerException.class,

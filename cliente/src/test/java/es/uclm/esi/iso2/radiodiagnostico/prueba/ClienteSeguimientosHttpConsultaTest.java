@@ -14,13 +14,17 @@ import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Prueba la consulta del CdU11 (GET /seguimientos) que se añade a {@link ClienteSeguimientosHttp}
  * del CdU13, contra un servidor falso del JDK. La parte del CdU13 (POST) se prueba en
  * {@link ClienteSeguimientosHttpTest}.
  */
+@DisplayName("CdU11 · Cliente HTTP de la consulta (GET /seguimientos)")
 class ClienteSeguimientosHttpConsultaTest {
 
     private static final String RESPUESTA_CON_SEGUIMIENTO = """
@@ -63,7 +67,9 @@ class ClienteSeguimientosHttpConsultaTest {
         servidor.stop(0);
     }
 
+    // CP-H01 · Flujo principal (200)
     @Test
+    @DisplayName("Hace GET con el DNI y convierte el JSON en seguimientos")
     void consultaPorDniYConvierteElJsonEnSeguimientos() {
         codigoRespuesta = 200;
         cuerpoRespuesta = RESPUESTA_CON_SEGUIMIENTO;
@@ -86,7 +92,9 @@ class ClienteSeguimientosHttpConsultaTest {
                         "PENDIENTE_CITA")), s.repeticiones());
     }
 
+    // CP-H02 · Conjetura de errores: caracteres especiales en la URL
     @Test
+    @DisplayName("Codifica en la URL los caracteres especiales del DNI")
     void codificaElDniEnLaUrl() {
         codigoRespuesta = 200;
         cuerpoRespuesta = "{\"correcto\":true,\"mensaje\":\"\",\"seguimientos\":[]}";
@@ -96,7 +104,9 @@ class ClienteSeguimientosHttpConsultaTest {
         assertEquals("dniPaciente=12+34%26x", consultaRecibida);
     }
 
+    // CP-H03 · Rechazo del servidor (A1)
     @Test
+    @DisplayName("Con 400 devuelve el rechazo del servidor con su mensaje")
     void devuelveElRechazoDelServidorCon400() {
         codigoRespuesta = 400;
         cuerpoRespuesta = "{\"correcto\":false,\"mensaje\":\"El DNI del paciente es obligatorio.\","
@@ -109,16 +119,21 @@ class ClienteSeguimientosHttpConsultaTest {
         assertTrue(resultado.seguimientos().isEmpty());
     }
 
-    @Test
-    void otroCodigoEsUnErrorDeComunicacion() {
-        codigoRespuesta = 500;
-        cuerpoRespuesta = "Error interno";
+    // CP-H04 · Códigos HTTP fuera de la clase válida {200, 400} (A3)
+    @ParameterizedTest(name = "código {0} → error de comunicación")
+    @ValueSource(ints = {201, 404, 500, 503})
+    @DisplayName("Cualquier código distinto de 200 y 400 es un error de comunicación")
+    void otroCodigoEsUnErrorDeComunicacion(int codigo) {
+        codigoRespuesta = codigo;
+        cuerpoRespuesta = "Error";
 
         assertThrows(ErrorComunicacionException.class,
                 () -> cliente().consultarSeguimientos("12345678Z"));
     }
 
+    // CP-H05 · Conjetura de errores: cuerpo no válido
     @Test
+    @DisplayName("Una respuesta que no es JSON es un error de comunicación")
     void respuestaQueNoEsJsonEsUnErrorDeComunicacion() {
         codigoRespuesta = 200;
         cuerpoRespuesta = "<html>no es json</html>";
@@ -127,7 +142,9 @@ class ClienteSeguimientosHttpConsultaTest {
                 () -> cliente().consultarSeguimientos("12345678Z"));
     }
 
+    // CP-H06 · Servidor no disponible (A3)
     @Test
+    @DisplayName("Con el servidor parado se lanza un error de comunicación")
     void servidorParadoEsUnErrorDeComunicacion() {
         String url = "http://localhost:" + servidor.getAddress().getPort();
         servidor.stop(0);
@@ -136,7 +153,9 @@ class ClienteSeguimientosHttpConsultaTest {
                 () -> new ClienteSeguimientosHttp(url).consultarSeguimientos("12345678Z"));
     }
 
+    // CP-H07 · Conjetura de errores: URL con barra final
     @Test
+    @DisplayName("Admite la URL del servidor con barra final")
     void quitaLaBarraFinalDeLaUrl() {
         codigoRespuesta = 200;
         cuerpoRespuesta = "{\"correcto\":true,\"mensaje\":\"\",\"seguimientos\":[]}";

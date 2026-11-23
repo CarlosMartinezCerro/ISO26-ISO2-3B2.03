@@ -10,48 +10,46 @@ import es.uclm.esi.iso2.radiodiagnostico.prueba.ResultadoConsultaSeguimientos;
 import es.uclm.esi.iso2.radiodiagnostico.prueba.SeguimientoPeriodico;
 import es.uclm.esi.iso2.radiodiagnostico.solicitud.PrioridadSolicitud;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Collections;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
-/** Prueba cómo el controlador del CdU11 convierte la respuesta del servicio en un resultado. */
+/**
+ * Pruebas del controlador del servidor del CdU11: cómo convierte la respuesta del servicio en un
+ * resultado con mensaje para el cliente.
+ */
+@DisplayName("CdU11 · Controlador del servidor")
 class ControladorConsultaSeguimientosTest {
 
     private static final SeguimientoPeriodico SEGUIMIENTO = new SeguimientoPeriodico("SEG-1",
             "12345678Z", "00000001R", "TAC", "Indicación ficticia", PrioridadSolicitud.URGENTE,
             "Cada 2 semanas", LocalDate.of(2026, 11, 20), LocalDate.of(2026, 12, 4), 2, 0,
-            LocalDate.of(2026, 11, 20), SeguimientoPeriodico.EN_CURSO, List.of());
+            LocalDate.of(2026, 11, 20), SeguimientoPeriodico.EN_CURSO, java.util.List.of());
 
-    @Test
-    void conSeguimientosDevuelveCorrectoYLosCuenta() {
+    // CP-C01 · Número de seguimientos: 0 (A2), 1 (límite, singular) y varios (plural)
+    @ParameterizedTest(name = "{0} seguimiento(s) → {1}")
+    @CsvSource(delimiter = '|', value = {
+        "0 | El paciente 12345678Z no tiene pruebas de seguimiento periódicas.",
+        "1 | Se ha encontrado 1 prueba de seguimiento periódica.",
+        "2 | Se han encontrado 2 pruebas de seguimiento periódicas.",
+        "5 | Se han encontrado 5 pruebas de seguimiento periódicas."
+    })
+    @DisplayName("El mensaje depende del número de seguimientos encontrados")
+    void mensajeSegunNumeroDeSeguimientos(int cantidad, String mensajeEsperado) {
         ResultadoConsultaSeguimientos resultado = new ControladorConsultaSeguimientos(
-                dni -> List.of(SEGUIMIENTO, SEGUIMIENTO)).consultarSeguimientos("12345678Z");
+                dni -> Collections.nCopies(cantidad, SEGUIMIENTO)).consultarSeguimientos(" 12345678Z ");
 
         assertTrue(resultado.correcto());
-        assertEquals("Se han encontrado 2 pruebas de seguimiento periódicas.", resultado.mensaje());
-        assertEquals(List.of(SEGUIMIENTO, SEGUIMIENTO), resultado.seguimientos());
+        assertEquals(mensajeEsperado, resultado.mensaje());
+        assertEquals(cantidad, resultado.seguimientos().size());
     }
 
+    // CP-C02 · DNI rechazado por el modelo (A1)
     @Test
-    void conUnSeguimientoUsaElSingular() {
-        ResultadoConsultaSeguimientos resultado = new ControladorConsultaSeguimientos(
-                dni -> List.of(SEGUIMIENTO)).consultarSeguimientos("12345678Z");
-
-        assertEquals("Se ha encontrado 1 prueba de seguimiento periódica.", resultado.mensaje());
-    }
-
-    @Test
-    void sinSeguimientosEsCorrectoConMensajeInformativo() {
-        ResultadoConsultaSeguimientos resultado = new ControladorConsultaSeguimientos(
-                dni -> List.of()).consultarSeguimientos(" 12345678Z ");
-
-        assertTrue(resultado.correcto());
-        assertEquals("El paciente 12345678Z no tiene pruebas de seguimiento periódicas.",
-                resultado.mensaje());
-        assertTrue(resultado.seguimientos().isEmpty());
-    }
-
-    @Test
-    void dniInvalidoDevuelveErrorConElMensajeDelModelo() {
+    @DisplayName("Un DNI no válido devuelve error con el mensaje del modelo")
+    void dniNoValidoDevuelveError() {
         ResultadoConsultaSeguimientos resultado = new ControladorConsultaSeguimientos(dni -> {
             throw new DniPacienteInvalidoException("El DNI del paciente es obligatorio.");
         }).consultarSeguimientos("");
@@ -61,8 +59,10 @@ class ControladorConsultaSeguimientosTest {
         assertTrue(resultado.seguimientos().isEmpty());
     }
 
+    // CP-C03 · Conjetura de errores: fallo interno de persistencia
     @Test
-    void falloInternoNoMuestraDetallesAlCliente() {
+    @DisplayName("Un fallo interno no muestra detalles técnicos al cliente")
+    void falloInternoNoMuestraDetalles() {
         ResultadoConsultaSeguimientos resultado = new ControladorConsultaSeguimientos(dni -> {
             throw new IllegalStateException("Conexión MySQL perdida");
         }).consultarSeguimientos("12345678Z");
@@ -71,7 +71,9 @@ class ControladorConsultaSeguimientosTest {
         assertEquals(ControladorConsultaSeguimientos.ERROR_INTERNO, resultado.mensaje());
     }
 
+    // CP-C04 · Conjetura de errores: dependencia obligatoria
     @Test
+    @DisplayName("El servicio es obligatorio")
     void elServicioEsObligatorio() {
         assertThrows(NullPointerException.class, () -> new ControladorConsultaSeguimientos(null));
     }

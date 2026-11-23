@@ -12,13 +12,22 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
- * Pruebas del CdU11. Los seguimientos se crean con el servicio real del CdU13, igual que en la
- * aplicación, y se consultan con un reloj fijo para saber qué repetición es la próxima.
+ * Pruebas del servicio del CdU11 · Consultar prueba de seguimiento periódica.
+ *
+ * <p>Los seguimientos se crean con el servicio real del CdU13, igual que en la aplicación, y se
+ * consultan con un reloj fijo para saber qué repetición es la próxima. Los casos salen de la tabla
+ * de diseño de pruebas del CdU11 (clases de equivalencia, valores límite y conjetura de errores).
  * Todos los DNI son ficticios.
  */
+@DisplayName("CdU11 · Servicio de consulta de seguimientos")
 class ServicioConsultaSeguimientoImplTest {
 
     private static final ZoneId ZONA = ZoneId.of("Europe/Madrid");
@@ -36,25 +45,43 @@ class ServicioConsultaSeguimientoImplTest {
                 new CatalogoTiposPruebaSimulado(), new RegistroMedicosSimulado(), reloj(HOY));
     }
 
-    @Test
-    void dniNuloOVacioSeRechazaComoEnElCdU10() {
+    // CP-S01 · DNI: clase no válida (nulo, vacío o en blanco)
+    @ParameterizedTest(name = "DNI no válido: [{0}]")
+    @NullAndEmptySource
+    @ValueSource(strings = {"   ", "\t"})
+    @DisplayName("Un DNI nulo, vacío o en blanco se rechaza igual que en el CdU10")
+    void dniNoValidoSeRechaza(String dni) {
         ServicioConsultaSeguimiento consulta = consultaEn(HOY);
 
-        assertThrows(DniPacienteInvalidoException.class, () -> consulta.consultarSeguimientos(null));
         DniPacienteInvalidoException e = assertThrows(DniPacienteInvalidoException.class,
-                () -> consulta.consultarSeguimientos("   "));
+                () -> consulta.consultarSeguimientos(dni));
+
         assertEquals(ServicioConsultaSeguimientoImpl.DNI_OBLIGATORIO, e.getMessage());
     }
 
+    // CP-S02 · DNI: clase válida, con distintas formas de escribirlo
+    @ParameterizedTest(name = "DNI válido escrito como [{0}]")
+    @ValueSource(strings = {"12345678Z", "12345678z", "  12345678Z  "})
+    @DisplayName("El DNI se encuentra sin importar mayúsculas ni espacios")
+    void dniValidoSeNormaliza(String dni) {
+        solicitar(PACIENTE, "TAC", 1, UnidadPeriodicidad.MESES, HOY, 1);
+
+        assertEquals(1, consultaEn(HOY).consultarSeguimientos(dni).size());
+    }
+
+    // CP-S03 · Paciente sin seguimientos (flujo alternativo A2)
     @Test
+    @DisplayName("Un paciente sin seguimientos obtiene una lista vacía")
     void pacienteSinSeguimientosDevuelveListaVacia() {
         solicitar("87654321X", "TAC", 1, UnidadPeriodicidad.MESES, HOY, 2);
 
         assertTrue(consultaEn(HOY).consultarSeguimientos(PACIENTE).isEmpty());
     }
 
+    // CP-S04 · Flujo principal: resumen completo del seguimiento
     @Test
-    void resumeElSeguimientoConPeriodicidadFechasYProximaRepeticion() {
+    @DisplayName("Resume el seguimiento con periodicidad, fechas y próxima repetición")
+    void resumeElSeguimiento() {
         SolicitudSeguimiento creada = solicitar(PACIENTE, "Mamografía", 3, UnidadPeriodicidad.MESES,
                 LocalDate.of(2026, 11, 20), 3);
 
@@ -79,27 +106,35 @@ class ServicioConsultaSeguimientoImplTest {
         assertEquals(creada.repeticiones(), s.repeticiones());
     }
 
-    @Test
-    void laRepeticionDeHoyCuentaComoProxima() {
-        solicitar(PACIENTE, "TAC", 2, UnidadPeriodicidad.SEMANAS, HOY, 2);
-
-        SeguimientoPeriodico s = consultaEn(HOY).consultarSeguimientos(PACIENTE).get(0);
-
-        assertEquals(HOY, s.proximaFecha());
-    }
-
-    @Test
-    void seguimientoConTodasLasRepeticionesPasadasEstaFinalizado() {
+    // CP-S05 · Valores límite alrededor de la última repetición
+    @ParameterizedTest(name = "consultado {0} día(s) respecto a la última repetición → {1}")
+    @CsvSource({
+        "-1, EN_CURSO",
+        "0,  EN_CURSO",
+        "1,  FINALIZADO"
+    })
+    @DisplayName("El estado pasa a FINALIZADO justo el día después de la última repetición")
+    void estadoEnLosLimitesDeLaUltimaRepeticion(int dias, String estadoEsperado) {
+        // Dos repeticiones diarias: HOY y HOY + 1 (la última).
         solicitar(PACIENTE, "Ecografía", 1, UnidadPeriodicidad.DIAS, HOY, 2);
+        LocalDate ultima = HOY.plusDays(1);
+        LocalDate diaConsulta = ultima.plusDays(dias);
 
-        SeguimientoPeriodico s = consultaEn(HOY.plusYears(1)).consultarSeguimientos(PACIENTE).get(0);
+        SeguimientoPeriodico s = consultaEn(diaConsulta).consultarSeguimientos(PACIENTE).get(0);
 
-        assertNull(s.proximaFecha());
-        assertEquals(SeguimientoPeriodico.FINALIZADO, s.estado());
-        assertEquals(HOY.plusDays(1), s.fechaFin());
+        assertEquals(estadoEsperado, s.estado());
+        assertEquals(ultima, s.fechaFin());
+        if (SeguimientoPeriodico.FINALIZADO.equals(estadoEsperado)) {
+            assertNull(s.proximaFecha());
+        } else {
+            // Una repetición prevista para el mismo día de la consulta cuenta como próxima.
+            assertEquals(diaConsulta, s.proximaFecha());
+        }
     }
 
+    // CP-S06 · Repeticiones citadas frente a pendientes
     @Test
+    @DisplayName("Cuenta las repeticiones que ya tienen cita")
     void cuentaLasRepeticionesYaCitadas() {
         SolicitudSeguimiento creada = solicitar(PACIENTE, "TAC", 1, UnidadPeriodicidad.MESES, HOY, 3);
         List<RepeticionSeguimiento> repeticiones = List.of(
@@ -118,15 +153,10 @@ class ServicioConsultaSeguimientoImplTest {
         assertEquals(2, s.repeticionesCitadas());
     }
 
+    // CP-S07 · Orden de la lista
     @Test
-    void buscaElDniSinEspaciosNiMayusculas() {
-        solicitar(PACIENTE, "TAC", 1, UnidadPeriodicidad.MESES, HOY, 1);
-
-        assertEquals(1, consultaEn(HOY).consultarSeguimientos("  12345678z ").size());
-    }
-
-    @Test
-    void ordenaPrimeroLosEnCursoPorProximaFechaYDespuesLosFinalizados() {
+    @DisplayName("Ordena primero los seguimientos en curso por próxima fecha y después los finalizados")
+    void ordenaEnCursoAntesQueFinalizados() {
         LocalDate consulta = HOY.plusDays(10);
         SolicitudSeguimiento finalizado =
                 solicitar(PACIENTE, "Ecografía", 1, UnidadPeriodicidad.DIAS, HOY, 2);
@@ -142,23 +172,26 @@ class ServicioConsultaSeguimientoImplTest {
         assertEquals(List.of(cercano.id(), lejano.id(), finalizado.id()), orden);
     }
 
-    @Test
-    void describeLaPeriodicidadEnSingularYPlural() {
-        assertEquals("Cada día",
-                ServicioConsultaSeguimientoImpl.describir(new PeriodicidadSeguimiento(1, UnidadPeriodicidad.DIAS)));
-        assertEquals("Cada 10 días",
-                ServicioConsultaSeguimientoImpl.describir(new PeriodicidadSeguimiento(10, UnidadPeriodicidad.DIAS)));
-        assertEquals("Cada semana",
-                ServicioConsultaSeguimientoImpl.describir(new PeriodicidadSeguimiento(1, UnidadPeriodicidad.SEMANAS)));
-        assertEquals("Cada 2 semanas",
-                ServicioConsultaSeguimientoImpl.describir(new PeriodicidadSeguimiento(2, UnidadPeriodicidad.SEMANAS)));
-        assertEquals("Cada mes",
-                ServicioConsultaSeguimientoImpl.describir(new PeriodicidadSeguimiento(1, UnidadPeriodicidad.MESES)));
-        assertEquals("Cada 6 meses",
-                ServicioConsultaSeguimientoImpl.describir(new PeriodicidadSeguimiento(6, UnidadPeriodicidad.MESES)));
+    // CP-S08 · Texto de la periodicidad: singular (cada = 1, valor límite) y plural (cada > 1)
+    @ParameterizedTest(name = "cada {0} {1} → {2}")
+    @CsvSource({
+        "1,  DIAS,    Cada día",
+        "2,  DIAS,    Cada 2 días",
+        "10, DIAS,    Cada 10 días",
+        "1,  SEMANAS, Cada semana",
+        "2,  SEMANAS, Cada 2 semanas",
+        "1,  MESES,   Cada mes",
+        "6,  MESES,   Cada 6 meses"
+    })
+    @DisplayName("Describe la periodicidad en singular y en plural")
+    void describeLaPeriodicidad(int cada, UnidadPeriodicidad unidad, String esperado) {
+        assertEquals(esperado,
+                ServicioConsultaSeguimientoImpl.describir(new PeriodicidadSeguimiento(cada, unidad)));
     }
 
+    // CP-S09 · Conjetura de errores: dependencia obligatoria
     @Test
+    @DisplayName("El servicio del CdU13 es obligatorio")
     void elServicioDelCdU13EsObligatorio() {
         assertThrows(NullPointerException.class, () -> new ServicioConsultaSeguimientoImpl(null));
     }
