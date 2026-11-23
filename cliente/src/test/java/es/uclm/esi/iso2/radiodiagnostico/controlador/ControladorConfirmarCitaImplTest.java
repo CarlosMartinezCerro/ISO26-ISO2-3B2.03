@@ -3,10 +3,10 @@ package es.uclm.esi.iso2.radiodiagnostico.controlador;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import es.uclm.esi.iso2.radiodiagnostico.cita.ClienteConfirmacionCitas;
-import es.uclm.esi.iso2.radiodiagnostico.cita.DatosConfirmacionCita;
-import es.uclm.esi.iso2.radiodiagnostico.cita.ErrorComunicacionException;
-import es.uclm.esi.iso2.radiodiagnostico.cita.ResultadoConfirmacion;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ClienteConfirmacionCitas;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.DatosConfirmacionCita;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ErrorComunicacionException;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ResultadoConfirmacion;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VistaConfirmarCita;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

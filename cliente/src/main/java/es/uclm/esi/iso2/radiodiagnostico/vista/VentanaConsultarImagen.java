@@ -1,7 +1,7 @@
 package es.uclm.esi.iso2.radiodiagnostico.vista;
 
-import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenConsultada;
-import es.uclm.esi.iso2.radiodiagnostico.informe.ResumenImagen;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ImagenConsultada;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ResumenImagen;
 import java.io.ByteArrayInputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.List;

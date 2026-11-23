@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import es.uclm.esi.iso2.radiodiagnostico.Servidor;
-import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioEnMemoria;
-import es.uclm.esi.iso2.radiodiagnostico.paciente.ServicioPacientes;
-import es.uclm.esi.iso2.radiodiagnostico.paciente.ServicioPacientesImpl;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.paciente.PacienteRepositorioEnMemoria;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.paciente.ServicioPacientes;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.paciente.ServicioPacientesImpl;
 import io.javalin.Javalin;
 import java.io.IOException;
 import java.net.URI;

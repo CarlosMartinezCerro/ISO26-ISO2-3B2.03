@@ -1,6 +1,6 @@
 package es.uclm.esi.iso2.radiodiagnostico.vista;
 
-import es.uclm.esi.iso2.radiodiagnostico.informe.Informe;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.Informe;
 
 public interface VistaCrearInforme {
 

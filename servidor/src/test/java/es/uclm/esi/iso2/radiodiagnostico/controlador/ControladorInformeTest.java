@@ -7,11 +7,11 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
-import es.uclm.esi.iso2.radiodiagnostico.informe.Informe;
-import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioInformeImpl;
-import es.uclm.esi.iso2.radiodiagnostico.sistemasexternos.HistorialClinicoSimulado;
-import es.uclm.esi.iso2.radiodiagnostico.usuario.Medico;
-import es.uclm.esi.iso2.radiodiagnostico.usuario.Paciente;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.Informe;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ServicioInformeImpl;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.sistemasexternos.HistorialClinicoSimulado;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.usuario.Medico;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.usuario.Paciente;
 
 class ControladorInformeTest {
 

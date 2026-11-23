@@ -1,8 +1,8 @@
 package es.uclm.esi.iso2.radiodiagnostico.controlador;
 
-import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteHistorialPruebas;
-import es.uclm.esi.iso2.radiodiagnostico.informe.ErrorComunicacionException;
-import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoHistorialPruebas;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ClienteHistorialPruebas;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ErrorComunicacionException;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ResultadoHistorialPruebas;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VistaHistorialPruebas;
 import java.util.List;
 import java.util.Objects;

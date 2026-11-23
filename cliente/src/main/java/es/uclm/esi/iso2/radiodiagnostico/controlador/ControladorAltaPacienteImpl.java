@@ -1,9 +1,9 @@
 package es.uclm.esi.iso2.radiodiagnostico.controlador;
 
-import es.uclm.esi.iso2.radiodiagnostico.paciente.ClientePacientes;
-import es.uclm.esi.iso2.radiodiagnostico.paciente.DatosAltaPaciente;
-import es.uclm.esi.iso2.radiodiagnostico.paciente.ErrorComunicacionException;
-import es.uclm.esi.iso2.radiodiagnostico.paciente.ResultadoAlta;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.paciente.ClientePacientes;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.paciente.DatosAltaPaciente;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.paciente.ErrorComunicacionException;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.paciente.ResultadoAlta;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VistaAltaPaciente;
 import java.util.Objects;
 

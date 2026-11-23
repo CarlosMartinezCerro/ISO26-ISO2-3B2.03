@@ -1,9 +1,9 @@
 package es.uclm.esi.iso2.radiodiagnostico.controlador;
 
-import es.uclm.esi.iso2.radiodiagnostico.informe.DniPacienteInvalidoException;
-import es.uclm.esi.iso2.radiodiagnostico.informe.PruebaHistorica;
-import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoHistorialPruebas;
-import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioHistorialPruebas;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.DniPacienteInvalidoException;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.PruebaHistorica;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ResultadoHistorialPruebas;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ServicioHistorialPruebas;
 import java.util.List;
 import java.util.Objects;
 

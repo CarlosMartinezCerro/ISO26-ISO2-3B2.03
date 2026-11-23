@@ -14,8 +14,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import es.uclm.esi.iso2.radiodiagnostico.Servidor;
-import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioEnMemoria;
-import es.uclm.esi.iso2.radiodiagnostico.paciente.ServicioPacientesImpl;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.paciente.PacienteRepositorioEnMemoria;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.paciente.ServicioPacientesImpl;
 import io.javalin.Javalin;
 
 class RutasInformeTest {

@@ -1,6 +1,6 @@
 package es.uclm.esi.iso2.radiodiagnostico.vista;
 
-import es.uclm.esi.iso2.radiodiagnostico.informe.DatosImagen;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.DatosImagen;
 
 /** Lo que el controlador necesita de cualquier vista del CdU17 (escritorio, web...). */
 public interface VistaCrearImagen {

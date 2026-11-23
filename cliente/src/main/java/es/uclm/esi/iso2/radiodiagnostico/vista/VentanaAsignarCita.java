@@ -1,7 +1,7 @@
 package es.uclm.esi.iso2.radiodiagnostico.vista;
 
-import es.uclm.esi.iso2.radiodiagnostico.cita.DatosAsignacionCita;
-import es.uclm.esi.iso2.radiodiagnostico.cita.SolicitudPendiente;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.DatosAsignacionCita;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.SolicitudPendiente;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;

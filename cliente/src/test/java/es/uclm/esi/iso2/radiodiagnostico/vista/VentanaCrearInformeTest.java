@@ -15,9 +15,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import es.uclm.esi.iso2.radiodiagnostico.informe.Informe;
-import es.uclm.esi.iso2.radiodiagnostico.usuario.Medico;
-import es.uclm.esi.iso2.radiodiagnostico.usuario.Paciente;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.Informe;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.usuario.Medico;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.usuario.Paciente;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;

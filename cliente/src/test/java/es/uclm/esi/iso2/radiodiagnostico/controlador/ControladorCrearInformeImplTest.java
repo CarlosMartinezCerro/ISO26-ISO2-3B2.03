@@ -14,15 +14,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteInformes;
-import es.uclm.esi.iso2.radiodiagnostico.informe.DatosCreacionInforme;
-import es.uclm.esi.iso2.radiodiagnostico.informe.ErrorComunicacionException;
-import es.uclm.esi.iso2.radiodiagnostico.informe.Informe;
-import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoAntecedentes;
-import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoCreacionInforme;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ClienteInformes;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.DatosCreacionInforme;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ErrorComunicacionException;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.Informe;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ResultadoAntecedentes;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ResultadoCreacionInforme;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VistaCrearInforme;
-import es.uclm.esi.iso2.radiodiagnostico.usuario.Medico;
-import es.uclm.esi.iso2.radiodiagnostico.usuario.Paciente;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.usuario.Medico;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.usuario.Paciente;
 
 class ControladorCrearInformeImplTest {
 

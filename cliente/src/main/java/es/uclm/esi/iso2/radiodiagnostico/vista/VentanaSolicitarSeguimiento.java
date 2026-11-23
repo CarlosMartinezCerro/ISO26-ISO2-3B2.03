@@ -1,9 +1,9 @@
 package es.uclm.esi.iso2.radiodiagnostico.vista;
 
-import es.uclm.esi.iso2.radiodiagnostico.prueba.DatosSolicitudSeguimiento;
-import es.uclm.esi.iso2.radiodiagnostico.prueba.PrioridadSeguimiento;
-import es.uclm.esi.iso2.radiodiagnostico.prueba.RepeticionSeguimiento;
-import es.uclm.esi.iso2.radiodiagnostico.prueba.UnidadPeriodicidad;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.DatosSolicitudSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.PrioridadSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.RepeticionSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.UnidadPeriodicidad;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;

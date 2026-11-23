@@ -4,12 +4,12 @@ package es.uclm.esi.iso2.radiodiagnostico.controlador;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import es.uclm.esi.iso2.radiodiagnostico.Servidor;
-import es.uclm.esi.iso2.radiodiagnostico.cita.Cita;
-import es.uclm.esi.iso2.radiodiagnostico.cita.CitaRepositorio;
-import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioCitasImpl;
-import es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioEnMemoria;
-import es.uclm.esi.iso2.radiodiagnostico.paciente.ServicioPacientesImpl;
-import es.uclm.esi.iso2.radiodiagnostico.solicitud.SolicitudRepositorioEnMemoria;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.Cita;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.CitaRepositorio;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ServicioCitasImpl;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.paciente.PacienteRepositorioEnMemoria;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.paciente.ServicioPacientesImpl;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.solicitud.SolicitudRepositorioEnMemoria;
 
 import java.net.URI;
 import java.net.http.HttpClient;

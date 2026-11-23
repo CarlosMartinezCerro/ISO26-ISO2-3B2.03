@@ -3,12 +3,12 @@ package es.uclm.esi.iso2.radiodiagnostico.controlador;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import es.uclm.esi.iso2.radiodiagnostico.cita.CitaPaciente;
-import es.uclm.esi.iso2.radiodiagnostico.cita.ClienteCitas;
-import es.uclm.esi.iso2.radiodiagnostico.cita.DatosAsignacionCita;
-import es.uclm.esi.iso2.radiodiagnostico.cita.ErrorComunicacionException;
-import es.uclm.esi.iso2.radiodiagnostico.cita.ResultadoAsignacion;
-import es.uclm.esi.iso2.radiodiagnostico.cita.SolicitudPendiente;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.CitaPaciente;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ClienteCitas;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.DatosAsignacionCita;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ErrorComunicacionException;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ResultadoAsignacion;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.SolicitudPendiente;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VistaAsignarCita;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

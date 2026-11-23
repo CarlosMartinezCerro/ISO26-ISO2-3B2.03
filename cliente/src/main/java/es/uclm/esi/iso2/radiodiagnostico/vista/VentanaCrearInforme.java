@@ -4,9 +4,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-import es.uclm.esi.iso2.radiodiagnostico.informe.Informe;
-import es.uclm.esi.iso2.radiodiagnostico.usuario.Medico;
-import es.uclm.esi.iso2.radiodiagnostico.usuario.Paciente;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.Informe;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.usuario.Medico;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.usuario.Paciente;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;

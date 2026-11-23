@@ -1,11 +1,11 @@
 package es.uclm.esi.iso2.radiodiagnostico.controlador;
 
-import es.uclm.esi.iso2.radiodiagnostico.cita.Cita;
-import es.uclm.esi.iso2.radiodiagnostico.cita.CitaNoConfirmableException;
-import es.uclm.esi.iso2.radiodiagnostico.cita.CitaNoEncontradaException;
-import es.uclm.esi.iso2.radiodiagnostico.cita.DatosConfirmacionInvalidosException;
-import es.uclm.esi.iso2.radiodiagnostico.cita.ResultadoConfirmacion;
-import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioConfirmacionCitas;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.Cita;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.CitaNoConfirmableException;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.CitaNoEncontradaException;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.DatosConfirmacionInvalidosException;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ResultadoConfirmacion;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ServicioConfirmacionCitas;
 import java.util.Objects;
 
 /**

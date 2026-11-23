@@ -1,7 +1,7 @@
 package es.uclm.esi.iso2.radiodiagnostico.controlador;
 
-import es.uclm.esi.iso2.radiodiagnostico.cita.DatosConfirmacionCita;
-import es.uclm.esi.iso2.radiodiagnostico.cita.ResultadoConfirmacion;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.DatosConfirmacionCita;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ResultadoConfirmacion;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;

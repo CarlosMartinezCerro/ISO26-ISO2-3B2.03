@@ -1,6 +1,6 @@
 package es.uclm.esi.iso2.radiodiagnostico.vista;
 
-import es.uclm.esi.iso2.radiodiagnostico.informe.PruebaHistorica;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.PruebaHistorica;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.time.format.DateTimeFormatter;

@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import es.uclm.esi.iso2.radiodiagnostico.Servidor;
-import es.uclm.esi.iso2.radiodiagnostico.informe.Imagen;
-import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioEnMemoria;
-import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioImagenesImpl;
-import es.uclm.esi.iso2.radiodiagnostico.informe.SistemaPacsSimulado;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.Imagen;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ImagenRepositorioEnMemoria;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ServicioImagenesImpl;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.SistemaPacsSimulado;
 import io.javalin.Javalin;
 import java.io.IOException;
 import java.net.URI;

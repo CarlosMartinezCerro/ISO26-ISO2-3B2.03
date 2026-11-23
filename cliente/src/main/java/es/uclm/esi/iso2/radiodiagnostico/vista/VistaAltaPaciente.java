@@ -1,6 +1,6 @@
 package es.uclm.esi.iso2.radiodiagnostico.vista;
 
-import es.uclm.esi.iso2.radiodiagnostico.paciente.DatosAltaPaciente;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.paciente.DatosAltaPaciente;
 
 /** Lo que el controlador necesita de cualquier vista del CdU22 (escritorio, web...). */
 public interface VistaAltaPaciente {

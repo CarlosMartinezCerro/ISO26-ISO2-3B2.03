@@ -1,9 +1,9 @@
 package es.uclm.esi.iso2.radiodiagnostico.controlador;
 
-import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteConsultaImagenes;
-import es.uclm.esi.iso2.radiodiagnostico.informe.ErrorComunicacionException;
-import es.uclm.esi.iso2.radiodiagnostico.informe.RespuestaConsultaImagen;
-import es.uclm.esi.iso2.radiodiagnostico.informe.RespuestaListadoImagenes;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ClienteConsultaImagenes;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ErrorComunicacionException;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.RespuestaConsultaImagen;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.RespuestaListadoImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VistaConsultarImagen;
 import java.util.Objects;
 

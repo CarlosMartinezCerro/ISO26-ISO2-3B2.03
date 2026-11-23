@@ -1,7 +1,7 @@
 
 package es.uclm.esi.iso2.radiodiagnostico.vista;
 
-import es.uclm.esi.iso2.radiodiagnostico.cita.CitaPaciente;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.CitaPaciente;
 import java.util.List;
 
 public interface VistaConsultarCitas {

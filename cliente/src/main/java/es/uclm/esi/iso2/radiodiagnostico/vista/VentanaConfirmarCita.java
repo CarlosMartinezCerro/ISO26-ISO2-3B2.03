@@ -1,6 +1,6 @@
 package es.uclm.esi.iso2.radiodiagnostico.vista;
 
-import es.uclm.esi.iso2.radiodiagnostico.cita.DatosConfirmacionCita;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.DatosConfirmacionCita;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;

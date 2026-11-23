@@ -1,9 +1,9 @@
 
 package es.uclm.esi.iso2.radiodiagnostico.controlador;
 
-import es.uclm.esi.iso2.radiodiagnostico.cita.ClienteCitas;
-import es.uclm.esi.iso2.radiodiagnostico.cita.CitaPaciente;
-import es.uclm.esi.iso2.radiodiagnostico.cita.ErrorComunicacionException;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ClienteCitas;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.CitaPaciente;
+import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ErrorComunicacionException;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VistaConsultarCitas;
 import java.util.List;
 import java.util.Objects;
