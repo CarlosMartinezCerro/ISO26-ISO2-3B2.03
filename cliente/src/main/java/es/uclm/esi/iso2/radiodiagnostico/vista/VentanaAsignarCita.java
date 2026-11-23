@@ -4,6 +4,7 @@ import es.uclm.esi.iso2.radiodiagnostico.cita.DatosAsignacionCita;
 import es.uclm.esi.iso2.radiodiagnostico.cita.SolicitudPendiente;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.function.Function;
@@ -23,6 +24,9 @@ import javafx.scene.layout.Region;
 
 /** Vista de escritorio (JavaFX, D-008) del CdU25. No contiene lógica: todo lo decide el controlador. */
 public class VentanaAsignarCita extends BorderPane implements VistaAsignarCita {
+
+    /** Admite la hora con uno o dos dígitos: "9:30" y "09:30". */
+    private static final DateTimeFormatter FORMATO_HORA = DateTimeFormatter.ofPattern("H:mm");
 
     public static final String TITULO = "Radiodiagnóstico - CdU25: Asignar cita solicitada";
 
@@ -84,16 +88,29 @@ public class VentanaAsignarCita extends BorderPane implements VistaAsignarCita {
     @Override
     public DatosAsignacionCita obtenerDatos() {
         SolicitudPendiente solicitud = tablaSolicitudes.getSelectionModel().getSelectedItem();
-        LocalDate fecha = campoFecha.getValue();
+        LocalDate fecha = fechaEscrita();
         if (solicitud == null || fecha == null) {
             return null;
         }
         try {
-            LocalTime hora = LocalTime.parse(campoHora.getText().trim());
+            LocalTime hora = LocalTime.parse(campoHora.getText().trim(), FORMATO_HORA);
             return new DatosAsignacionCita(solicitud.id(), fecha.atTime(hora), campoSala.getText().trim());
         } catch (DateTimeParseException e) {
             return null;
         }
+    }
+
+    /** Fecha del selector, también si se ha escrito a mano y no se ha pulsado Intro. */
+    private LocalDate fechaEscrita() {
+        String texto = campoFecha.getEditor().getText();
+        if (texto != null && !texto.isBlank()) {
+            try {
+                return campoFecha.getConverter().fromString(texto.trim());
+            } catch (RuntimeException e) {
+                return null;
+            }
+        }
+        return campoFecha.getValue();
     }
 
     @Override

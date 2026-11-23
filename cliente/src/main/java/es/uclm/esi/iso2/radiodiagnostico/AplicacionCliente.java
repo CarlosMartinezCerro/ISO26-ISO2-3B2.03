@@ -1,21 +1,32 @@
+
 package es.uclm.esi.iso2.radiodiagnostico;
 
 import es.uclm.esi.iso2.radiodiagnostico.cita.ClienteCitasHttp;
+import es.uclm.esi.iso2.radiodiagnostico.cita.ClienteConfirmacionCitasHttp;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPacienteImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAsignarCita;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAsignarCitaImpl;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConfirmarCita;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConfirmarCitaImpl;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarCitas;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarCitasImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarImagen;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarImagenImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagenImpl;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearInformeImpl;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteConsultaImagenesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteImagenesHttp;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteInformesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ClientePacientesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAsignarCita;
+import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConfirmarCita;
+import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConsultarCitas;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConsultarImagen;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearImagen;
+import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearInforme;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
@@ -25,7 +36,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
- * Aplicación JavaFX del cliente (D-008): muestra un menú con los casos de uso y,
+ * Aplicación JavaFX del cliente: muestra un menú con los casos de uso y,
  * al elegir uno, crea su vista, modelo y controlador y los conecta.
  *
  * <p>La dirección del servidor se lee de la variable de entorno {@code SERVIDOR_URL}
@@ -44,10 +55,21 @@ public class AplicacionCliente extends Application {
         String url = urlServidor();
 
         VBox menu = new VBox(10,
-                botonMenu("CdU22 · Dar de alta paciente", () -> abrirAltaPaciente(url)),
-                botonMenu("CdU17 · Crear imagen", () -> abrirCrearImagen(url)),
-                botonMenu("CdU19 · Consultar imagen", () -> abrirConsultarImagen(url, medico())),
-                botonMenu("CdU25 · Asignar cita solicitada", () -> abrirAsignarCita(url)));
+                botonMenu("CdU22 · Dar de alta paciente",
+                        () -> abrirAltaPaciente(url)),
+                botonMenu("CdU17 · Crear imagen",
+                        () -> abrirCrearImagen(url)),
+                botonMenu("CdU19 · Consultar imagen",
+                        () -> abrirConsultarImagen(url, medico())),
+                botonMenu("CdU · Crear informe",
+                        () -> abrirCrearInforme(url)),
+                botonMenu("CU1 · Consultar citas",
+                        () -> abrirConsultarCitas(url)),
+                botonMenu("CdU2 · Confirmar cita",
+                        () -> abrirConfirmarCita(url)),
+                botonMenu("CdU25 · Asignar cita solicitada",
+                        () -> abrirAsignarCita(url)));
+
         menu.setPadding(new Insets(16));
 
         ventana.setTitle(TITULO);
@@ -57,17 +79,27 @@ public class AplicacionCliente extends Application {
 
     private static void abrirAltaPaciente(String url) {
         VentanaAltaPaciente vista = new VentanaAltaPaciente();
+
         ControladorAltaPaciente controlador =
-                new ControladorAltaPacienteImpl(vista, new ClientePacientesHttp(url));
+                new ControladorAltaPacienteImpl(
+                        vista,
+                        new ClientePacientesHttp(url));
+
         vista.alPulsarAlta(controlador::darDeAlta);
+
         abrir(VentanaAltaPaciente.TITULO, vista);
     }
 
     private static void abrirCrearImagen(String url) {
         VentanaCrearImagen vista = new VentanaCrearImagen();
+
         ControladorCrearImagen controlador =
-                new ControladorCrearImagenImpl(vista, new ClienteImagenesHttp(url));
+                new ControladorCrearImagenImpl(
+                        vista,
+                        new ClienteImagenesHttp(url));
+
         vista.alPulsarCrear(controlador::crearImagen);
+
         abrir(VentanaCrearImagen.TITULO, vista);
     }
 
@@ -88,6 +120,50 @@ public class AplicacionCliente extends Application {
         vista.alPulsarRecargar(controlador::cargarSolicitudes);
         abrir(VentanaAsignarCita.TITULO, vista);
         controlador.cargarSolicitudes();
+    }
+
+    private static void abrirCrearInforme(String url) {
+        VentanaCrearInforme vista = new VentanaCrearInforme();
+
+        ControladorCrearInformeImpl controlador =
+                new ControladorCrearInformeImpl(
+                        vista,
+                        new ClienteInformesHttp(url));
+
+        vista.alPulsarCargarAntecedentes(
+                () -> controlador.consultarAntecedentes(
+                        vista.obtenerDniPaciente(),
+                        vista.obtenerEspecialidad()));
+
+        vista.alPulsarCrear(controlador::crearInforme);
+
+        abrir(VentanaCrearInforme.TITULO, vista);
+    }
+
+    private static void abrirConsultarCitas(String url) {
+        VentanaConsultarCitas vista = new VentanaConsultarCitas();
+
+        ControladorConsultarCitas controlador =
+                new ControladorConsultarCitasImpl(
+                        vista,
+                        new ClienteCitasHttp(url));
+
+        vista.alPulsarConsultar(controlador::consultarCitas);
+
+        abrir("Radiodiagnóstico - Consultar citas", vista);
+    }
+
+    private static void abrirConfirmarCita(String url) {
+        VentanaConfirmarCita vista = new VentanaConfirmarCita();
+
+        ControladorConfirmarCita controlador =
+                new ControladorConfirmarCitaImpl(
+                        vista,
+                        new ClienteConfirmacionCitasHttp(url));
+
+        vista.alPulsarConfirmar(controlador::confirmarCita);
+
+        abrir(VentanaConfirmarCita.TITULO, vista);
     }
 
     private static Button botonMenu(String texto, Runnable accion) {
@@ -111,7 +187,10 @@ public class AplicacionCliente extends Application {
 
     private static String urlServidor() {
         String url = System.getenv("SERVIDOR_URL");
-        return url == null || url.isBlank() ? URL_POR_DEFECTO : url;
+
+        return url == null || url.isBlank()
+                ? URL_POR_DEFECTO
+                : url;
     }
 
     public static void main(String[] args) {

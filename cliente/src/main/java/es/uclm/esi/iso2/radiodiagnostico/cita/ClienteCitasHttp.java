@@ -1,5 +1,6 @@
 package es.uclm.esi.iso2.radiodiagnostico.cita;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -13,7 +14,10 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 
-/** Implementación de {@link ClienteCitas} sobre la API REST del servidor (D-009). CdU25. */
+/**
+ * Cliente HTTP para consultar y gestionar citas mediante la API REST (D-009):
+ * CdU25 (solicitudes pendientes y asignar cita) y CU1 (consultar citas).
+ */
 public class ClienteCitasHttp implements ClienteCitas {
 
     static final String RUTA_SOLICITUDES_PENDIENTES = "/solicitudes/pendientes";
@@ -22,6 +26,7 @@ public class ClienteCitasHttp implements ClienteCitas {
 
     private final String urlServidor;
     private final HttpClient http;
+
     /** Ignora los campos que el cliente no usa (por ejemplo el estado de la solicitud). */
     private final ObjectMapper json = new ObjectMapper()
             .registerModule(new JavaTimeModule())
@@ -30,15 +35,62 @@ public class ClienteCitasHttp implements ClienteCitas {
 
     /** @param urlServidor dirección base del servidor, por ejemplo {@code http://localhost:7070} */
     public ClienteCitasHttp(String urlServidor) {
-        this(urlServidor, HttpClient.newBuilder().connectTimeout(TIEMPO_MAXIMO).build());
+        this(urlServidor, HttpClient.newBuilder()
+                .connectTimeout(TIEMPO_MAXIMO)
+                .build());
     }
 
     public ClienteCitasHttp(String urlServidor, HttpClient http) {
-        Objects.requireNonNull(urlServidor, "La URL del servidor es obligatoria");
-        this.urlServidor = urlServidor.replaceAll("/+$", "");
-        this.http = Objects.requireNonNull(http, "El cliente HTTP es obligatorio");
+        this.urlServidor = Objects.requireNonNull(
+                urlServidor, "La URL del servidor es obligatoria")
+                .replaceAll("/+$", "");
+
+        this.http = Objects.requireNonNull(
+                http, "El cliente HTTP es obligatorio");
     }
 
+    /** CU1 · Consultar citas. */
+    @Override
+    public List<CitaPaciente> consultarCitas() {
+        try {
+            URI uri = URI.create(urlServidor + RUTA_CITAS);
+
+            HttpRequest peticion = HttpRequest.newBuilder(uri)
+                    .timeout(TIEMPO_MAXIMO)
+                    .GET()
+                    .build();
+
+            HttpResponse<String> respuesta = http.send(
+                    peticion, HttpResponse.BodyHandlers.ofString());
+
+            if (respuesta.statusCode() == 401) {
+                throw new ErrorComunicacionException(
+                        "El paciente no está autenticado.", null);
+            }
+
+            if (respuesta.statusCode() != 200) {
+                throw new ErrorComunicacionException(
+                        "El servidor respondió con el código "
+                                + respuesta.statusCode(), null);
+            }
+
+            return json.readValue(
+                    respuesta.body(),
+                    new TypeReference<List<CitaPaciente>>() {
+                    });
+
+        } catch (IOException e) {
+            throw new ErrorComunicacionException(
+                    "No se pudieron consultar las citas.", e);
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ErrorComunicacionException(
+                    "Se interrumpió la consulta de citas.", e);
+        }
+    }
+
+    /** CdU25 · Asignar cita solicitada: solicitudes que aún no tienen cita. */
     @Override
     public List<SolicitudPendiente> obtenerSolicitudesPendientes() {
         HttpRequest peticion = HttpRequest.newBuilder(URI.create(urlServidor + RUTA_SOLICITUDES_PENDIENTES))
@@ -48,6 +100,7 @@ public class ClienteCitasHttp implements ClienteCitas {
         return List.of(enviar(peticion, SolicitudPendiente[].class));
     }
 
+    /** CdU25 · Asignar cita solicitada. */
     @Override
     public ResultadoAsignacion asignarCita(DatosAsignacionCita datos) {
         HttpRequest peticion;

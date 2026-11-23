@@ -67,6 +67,42 @@ class VentanaAsignarCitaTest {
     }
 
     @Test
+    void admiteLaHoraConUnSoloDigito() throws Exception {
+        DatosAsignacionCita datos = enHiloFx(() -> {
+            tabla().getSelectionModel().select(1);
+            rellenar(LocalDate.of(2026, 12, 1), "9:30", "SALA-RX-1");
+            return ventana.obtenerDatos();
+        });
+
+        assertEquals(LocalDateTime.of(2026, 12, 1, 9, 30), datos.fechaHora());
+    }
+
+    @Test
+    void leeLaFechaEscritaAManoAunqueNoSeHayaPulsadoIntro() throws Exception {
+        DatosAsignacionCita datos = enHiloFx(() -> {
+            tabla().getSelectionModel().select(1);
+            rellenar(null, "10:00", "SALA-RX-1");
+            DatePicker campoFecha = (DatePicker) ventana.lookup("#campoFecha");
+            campoFecha.getEditor().setText(campoFecha.getConverter().toString(LocalDate.of(2026, 12, 3)));
+            return ventana.obtenerDatos();
+        });
+
+        assertEquals(LocalDateTime.of(2026, 12, 3, 10, 0), datos.fechaHora());
+    }
+
+    @Test
+    void conFechaEscritaMalDevuelveNulo() throws Exception {
+        DatosAsignacionCita datos = enHiloFx(() -> {
+            tabla().getSelectionModel().select(1);
+            rellenar(null, "10:00", "SALA-RX-1");
+            ((DatePicker) ventana.lookup("#campoFecha")).getEditor().setText("mañana");
+            return ventana.obtenerDatos();
+        });
+
+        assertNull(datos);
+    }
+
+    @Test
     void sinSolicitudSeleccionadaDevuelveNulo() throws Exception {
         DatosAsignacionCita datos = enHiloFx(() -> {
             rellenar(LocalDate.of(2026, 12, 1), "09:30", "SALA-RX-1");
