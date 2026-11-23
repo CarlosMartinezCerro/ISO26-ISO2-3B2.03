@@ -122,7 +122,7 @@ Fecha: 18/11 · It. 0 · Acta:5   · Issue:
 ---
 
 ## D-011 · Reutilización del bloque prueba del CdU13 en el CdU11
-Fecha: 22/11 · It. 2 · Acta:   · Issue: CU11
+Fecha: 22/11 · It. 2 · Acta: 21/11 · Issue: #64 (#62, #63)
 
 **Contexto:** el CdU11 (consultar prueba de seguimiento periódica) consulta las mismas pruebas de seguimiento que crea el CdU13 (solicitar prueba de seguimiento periódica). Además valida el DNI igual que el CdU10 (consultar historial de pruebas).
 
