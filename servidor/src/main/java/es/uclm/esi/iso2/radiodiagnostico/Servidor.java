@@ -9,18 +9,23 @@ import es.uclm.esi.iso2.radiodiagnostico.cita.CitaRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.cita.CitaRepositorioMySql;
 import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioCitas;
 import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioCitasImpl;
+import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioConfirmacionCitasImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCitas;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConfirmacionCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorInforme;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorPacientes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.Rutas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasCitas;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasConfirmacionCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasImagenes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasInforme;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasPacientes;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorSolicitudSeguimiento;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.RutasSolicitudSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorio;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioEnMemoria;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioMySql;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioImagenesImpl;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioInforme;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioInformeImpl;
@@ -35,12 +40,26 @@ import es.uclm.esi.iso2.radiodiagnostico.prueba.RegistroMedicosSimulado;
 import es.uclm.esi.iso2.radiodiagnostico.prueba.ServicioSolicitudSeguimientoImpl;
 import es.uclm.esi.iso2.radiodiagnostico.prueba.SolicitudSeguimientoRepositorioEnMemoria;
 import es.uclm.esi.iso2.radiodiagnostico.sistemasexternos.HistorialClinicoSimulado;
+import es.uclm.esi.iso2.radiodiagnostico.solicitud.EstadoSolicitud;
+import es.uclm.esi.iso2.radiodiagnostico.solicitud.PrioridadSolicitud;
+import es.uclm.esi.iso2.radiodiagnostico.solicitud.SolicitudPrueba;
+import es.uclm.esi.iso2.radiodiagnostico.solicitud.SolicitudRepositorio;
 import es.uclm.esi.iso2.radiodiagnostico.solicitud.SolicitudRepositorioEnMemoria;
 import io.javalin.Javalin;
 import io.javalin.json.JavalinJackson;
 
 /**
- * Punto de entrada del servidor: monta la API REST e inyecta las dependencias.
+ * Punto de entrada del servidor: monta la API REST (D-009) e inyecta las dependencias.
+ *
+ * <p>Variables de entorno:
+ * <ul>
+ *   <li>{@code PUERTO}: puerto HTTP (por defecto 7070).</li>
+ *   <li>{@code MYSQL_URL}, {@code MYSQL_USER}, {@code MYSQL_PASSWORD}: conexión a MySQL (D-010).
+ *       Si no se define {@code MYSQL_URL}, los pacientes, las citas y las imágenes se guardan en memoria.</li>
+ * </ul>
+ *
+ * <p>Las solicitudes (CdU25) están en memoria, con solicitudes de ejemplo, hasta que exista el
+ * CdU12 (solicitar prueba).
  */
 public final class Servidor {
 
@@ -56,26 +75,35 @@ public final class Servidor {
     }
 
     public static void main(String[] args) {
+        // Un único repositorio de citas para todos los casos de uso de citas
+        // (CdU1 consultar, CdU25 asignar, CdU2 confirmar...), para que vean las mismas citas.
+        CitaRepositorio citas = repositorioCitas();
+
         crear(
                 new RutasPacientes(new ControladorPacientes(
                         new ServicioPacientesImpl(repositorioPacientes()))),
 
                 new RutasImagenes(new ControladorImagenes(
                         new ServicioImagenesImpl(
-                                new ImagenRepositorioEnMemoria(),
+                                repositorioImagenes(),
                                 new SistemaPacsSimulado()))),
 
                 new RutasInforme(new ControladorInforme(
                         new ServicioInformeImpl(
                                 new HistorialClinicoSimulado()))),
 
-                new RutasCitas(new ControladorCitas(servicioCitas())),
+
 
                 new RutasSolicitudSeguimiento(new ControladorSolicitudSeguimiento(
                         new ServicioSolicitudSeguimientoImpl(
                                 new SolicitudSeguimientoRepositorioEnMemoria(),
                                 new CatalogoTiposPruebaSimulado(),
-                                new RegistroMedicosSimulado())))
+                                new RegistroMedicosSimulado()))),
+          
+                new RutasCitas(new ControladorCitas(servicioCitas(citas))),
+
+                new RutasConfirmacionCitas(new ControladorConfirmacionCitas(
+                        new ServicioConfirmacionCitasImpl(citas)))
         ).start(puerto());
     }
 
@@ -138,10 +166,11 @@ public final class Servidor {
         return app;
     }
 
-    private static ServicioCitas servicioCitas() {
+    private static ServicioCitas servicioCitas(CitaRepositorio citas) {
+        // Solicitudes de ejemplo para poder asignar citas (CdU25) hasta que exista el CdU12.
         return new ServicioCitasImpl(
-                new SolicitudRepositorioEnMemoria(),
-                repositorioCitas()
+                solicitudesDeEjemplo(),
+                citas
         );
     }
 
@@ -169,6 +198,31 @@ public final class Servidor {
         }
 
         return new PacienteRepositorioMySql();
+    }
+
+    private static ImagenRepositorio repositorioImagenes() {
+        String url = System.getenv("MYSQL_URL");
+        if (url == null || url.isBlank()) {
+            System.err.println("MYSQL_URL no está definida: las imágenes se guardarán en memoria.");
+            return new ImagenRepositorioEnMemoria();
+        }
+        return new ImagenRepositorioMySql();
+    }
+
+    /**
+     * Solicitudes de ejemplo para poder probar el CdU25 hasta que exista el CdU12.
+     * Los DNI son ficticios (RGPD) pero válidos: con MySQL, la tabla cita exige que el paciente
+     * exista, así que hay que darlos de alta antes con el CdU22.
+     */
+    static SolicitudRepositorio solicitudesDeEjemplo() {
+        SolicitudRepositorioEnMemoria solicitudes = new SolicitudRepositorioEnMemoria();
+        solicitudes.guardar(new SolicitudPrueba("SOL-001", "12345678Z", "Radiografía",
+                PrioridadSolicitud.ORDINARIO, EstadoSolicitud.PENDIENTE));
+        solicitudes.guardar(new SolicitudPrueba("SOL-002", "01234567L", "TAC",
+                PrioridadSolicitud.URGENTE, EstadoSolicitud.PENDIENTE));
+        solicitudes.guardar(new SolicitudPrueba("SOL-003", "87654321X", "Ecografía",
+                PrioridadSolicitud.PREFERENTE, EstadoSolicitud.PENDIENTE));
+        return solicitudes;
     }
 
     private static int puerto() {

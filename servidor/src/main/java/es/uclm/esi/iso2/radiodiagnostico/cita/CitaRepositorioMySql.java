@@ -36,6 +36,20 @@ public class CitaRepositorioMySql implements CitaRepositorio {
             ORDER BY fecha_hora
             """;
 
+    private static final String BUSCAR_POR_ID = """
+            SELECT id, id_solicitud, dni_paciente, tipo_prueba,
+                   fecha_hora, sala, estado
+            FROM cita
+            WHERE id = ?
+            """;
+
+    private static final String ACTUALIZAR_CITA = """
+            UPDATE cita
+            SET id_solicitud = ?, dni_paciente = ?, tipo_prueba = ?,
+                fecha_hora = ?, sala = ?, estado = ?
+            WHERE id = ?
+            """;
+
     private static final String EXISTE_CITA = """
             SELECT COUNT(*)
             FROM cita
@@ -113,6 +127,48 @@ public class CitaRepositorioMySql implements CitaRepositorio {
 
         } catch (SQLException e) {
             throw new IllegalStateException("No se pudieron buscar las citas del paciente.", e);
+        }
+    }
+
+    @Override
+    public Optional<Cita> buscarPorId(String id) {
+        try (var connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(BUSCAR_POR_ID)) {
+
+            statement.setString(1, id);
+
+            try (ResultSet resultado = statement.executeQuery()) {
+                if (!resultado.next()) {
+                    return Optional.empty();
+                }
+
+                return Optional.of(convertirCita(resultado));
+            }
+
+        } catch (SQLException e) {
+            throw new IllegalStateException("No se pudo buscar la cita.", e);
+        }
+    }
+
+    @Override
+    public void actualizar(Cita cita) {
+        Objects.requireNonNull(cita, "La cita es obligatoria");
+
+        try (var connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(ACTUALIZAR_CITA)) {
+
+            statement.setString(1, cita.idSolicitud());
+            statement.setString(2, cita.dniPaciente());
+            statement.setString(3, cita.tipoPrueba());
+            statement.setTimestamp(4, Timestamp.valueOf(cita.fechaHora()));
+            statement.setString(5, cita.sala());
+            statement.setString(6, cita.estado().name());
+            statement.setString(7, cita.id());
+
+            statement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new IllegalStateException("No se pudo actualizar la cita.", e);
         }
     }
 
