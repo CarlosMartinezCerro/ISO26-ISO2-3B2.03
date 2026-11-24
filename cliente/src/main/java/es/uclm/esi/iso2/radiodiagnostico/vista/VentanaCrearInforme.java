@@ -74,11 +74,11 @@ public class VentanaCrearInforme extends VBox implements VistaCrearInforme {
         campoMotivoConsulta.setPromptText("Motivo de consulta");
         campoFecha.setPromptText("dd/mm/aaaa");
         campoFecha.setConverter(new ConversorFecha());
-        if (paciente != null && paciente.getDni() != null) {
-            campoDniPaciente.setText(paciente.getDni());
+        if (paciente != null && paciente.dni() != null) {
+            campoDniPaciente.setText(paciente.dni());
         }
-        if (medico != null && medico.getEspecialidad() != null) {
-            campoEspecialidad.setText(medico.getEspecialidad());
+        if (medico != null && medico.especialidad() != null) {
+            campoEspecialidad.setText(medico.especialidad());
         }
 
         int fila = 0;
@@ -157,22 +157,19 @@ public class VentanaCrearInforme extends VBox implements VistaCrearInforme {
             return null;
         }
 
-        Paciente pacienteInforme = paciente;
-        if (pacienteInforme == null
-                || !campoDniPaciente.getText().trim().equals(
-                        pacienteInforme.getDni() == null ? "" : pacienteInforme.getDni())) {
-            pacienteInforme = new Paciente("", "", campoDniPaciente.getText().trim(),
-                    "", "", null, "");
-        }
-        Informe informe = new Informe(medico, pacienteInforme,
+        String dniMedico = medico == null || medico.dni() == null
+                ? ""
+                : medico.dni().trim();
+        String dniPaciente = campoDniPaciente.getText().trim();
+        Informe informe = new Informe(dniMedico, dniPaciente,
                 campoEspecialidad.getText().trim(),
                 campoMotivoConsulta.getText().trim(), campoConsultaActual.getText().trim(),
                 campoDiagnostico.getText().trim(), campoPruebas.getText().trim(),
                 campoTratamiento.getText().trim(), false, fecha,
                 campoAnamnesis.getText().trim());
-        informe.setAntecedentes(campoAntecedentes.getText().trim());
-        informe.setHistorialEspecialidad(campoHistorialEspecialidad.getText().trim());
-        return informe;
+        return informe.conAntecedentes(
+                campoAntecedentes.getText().trim(),
+                campoHistorialEspecialidad.getText().trim());
     }
 
     @Override

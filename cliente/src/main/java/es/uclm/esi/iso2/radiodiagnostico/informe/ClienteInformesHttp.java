@@ -3,6 +3,7 @@ package es.uclm.esi.iso2.radiodiagnostico.informe;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -11,6 +12,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.List;
 import java.util.Objects;
 
 /** Implementacion HTTP del cliente de informes. */
@@ -76,6 +78,67 @@ public class ClienteInformesHttp implements ClienteInformes {
             HttpResponse<String> respuesta =
                     http.send(peticion, HttpResponse.BodyHandlers.ofString());
             return json.readValue(respuesta.body(), ResultadoAntecedentes.class);
+        } catch (IOException excepcion) {
+            throw new ErrorComunicacionException(
+                    "No se pudo contactar con el servidor", excepcion);
+        } catch (InterruptedException excepcion) {
+            Thread.currentThread().interrupt();
+            throw new ErrorComunicacionException(
+                    "Se interrumpio la peticion al servidor", excepcion);
+        }
+    }
+
+    @Override
+    public List<InformeResumen> listarInformes(String dniPaciente) {
+        if (dniPaciente == null || dniPaciente.isBlank()) {
+            throw new IllegalArgumentException("dniPaciente es obligatorio.");
+        }
+        try {
+            URI uri = URI.create(urlBase + RUTA_INFORMES
+                    + "?dniPaciente=" + codificar(dniPaciente));
+            HttpRequest peticion = HttpRequest.newBuilder(uri)
+                    .timeout(TIEMPO_MAXIMO)
+                    .GET()
+                    .build();
+            HttpResponse<String> respuesta =
+                    http.send(peticion, HttpResponse.BodyHandlers.ofString());
+            if (respuesta.statusCode() != 200) {
+                return List.of();
+            }
+            return json.readValue(respuesta.body(),
+                    new TypeReference<List<InformeResumen>>() {
+                    });
+        } catch (IOException excepcion) {
+            throw new ErrorComunicacionException(
+                    "No se pudo contactar con el servidor", excepcion);
+        } catch (InterruptedException excepcion) {
+            Thread.currentThread().interrupt();
+            throw new ErrorComunicacionException(
+                    "Se interrumpio la peticion al servidor", excepcion);
+        }
+    }
+
+    @Override
+    public InformeRespuesta obtenerInforme(long idInforme) {
+        if (idInforme <= 0) {
+            throw new IllegalArgumentException("idInforme no es valido.");
+        }
+        try {
+            HttpRequest peticion = HttpRequest.newBuilder(
+                    URI.create(urlBase + RUTA_INFORMES + "/" + idInforme))
+                    .timeout(TIEMPO_MAXIMO)
+                    .GET()
+                    .build();
+            HttpResponse<String> respuesta =
+                    http.send(peticion, HttpResponse.BodyHandlers.ofString());
+            if (respuesta.statusCode() == 404) {
+                return null;
+            }
+            if (respuesta.statusCode() != 200) {
+                throw new RuntimeException(
+                        "El servidor devolvio el codigo " + respuesta.statusCode());
+            }
+            return json.readValue(respuesta.body(), InformeRespuesta.class);
         } catch (IOException excepcion) {
             throw new ErrorComunicacionException(
                     "No se pudo contactar con el servidor", excepcion);
