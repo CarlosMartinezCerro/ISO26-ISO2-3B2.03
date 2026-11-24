@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.paciente.DatosAltaPaciente;
+import es.uclm.esi.iso2.radiodiagnostico.paciente.DatosAltaPaciente;
 import java.time.LocalDate;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;

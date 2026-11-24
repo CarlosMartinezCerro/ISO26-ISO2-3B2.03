@@ -1,8 +1,8 @@
 
 package es.uclm.esi.iso2.radiodiagnostico;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ClienteCitasHttp;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ClienteConfirmacionCitasHttp;
+import es.uclm.esi.iso2.radiodiagnostico.cita.ClienteCitasHttp;
+import es.uclm.esi.iso2.radiodiagnostico.cita.ClienteConfirmacionCitasHttp;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPacienteImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAsignarCita;
@@ -18,11 +18,11 @@ import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagenImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearInformeImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorSolicitarSeguimiento;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorSolicitarSeguimientoImpl;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ClienteConsultaImagenesHttp;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ClienteImagenesHttp;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ClienteInformesHttp;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.paciente.ClientePacientesHttp;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.ClienteSeguimientosHttp;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteConsultaImagenesHttp;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteImagenesHttp;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteInformesHttp;
+import es.uclm.esi.iso2.radiodiagnostico.paciente.ClientePacientesHttp;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ClienteSeguimientosHttp;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAsignarCita;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConfirmarCita;

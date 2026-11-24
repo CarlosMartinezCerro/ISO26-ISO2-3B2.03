@@ -1,14 +1,14 @@
 package es.uclm.esi.iso2.radiodiagnostico.controlador;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.Cita;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.DatosAsignacionCita;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.DatosAsignacionInvalidosException;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.HuecoOcupadoException;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ResultadoAsignacion;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ServicioCitas;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.SolicitudNoPendienteException;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.solicitud.SolicitudNoEncontradaException;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.solicitud.SolicitudPrueba;
+import es.uclm.esi.iso2.radiodiagnostico.cita.Cita;
+import es.uclm.esi.iso2.radiodiagnostico.cita.DatosAsignacionCita;
+import es.uclm.esi.iso2.radiodiagnostico.cita.DatosAsignacionInvalidosException;
+import es.uclm.esi.iso2.radiodiagnostico.cita.HuecoOcupadoException;
+import es.uclm.esi.iso2.radiodiagnostico.cita.ResultadoAsignacion;
+import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioCitas;
+import es.uclm.esi.iso2.radiodiagnostico.cita.SolicitudNoPendienteException;
+import es.uclm.esi.iso2.radiodiagnostico.solicitud.SolicitudNoEncontradaException;
+import es.uclm.esi.iso2.radiodiagnostico.solicitud.SolicitudPrueba;
 import java.util.List;
 import java.util.Objects;
 

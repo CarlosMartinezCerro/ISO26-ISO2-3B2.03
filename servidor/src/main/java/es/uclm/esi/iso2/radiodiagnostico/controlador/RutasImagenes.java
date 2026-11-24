@@ -1,10 +1,10 @@
 package es.uclm.esi.iso2.radiodiagnostico.controlador;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.DatosImagen;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.RespuestaListadoImagenes;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ResultadoConsultaImagen;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ResultadoCreacionImagen;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ResultadoListadoImagenes;
+import es.uclm.esi.iso2.radiodiagnostico.informe.DatosImagen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.RespuestaListadoImagenes;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoConsultaImagen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoCreacionImagen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoListadoImagenes;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;

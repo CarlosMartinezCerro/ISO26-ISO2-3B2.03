@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.DatosSolicitudSeguimiento;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.PrioridadSeguimiento;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.RepeticionSeguimiento;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.UnidadPeriodicidad;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.DatosSolicitudSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.PrioridadSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.RepeticionSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.UnidadPeriodicidad;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashMap;

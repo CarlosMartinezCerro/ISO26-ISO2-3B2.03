@@ -1,9 +1,9 @@
 package es.uclm.esi.iso2.radiodiagnostico.controlador;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.ClienteSeguimientos;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.DatosSolicitudSeguimiento;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.ErrorComunicacionException;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.ResultadoSolicitudSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ClienteSeguimientos;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.DatosSolicitudSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ErrorComunicacionException;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ResultadoSolicitudSeguimiento;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VistaSolicitarSeguimiento;
 import java.util.Objects;
 

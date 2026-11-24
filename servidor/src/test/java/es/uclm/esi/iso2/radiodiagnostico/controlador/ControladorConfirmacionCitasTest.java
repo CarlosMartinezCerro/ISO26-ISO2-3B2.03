@@ -4,11 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.Cita;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.CitaRepositorioEnMemoria;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.EstadoCita;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ResultadoConfirmacion;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ServicioConfirmacionCitasImpl;
+import es.uclm.esi.iso2.radiodiagnostico.cita.Cita;
+import es.uclm.esi.iso2.radiodiagnostico.cita.CitaRepositorioEnMemoria;
+import es.uclm.esi.iso2.radiodiagnostico.cita.EstadoCita;
+import es.uclm.esi.iso2.radiodiagnostico.cita.ResultadoConfirmacion;
+import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioConfirmacionCitasImpl;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

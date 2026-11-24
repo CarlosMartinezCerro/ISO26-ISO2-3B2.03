@@ -1,12 +1,12 @@
 package es.uclm.esi.iso2.radiodiagnostico.controlador;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.DatosSeguimientoInvalidosException;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.DatosSolicitudSeguimiento;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.ResultadoSolicitudSeguimiento;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.ServicioSolicitudSeguimiento;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.SolicitudSeguimiento;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.TipoPruebaSinSeguimientoException;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.UsuarioNoMedicoException;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.DatosSeguimientoInvalidosException;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.DatosSolicitudSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ResultadoSolicitudSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ServicioSolicitudSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.SolicitudSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.TipoPruebaSinSeguimientoException;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.UsuarioNoMedicoException;
 import java.util.Objects;
 
 /**

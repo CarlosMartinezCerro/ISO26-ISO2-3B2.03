@@ -3,14 +3,14 @@ package es.uclm.esi.iso2.radiodiagnostico.controlador;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.CitaRepositorioEnMemoria;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.DatosAsignacionCita;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ResultadoAsignacion;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.ServicioCitasImpl;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.solicitud.EstadoSolicitud;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.solicitud.PrioridadSolicitud;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.solicitud.SolicitudPrueba;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.solicitud.SolicitudRepositorioEnMemoria;
+import es.uclm.esi.iso2.radiodiagnostico.cita.CitaRepositorioEnMemoria;
+import es.uclm.esi.iso2.radiodiagnostico.cita.DatosAsignacionCita;
+import es.uclm.esi.iso2.radiodiagnostico.cita.ResultadoAsignacion;
+import es.uclm.esi.iso2.radiodiagnostico.cita.ServicioCitasImpl;
+import es.uclm.esi.iso2.radiodiagnostico.solicitud.EstadoSolicitud;
+import es.uclm.esi.iso2.radiodiagnostico.solicitud.PrioridadSolicitud;
+import es.uclm.esi.iso2.radiodiagnostico.solicitud.SolicitudPrueba;
+import es.uclm.esi.iso2.radiodiagnostico.solicitud.SolicitudRepositorioEnMemoria;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -56,7 +56,7 @@ class ControladorCitasTest {
                 PrioridadSolicitud.URGENTE, EstadoSolicitud.PENDIENTE));
         CitaRepositorioEnMemoria citasCaidas = new CitaRepositorioEnMemoria() {
             @Override
-            public void guardar(es.uclm.esi.iso2.radiodiagnostico.modelo.cita.Cita cita) {
+            public void guardar(es.uclm.esi.iso2.radiodiagnostico.cita.Cita cita) {
                 throw new IllegalStateException("fk_cita_paciente");
             }
         };

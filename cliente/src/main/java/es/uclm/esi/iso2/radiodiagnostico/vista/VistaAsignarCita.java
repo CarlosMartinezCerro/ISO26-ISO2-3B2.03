@@ -1,7 +1,7 @@
 package es.uclm.esi.iso2.radiodiagnostico.vista;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.DatosAsignacionCita;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.SolicitudPendiente;
+import es.uclm.esi.iso2.radiodiagnostico.cita.DatosAsignacionCita;
+import es.uclm.esi.iso2.radiodiagnostico.cita.SolicitudPendiente;
 import java.util.List;
 
 /** Lo que el controlador necesita de cualquier vista del CdU25 (escritorio, web...). */

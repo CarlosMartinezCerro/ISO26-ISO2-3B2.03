@@ -2,8 +2,8 @@ package es.uclm.esi.iso2.radiodiagnostico.controlador;
 
 import java.util.Objects;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.Informe;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ServicioInforme;
+import es.uclm.esi.iso2.radiodiagnostico.informe.Informe;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioInforme;
 
 /** Controlador servidor que delega las operaciones de informes en su servicio. */
 public class ControladorInforme {

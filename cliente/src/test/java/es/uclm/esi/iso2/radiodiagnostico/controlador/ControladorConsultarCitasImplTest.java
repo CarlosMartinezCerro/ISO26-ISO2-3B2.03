@@ -3,7 +3,7 @@ package es.uclm.esi.iso2.radiodiagnostico.controlador;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.cita.*;
+import es.uclm.esi.iso2.radiodiagnostico.cita.*;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VistaConsultarCitas;
 import java.time.LocalDateTime;
 import java.util.List;

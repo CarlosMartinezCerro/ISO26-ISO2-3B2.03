@@ -1,15 +1,15 @@
 package es.uclm.esi.iso2.radiodiagnostico.controlador;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.AccesoDenegadoException;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.DatosImagen;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.DatosImagenInvalidosException;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.Imagen;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ImagenNoEncontradaException;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.PacsNoDisponibleException;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ResultadoConsultaImagen;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ResultadoCreacionImagen;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ResultadoListadoImagenes;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ServicioImagenes;
+import es.uclm.esi.iso2.radiodiagnostico.informe.AccesoDenegadoException;
+import es.uclm.esi.iso2.radiodiagnostico.informe.DatosImagen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.DatosImagenInvalidosException;
+import es.uclm.esi.iso2.radiodiagnostico.informe.Imagen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenNoEncontradaException;
+import es.uclm.esi.iso2.radiodiagnostico.informe.PacsNoDisponibleException;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoConsultaImagen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoCreacionImagen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoListadoImagenes;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioImagenes;
 import java.util.List;
 import java.util.Objects;
 

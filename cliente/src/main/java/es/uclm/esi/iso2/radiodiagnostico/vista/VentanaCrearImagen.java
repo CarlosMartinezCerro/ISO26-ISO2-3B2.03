@@ -1,6 +1,6 @@
 package es.uclm.esi.iso2.radiodiagnostico.vista;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.DatosImagen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.DatosImagen;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

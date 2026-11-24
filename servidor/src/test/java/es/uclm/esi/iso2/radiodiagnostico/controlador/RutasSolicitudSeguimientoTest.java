@@ -4,11 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import es.uclm.esi.iso2.radiodiagnostico.Servidor;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.CatalogoTiposPruebaSimulado;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.RegistroMedicosSimulado;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.ServicioSolicitudSeguimiento;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.ServicioSolicitudSeguimientoImpl;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.SolicitudSeguimientoRepositorioEnMemoria;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.CatalogoTiposPruebaSimulado;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.RegistroMedicosSimulado;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ServicioSolicitudSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.ServicioSolicitudSeguimientoImpl;
+import es.uclm.esi.iso2.radiodiagnostico.prueba.SolicitudSeguimientoRepositorioEnMemoria;
 import io.javalin.Javalin;
 import java.io.IOException;
 import java.net.URI;

@@ -4,12 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.DatosImagen;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ImagenRepositorioEnMemoria;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.PacsNoDisponibleException;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ResultadoCreacionImagen;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ServicioImagenesImpl;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.SistemaPacsSimulado;
+import es.uclm.esi.iso2.radiodiagnostico.informe.DatosImagen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenRepositorioEnMemoria;
+import es.uclm.esi.iso2.radiodiagnostico.informe.PacsNoDisponibleException;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoCreacionImagen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ServicioImagenesImpl;
+import es.uclm.esi.iso2.radiodiagnostico.informe.SistemaPacsSimulado;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ClienteImagenes;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.DatosImagen;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ErrorComunicacionException;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ResultadoCreacionImagen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteImagenes;
+import es.uclm.esi.iso2.radiodiagnostico.informe.DatosImagen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ErrorComunicacionException;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoCreacionImagen;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VistaCrearImagen;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,7 +1,7 @@
 package es.uclm.esi.iso2.radiodiagnostico.controlador;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.paciente.DatosAltaPaciente;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.paciente.ResultadoAlta;
+import es.uclm.esi.iso2.radiodiagnostico.paciente.DatosAltaPaciente;
+import es.uclm.esi.iso2.radiodiagnostico.paciente.ResultadoAlta;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;

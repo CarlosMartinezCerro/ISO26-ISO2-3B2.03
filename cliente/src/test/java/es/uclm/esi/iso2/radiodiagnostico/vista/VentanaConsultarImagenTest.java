@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ImagenConsultada;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ResumenImagen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenConsultada;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ResumenImagen;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

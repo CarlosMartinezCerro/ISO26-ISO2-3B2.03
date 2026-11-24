@@ -1,7 +1,7 @@
 package es.uclm.esi.iso2.radiodiagnostico.vista;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ImagenConsultada;
-import es.uclm.esi.iso2.radiodiagnostico.modelo.informe.ResumenImagen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ImagenConsultada;
+import es.uclm.esi.iso2.radiodiagnostico.informe.ResumenImagen;
 import java.util.List;
 
 /** Lo que el controlador necesita de cualquier vista del CdU19 (escritorio, web...). */

@@ -1,6 +1,6 @@
 package es.uclm.esi.iso2.radiodiagnostico.vista;
 
-import es.uclm.esi.iso2.radiodiagnostico.modelo.paciente.DatosAltaPaciente;
+import es.uclm.esi.iso2.radiodiagnostico.paciente.DatosAltaPaciente;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
