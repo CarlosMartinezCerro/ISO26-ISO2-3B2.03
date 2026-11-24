@@ -8,6 +8,7 @@
     </parent>
     <artifactId>servidor</artifactId>
     <version>0.4.2-SNAPSHOT</version>
+
     <dependencies>
         <dependency>
             <groupId>com.mysql</groupId>

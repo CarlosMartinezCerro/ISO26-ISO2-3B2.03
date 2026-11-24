@@ -8,6 +8,7 @@
     </parent>
     <artifactId>cliente</artifactId>
     <version>0.4.2-SNAPSHOT</version>
+
     <dependencies>
         <dependency>
             <groupId>org.openjfx</groupId>
