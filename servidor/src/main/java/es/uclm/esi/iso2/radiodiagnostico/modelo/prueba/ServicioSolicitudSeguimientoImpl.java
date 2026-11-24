@@ -1,6 +1,7 @@
 package es.uclm.esi.iso2.radiodiagnostico.modelo.prueba;
 
 import java.time.Clock;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,11 +70,22 @@ public class ServicioSolicitudSeguimientoImpl implements ServicioSolicitudSeguim
                                                             DatosSolicitudSeguimiento datos) {
         List<RepeticionSeguimiento> repeticiones = new ArrayList<>();
         for (int indice = 0; ; indice++) {
-            LocalDate fecha = periodicidad.fechaRepeticion(datos.fechaInicio(), indice);
-            boolean terminado = datos.numeroRepeticiones() != null
-                    ? indice >= datos.numeroRepeticiones()
-                    : fecha.isAfter(datos.fechaLimite());
-            if (terminado) {
+            boolean porNumero = datos.numeroRepeticiones() != null;
+            if (porNumero && indice >= datos.numeroRepeticiones()) {
+                return repeticiones;
+            }
+            LocalDate fecha;
+            try {
+                fecha = periodicidad.fechaRepeticion(datos.fechaInicio(), indice);
+            } catch (DateTimeException e) {
+                if (!porNumero) {
+                    // Una fecha que no se puede representar siempre es posterior a la fecha límite.
+                    return repeticiones;
+                }
+                throw new DatosSeguimientoInvalidosException("El seguimiento generaría fechas "
+                        + "demasiado lejanas. Reduzca la periodicidad o el número de repeticiones.");
+            }
+            if (!porNumero && fecha.isAfter(datos.fechaLimite())) {
                 return repeticiones;
             }
             if (repeticiones.size() == MAXIMO_REPETICIONES) {
@@ -148,7 +160,7 @@ public class ServicioSolicitudSeguimientoImpl implements ServicioSolicitudSeguim
     }
 
     private static void validarTexto(String valor, String campo) {
-        if (valor == null || valor.isBlank()) {
+        if (valor == null || valor.trim().isBlank()) {
             throw new DatosSeguimientoInvalidosException("El campo " + campo + " es obligatorio.");
         }
     }

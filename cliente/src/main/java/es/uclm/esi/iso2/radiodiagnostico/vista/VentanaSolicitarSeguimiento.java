@@ -5,8 +5,12 @@ import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.PrioridadSeguimiento;
 import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.RepeticionSeguimiento;
 import es.uclm.esi.iso2.radiodiagnostico.modelo.prueba.UnidadPeriodicidad;
 import java.time.LocalDate;
+import java.time.chrono.IsoEra;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
+import java.time.temporal.ChronoField;
 import java.util.List;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
@@ -28,7 +32,12 @@ public class VentanaSolicitarSeguimiento extends GridPane implements VistaSolici
 
     public static final String TITULO =
             "Radiodiagnóstico - CdU13: Solicitar prueba de seguimiento periódica";
-    private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    /** STRICT para rechazar fechas imposibles (31/02); con yyyy exige una era y se fija la actual. */
+    private static final DateTimeFormatter FORMATO_FECHA = new DateTimeFormatterBuilder()
+            .appendPattern("dd/MM/yyyy")
+            .parseDefaulting(ChronoField.ERA, IsoEra.CE.getValue())
+            .toFormatter()
+            .withResolverStyle(ResolverStyle.STRICT);
 
     private final TextField campoDniPaciente = new TextField();
     private final TextField campoDniMedico = new TextField();
