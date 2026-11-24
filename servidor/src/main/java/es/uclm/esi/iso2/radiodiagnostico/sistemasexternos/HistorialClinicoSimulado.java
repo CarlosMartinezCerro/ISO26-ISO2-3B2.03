@@ -14,6 +14,10 @@ import java.util.Map;
 
 import es.uclm.esi.iso2.radiodiagnostico.informe.Informe;
 import es.uclm.esi.iso2.radiodiagnostico.informe.InformeResumen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.DatosInformeInvalidosException;
+import es.uclm.esi.iso2.radiodiagnostico.informe.DniPacienteInvalidoException;
+import es.uclm.esi.iso2.radiodiagnostico.informe.HistorialClinicoNoDisponibleException;
+import es.uclm.esi.iso2.radiodiagnostico.informe.InformeNoEncontradoException;
 
 /** Implementacion simulada del sistema externo de historial clinico. */
 public class HistorialClinicoSimulado implements HistorialClinico {
@@ -33,7 +37,7 @@ public class HistorialClinicoSimulado implements HistorialClinico {
         try {
             cargar();
         } catch (Exception excepcion) {
-            throw new IllegalStateException(
+            throw new HistorialClinicoNoDisponibleException(
                     "El sistema externo de historial clinico no esta disponible.", excepcion);
         }
     }
@@ -52,7 +56,7 @@ public class HistorialClinicoSimulado implements HistorialClinico {
     public Informe archivar(Informe informe) {
         validar(informe);
         if (informe.dniMedico() == null || informe.dniMedico().isBlank()) {
-            throw new IllegalArgumentException("El DNI del medico es obligatorio.");
+            throw new DatosInformeInvalidosException("El DNI del medico es obligatorio.");
         }
         synchronized (informesArchivados) {
             long maximo = informesArchivados.stream()
@@ -75,7 +79,7 @@ public class HistorialClinicoSimulado implements HistorialClinico {
             try {
                 escribir();
             } catch (Exception excepcion) {
-                throw new IllegalStateException(
+                throw new HistorialClinicoNoDisponibleException(
                         "El sistema externo de historial clinico no esta disponible.", excepcion);
             }
             return archivado;
@@ -85,7 +89,7 @@ public class HistorialClinicoSimulado implements HistorialClinico {
     @Override
     public List<InformeResumen> getInformes(String dniPaciente) {
         if (dniPaciente == null || dniPaciente.isBlank()) {
-            throw new IllegalArgumentException("El DNI del paciente es obligatorio.");
+            throw new DniPacienteInvalidoException("El DNI del paciente es obligatorio.");
         }
         List<InformeResumen> resultado = new ArrayList<>();
         synchronized (informesArchivados) {
@@ -102,7 +106,7 @@ public class HistorialClinicoSimulado implements HistorialClinico {
     @Override
     public Informe getInforme(long idInforme) {
         if (idInforme <= 0) {
-            throw new IllegalArgumentException("El identificador del informe no es valido.");
+            throw new InformeNoEncontradoException(idInforme);
         }
         synchronized (informesArchivados) {
             for (Informe informe : informesArchivados) {
@@ -111,18 +115,18 @@ public class HistorialClinicoSimulado implements HistorialClinico {
                 }
             }
         }
-        return null;
+        throw new InformeNoEncontradoException(idInforme);
     }
 
     private void validar(Informe informe) {
         if (informe == null) {
-            throw new IllegalArgumentException("El informe es obligatorio.");
+            throw new DatosInformeInvalidosException("El informe es obligatorio.");
         }
         if (informe.dniPaciente() == null || informe.dniPaciente().isBlank()) {
-            throw new IllegalArgumentException("El DNI del paciente es obligatorio.");
+            throw new DniPacienteInvalidoException("El DNI del paciente es obligatorio.");
         }
         if (informe.especialidad() == null || informe.especialidad().isBlank()) {
-            throw new IllegalArgumentException("La especialidad es obligatoria.");
+            throw new DatosInformeInvalidosException("La especialidad es obligatoria.");
         }
     }
 
@@ -181,7 +185,7 @@ public class HistorialClinicoSimulado implements HistorialClinico {
         String dniMedico = valor(fila, columnas, "dnimedico");
         String dniPaciente = valor(fila, columnas, "dnipaciente");
         if (dniPaciente.isBlank()) {
-            throw new IllegalArgumentException("La fila no contiene paciente.");
+            throw new DniPacienteInvalidoException("La fila no contiene DNI de paciente.");
         }
         return new Informe(
                 entero(valor(fila, columnas, "id")),
@@ -203,7 +207,7 @@ public class HistorialClinicoSimulado implements HistorialClinico {
     private Informe informePosicional(List<String> fila) {
         String dniPaciente = pos(fila, 2);
         if (dniPaciente.isBlank()) {
-            throw new IllegalArgumentException("La fila no contiene paciente.");
+            throw new DniPacienteInvalidoException("La fila no contiene DNI de paciente.");
         }
         return new Informe(
                 entero(pos(fila, 0)),

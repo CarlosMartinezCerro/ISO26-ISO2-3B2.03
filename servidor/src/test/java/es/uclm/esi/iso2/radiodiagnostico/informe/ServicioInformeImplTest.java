@@ -3,6 +3,7 @@ package es.uclm.esi.iso2.radiodiagnostico.informe;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 import java.lang.reflect.Method;
@@ -67,5 +68,72 @@ class ServicioInformeImplTest {
             assertTrue(!metodo.getName().startsWith("set"),
                     "Informe no debe tener setters");
         }
+    }
+
+    @Test
+    void lanzaExcepcionPorDniPacienteInvalido() {
+        HistorialClinicoSimulado historial = new HistorialClinicoSimulado();
+        ServicioInforme servicio = new ServicioInformeImpl(historial);
+        Informe informe = new Informe(
+                "12345678A", " ", "Radiologia", "Dolor", "Consulta",
+                "Diagnostico", "", "", false, LocalDate.now(), "");
+
+        assertThrows(DniPacienteInvalidoException.class,
+                () -> servicio.crearInforme(informe));
+        assertThrows(DniPacienteInvalidoException.class,
+                () -> servicio.listarInformes(" "));
+    }
+
+    @Test
+    void lanzaExcepcionPorDatosOInformeNoEncontrado() {
+        HistorialClinicoSimulado historial = new HistorialClinicoSimulado();
+        ServicioInforme servicio = new ServicioInformeImpl(historial);
+
+        assertThrows(DatosInformeInvalidosException.class,
+                () -> servicio.crearInforme(null));
+        assertThrows(InformeNoEncontradoException.class,
+                () -> servicio.obtenerInforme(-1));
+        assertThrows(InformeNoEncontradoException.class,
+                () -> servicio.obtenerInforme(999999));
+    }
+
+    @Test
+    void rechazaDatosObligatoriosAusentesAlCrearInforme() {
+        ServicioInforme servicio = new ServicioInformeImpl(new HistorialClinicoSimulado());
+
+        assertThrows(DatosInformeInvalidosException.class,
+                () -> servicio.crearInforme(new Informe(
+                        "12345678A", "87654321B", "", "Dolor", "Consulta",
+                        "Diagnostico", "", "", false, LocalDate.now(), "")));
+        assertThrows(DatosInformeInvalidosException.class,
+                () -> servicio.crearInforme(new Informe(
+                        "12345678A", "87654321B", "Radiologia", "Dolor", "",
+                        "Diagnostico", "", "", false, LocalDate.now(), "")));
+        assertThrows(DatosInformeInvalidosException.class,
+                () -> servicio.crearInforme(new Informe(
+                        "12345678A", "87654321B", "Radiologia", "Dolor", "Consulta",
+                        "", "", "", false, LocalDate.now(), "")));
+        assertThrows(DatosInformeInvalidosException.class,
+                () -> servicio.crearInforme(new Informe(
+                        "12345678A", "87654321B", "Radiologia", "Dolor", "Consulta",
+                        "Diagnostico", "", "", false, null, "")));
+    }
+
+    @Test
+    void rechazaInformeSinEspecialidadAlObtenerAntecedentes() {
+        ServicioInforme servicio = new ServicioInformeImpl(new HistorialClinicoSimulado());
+        Informe informe = new Informe(
+                "12345678A", "87654321B", "", "Dolor", "Consulta",
+                "Diagnostico", "", "", false, LocalDate.now(), "");
+
+        assertThrows(DatosInformeInvalidosException.class,
+                () -> servicio.obtenerAntecedentes(informe));
+        assertThrows(DatosInformeInvalidosException.class,
+                () -> servicio.obtenerAntecedentes(null));
+    }
+
+    @Test
+    void rechazaDependenciaNula() {
+        assertThrows(NullPointerException.class, () -> new ServicioInformeImpl(null));
     }
 }

@@ -6,7 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import es.uclm.esi.iso2.radiodiagnostico.informe.DatosCreacionInforme;
+import es.uclm.esi.iso2.radiodiagnostico.informe.DatosInformeInvalidosException;
+import es.uclm.esi.iso2.radiodiagnostico.informe.DniPacienteInvalidoException;
+import es.uclm.esi.iso2.radiodiagnostico.informe.HistorialClinicoNoDisponibleException;
 import es.uclm.esi.iso2.radiodiagnostico.informe.Informe;
+import es.uclm.esi.iso2.radiodiagnostico.informe.InformeNoEncontradoException;
 import es.uclm.esi.iso2.radiodiagnostico.informe.InformeRespuesta;
 import es.uclm.esi.iso2.radiodiagnostico.informe.InformeResumen;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoAntecedentes;
@@ -80,9 +84,13 @@ public class RutasInforme implements Rutas {
             Informe creado = controlador.crearInforme(informe);
             ctx.status(HttpStatus.CREATED).json(new ResultadoCreacionInforme(
                     true, "Informe creado correctamente.", aRespuesta(creado)));
-        } catch (IllegalArgumentException excepcion) {
+        } catch (DatosInformeInvalidosException
+                 | DniPacienteInvalidoException excepcion) {
             ctx.status(HttpStatus.BAD_REQUEST).json(new ResultadoCreacionInforme(
                     false, excepcion.getMessage(), null));
+        } catch (HistorialClinicoNoDisponibleException excepcion) {
+            ctx.status(HttpStatus.SERVICE_UNAVAILABLE).json(new ResultadoCreacionInforme(
+                    false, SISTEMA_NO_DISPONIBLE, null));
         } catch (IllegalStateException excepcion) {
             ctx.status(HttpStatus.SERVICE_UNAVAILABLE).json(new ResultadoCreacionInforme(
                     false, SISTEMA_NO_DISPONIBLE, null));
@@ -106,9 +114,13 @@ public class RutasInforme implements Rutas {
             ctx.status(HttpStatus.OK).json(new ResultadoAntecedentes(
                     true, "Antecedentes obtenidos correctamente.",
                     actualizado.antecedentes(), actualizado.historialEspecialidad()));
-        } catch (IllegalArgumentException excepcion) {
+        } catch (DatosInformeInvalidosException
+                 | DniPacienteInvalidoException excepcion) {
             ctx.status(HttpStatus.BAD_REQUEST).json(new ResultadoAntecedentes(
                     false, excepcion.getMessage(), null, null));
+        } catch (HistorialClinicoNoDisponibleException excepcion) {
+            ctx.status(HttpStatus.SERVICE_UNAVAILABLE).json(new ResultadoAntecedentes(
+                    false, SISTEMA_NO_DISPONIBLE, null, null));
         } catch (IllegalStateException excepcion) {
             ctx.status(HttpStatus.SERVICE_UNAVAILABLE).json(new ResultadoAntecedentes(
                     false, SISTEMA_NO_DISPONIBLE, null, null));
@@ -126,9 +138,13 @@ public class RutasInforme implements Rutas {
         try {
             List<InformeResumen> informes = controlador.listarInformes(dni.trim());
             ctx.status(HttpStatus.OK).json(informes);
-        } catch (IllegalArgumentException excepcion) {
+        } catch (DniPacienteInvalidoException
+                 | DatosInformeInvalidosException excepcion) {
             ctx.status(HttpStatus.BAD_REQUEST).json(Map.of(
                     "correcto", false, "mensaje", excepcion.getMessage()));
+        } catch (HistorialClinicoNoDisponibleException excepcion) {
+            ctx.status(HttpStatus.SERVICE_UNAVAILABLE).json(Map.of(
+                    "correcto", false, "mensaje", SISTEMA_NO_DISPONIBLE));
         } catch (IllegalStateException excepcion) {
             ctx.status(HttpStatus.SERVICE_UNAVAILABLE).json(Map.of(
                     "correcto", false, "mensaje", SISTEMA_NO_DISPONIBLE));
@@ -151,15 +167,17 @@ public class RutasInforme implements Rutas {
         }
         try {
             Informe informe = controlador.obtenerInforme(id);
-            if (informe == null) {
-                ctx.status(HttpStatus.NOT_FOUND).json(Map.of(
-                        "correcto", false, "mensaje", "Informe no encontrado."));
-                return;
-            }
             ctx.status(HttpStatus.OK).json(aRespuesta(informe));
-        } catch (IllegalArgumentException excepcion) {
+        } catch (InformeNoEncontradoException excepcion) {
+            ctx.status(HttpStatus.NOT_FOUND).json(Map.of(
+                    "correcto", false, "mensaje", excepcion.getMessage()));
+        } catch (DatosInformeInvalidosException
+                 | DniPacienteInvalidoException excepcion) {
             ctx.status(HttpStatus.BAD_REQUEST).json(Map.of(
                     "correcto", false, "mensaje", excepcion.getMessage()));
+        } catch (HistorialClinicoNoDisponibleException excepcion) {
+            ctx.status(HttpStatus.SERVICE_UNAVAILABLE).json(Map.of(
+                    "correcto", false, "mensaje", SISTEMA_NO_DISPONIBLE));
         } catch (IllegalStateException excepcion) {
             ctx.status(HttpStatus.SERVICE_UNAVAILABLE).json(Map.of(
                     "correcto", false, "mensaje", SISTEMA_NO_DISPONIBLE));

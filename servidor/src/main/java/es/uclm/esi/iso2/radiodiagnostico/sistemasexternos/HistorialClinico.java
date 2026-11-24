@@ -2,6 +2,10 @@ package es.uclm.esi.iso2.radiodiagnostico.sistemasexternos;
 
 import es.uclm.esi.iso2.radiodiagnostico.informe.Informe;
 import es.uclm.esi.iso2.radiodiagnostico.informe.InformeResumen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.DatosInformeInvalidosException;
+import es.uclm.esi.iso2.radiodiagnostico.informe.DniPacienteInvalidoException;
+import es.uclm.esi.iso2.radiodiagnostico.informe.HistorialClinicoNoDisponibleException;
+import es.uclm.esi.iso2.radiodiagnostico.informe.InformeNoEncontradoException;
 import java.util.List;
 
 /**
@@ -16,8 +20,9 @@ public interface HistorialClinico {
      * a partir del paciente y de la especialidad incluidos en el informe.
      *
      * @param informe informe que debe recibir los datos del historial
-     * @throws IllegalArgumentException si el informe no contiene DNI o especialidad
-     * @throws IllegalStateException si el sistema externo no está disponible
+     * @throws DniPacienteInvalidoException si falta el DNI del paciente
+     * @throws DatosInformeInvalidosException si falta la especialidad
+     * @throws HistorialClinicoNoDisponibleException si el sistema externo no está disponible
      */
     Informe getAntecedentes(Informe informe);
 
@@ -25,12 +30,17 @@ public interface HistorialClinico {
      * Archiva el informe en el sistema externo de historial clínico.
      *
      * @param informe informe que se desea archivar
-     * @throws IllegalArgumentException si el informe no es válido
-     * @throws IllegalStateException si el sistema externo no está disponible
+     * @throws DatosInformeInvalidosException si el informe no es válido
+     * @throws DniPacienteInvalidoException si falta el DNI del paciente
+     * @throws HistorialClinicoNoDisponibleException si el sistema externo no está disponible
      */
     Informe archivar(Informe informe);
 
     List<InformeResumen> getInformes(String dniPaciente);
 
+    /**
+     * @throws InformeNoEncontradoException si el ID es inválido o no existe
+     * @throws HistorialClinicoNoDisponibleException si el sistema externo no está disponible
+     */
     Informe getInforme(long idInforme);
 }
