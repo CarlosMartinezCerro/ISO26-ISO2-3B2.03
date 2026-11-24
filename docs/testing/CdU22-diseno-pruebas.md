@@ -1,7 +1,7 @@
 # CdU22 · Dar de alta paciente: diseño de las pruebas
 
 Requisito: RF-15, el personal administrativo da de alta pacientes.
-Metodología: ISO II, T.4 Gestión de Testing. Diseño (fase 1) y resultados de la ejecución (fase 2, anexo C). Todos los datos de pacientes son ficticios (RGPD).
+Metodología: ISO II, T.4 Gestión de Testing. Diseño (fase 1) y resultados de la ejecución (fase 2, anexo C). Los apartados 1 a 10 describen el código anterior a las correcciones; lo que estas cambian está en el anexo C. Todos los datos de pacientes son ficticios (RGPD).
 
 **Revisión tras integrar `develop`.** No ha cambiado ni se ha movido ninguna clase del alta. `schema.sql` solo añade la tabla `imagen`: `paciente` sigue con `nombre` y `apellidos` `VARCHAR(255)`, así que PF-3 se mantiene. `Servidor` y `AplicacionCliente` han cambiado, pero están excluidos. El diseño de los casos no varía.
 
@@ -10,7 +10,7 @@ Metodología: ISO II, T.4 Gestión de Testing. Diseño (fase 1) y resultados de 
 - Cada valor de prueba tiene un código (`D1`, `F3`...) y los casos se escriben con esos códigos. Se definen en el apartado 4.
 - Identificador: `unidad-criterio-número`. Unidades: `SP` servicio, `SC` su constructor; `CP` controlador del servidor, `PC` su constructor; `RG`, `RB` y `RC` repositorio MySQL (guardar, buscar y constructor); `MG` y `MB` repositorio en memoria (guardar y buscar); `CA` controlador del cliente, `CC` su constructor; `CH` cliente HTTP, `CU` su constructor; `VA` `obtenerDatos`, `VL` `limpiar`, `VB` `alPulsarAlta`; `CF` y `CT` conversor de fecha (`fromString` y `toString`). Criterios: `EU` each use, `PW` pairwise, `DC` decisiones, `MC` MC/DC, `PF` posible fallo.
 - Columna «Test actual»: **✔** el caso ya está cubierto por un test existente; **◐** el test existente comprueba el resultado pero no todo el oráculo (se indica qué falta); **✘** no está cubierto; **= ID** mismas entradas que otro caso de este documento, así que se implementa una sola vez.
-- **⚠** caso que puede destapar un fallo (anexo A). El resultado que figura es el **correcto**, no el que da hoy el código.
+- **⚠** caso que puede destapar un fallo (anexo A). El resultado que figura es el **correcto**, no el que daba el código al diseñar los casos. El estado actual de cada uno está en el anexo C.
 - `␣` es un espacio.
 
 Los tests actuales se citan sin el paquete: `ServicioPacientesImplTest.daDeAltaPacienteConDatosValidos` es la clase y el método.
@@ -293,7 +293,7 @@ Notas:
 
 - Una fecha es inválida si es posterior a hoy: F3 con K1, y F4 con K1 o K2. F4 con K3 es «nacido hoy» y es válida.
 - El teléfono solo se valida por longitud y por ser dígitos, así que sus límites son de longitud (8, 9 y 10). En el DNI importa además el número, porque de él sale la letra, y por eso tiene límites numéricos. El anterior a D3 (−1) no se puede escribir con 8 dígitos. En DNI y teléfono la clase válida tiene una sola longitud, 9, que es a la vez límite inferior y superior, y no hay un valor inferior dentro de la clase.
-- El contrato no fija la longitud máxima de nombre y apellidos. Se toma 255 porque es el tamaño de la columna (`VARCHAR(255)` en `schema.sql`); es una suposición del equipo (apartado 11).
+- El contrato no fija la longitud máxima de nombre y apellidos. Se toma 255 porque es el tamaño de la columna (`VARCHAR(255)` en `schema.sql`); es una suposición pendiente de decisión del equipo (apartado 11).
 - En R2, si el DNI del caso es inválido, el repositorio contiene al paciente `12345678Z`.
 
 | Salida | Casos que la producen |
@@ -1210,14 +1210,14 @@ Hay 25 casos marcados con ⚠ (23 sin contar los repetidos).
 
 ## 11. Suposiciones del equipo
 
-El contrato (Javadoc de las interfaces) y RF-15 no fijan el resultado de estos cuatro casos. El equipo ha decidido cuál es el correcto, y así figura en las tablas.
+El contrato (Javadoc de las interfaces) y RF-15 no fijan el resultado de estos cuatro casos. En las tablas figura el resultado propuesto. **PF-3, PF-4 y PF-6 están pendientes de decisión del equipo**: sus tests están desactivados con `@Disabled` y el código no se ha cambiado para ellos. PF-5 está aceptado y corregido.
 
-| Código | Qué no fija el contrato | Decisión tomada | Motivo |
-|---|---|---|---|
-| PF-3 | La longitud máxima de nombre y apellidos | Más de 255 caracteres se rechaza con `DatosInvalidosException` | La columna es `VARCHAR(255)`: si no se rechaza antes, el dato no cabe en la base de datos y el usuario solo ve un error genérico |
-| PF-4 | Una fecha de nacimiento mínima (solo prohíbe las futuras) | 01/01/0001 se rechaza con `DatosInvalidosException` | Nadie vivo ha nacido ese año, así que es un error al escribir. No se fija un límite: se prueba una fecha que sería inválida con cualquiera razonable |
-| PF-5 | Qué hace el controlador del cliente si recibe una respuesta nula | Muestra un error y conserva el formulario | El usuario debe saber que el alta no se ha confirmado. La parte del cliente HTTP sí la fija el contrato (devuelve una respuesta o lanza `ErrorComunicacionException`) |
-| PF-6 | Qué hace `PacienteRepositorio.guardar` si el DNI ya existe | El repositorio en memoria lanza `PacienteDuplicadoException` y conserva al paciente | El de MySQL, que implementa la misma interfaz, ya lo hace. Dos implementaciones intercambiables deben comportarse igual, y sobrescribir pierde datos de un paciente |
+| Código | Qué no fija el contrato | Resultado propuesto | Motivo | Estado |
+|---|---|---|---|---|
+| PF-3 | La longitud máxima de nombre y apellidos | Más de 255 caracteres se rechaza con `DatosInvalidosException` | La columna es `VARCHAR(255)`: si no se rechaza antes, el dato no cabe en la base de datos y el usuario solo ve un error genérico | Pendiente |
+| PF-4 | Una fecha de nacimiento mínima (solo prohíbe las futuras) | 01/01/0001 se rechaza con `DatosInvalidosException` | Nadie vivo ha nacido ese año, así que es un error al escribir. No se fija un límite: se prueba una fecha que sería inválida con cualquiera razonable | Pendiente |
+| PF-5 | Qué hace el controlador del cliente si recibe una respuesta nula | Muestra un error y conserva el formulario | El usuario debe saber que el alta no se ha confirmado. La parte del cliente HTTP sí la fija el contrato (devuelve una respuesta o lanza `ErrorComunicacionException`) | Aceptado y corregido |
+| PF-6 | Qué hace `PacienteRepositorio.guardar` si el DNI ya existe | El repositorio en memoria lanza `PacienteDuplicadoException` y conserva al paciente | El de MySQL, que implementa la misma interfaz, ya lo hace. Dos implementaciones intercambiables deben comportarse igual, y sobrescribir pierde datos de un paciente | Pendiente |
 
 ---
 
@@ -1229,10 +1229,10 @@ Se encontraron leyendo el código, antes de ejecutarlo. El resultado de la ejecu
 |---|---|---|---|---|
 | PF-1 | `31/02/2000` o `29/02/2001` se aceptarían cambiando el día al último del mes | `obtenerDatos` devuelve null y el conversor, null | `VistaAltaPaciente`: «null si la fecha de nacimiento está mal escrita» | VA-EU-17, VA-EU-19, CF-EU-07 y los VA-PW marcados |
 | PF-2 | Un texto con solo caracteres de control pasa la validación y se guarda vacío | `DatosInvalidosException` | `ServicioPacientes`: «si falta algún dato obligatorio» | SP-EU-19, SP-EU-24 y los SP-PW marcados |
-| PF-3 | Nombre o apellidos de más de 255 caracteres se aceptan, aunque no caben en la base de datos | `DatosInvalidosException` | Suposición del equipo (apartado 11) | SP-EU-15, SP-EU-20 y los SP-PW marcados |
-| PF-4 | Se acepta una fecha de nacimiento del año 1 | `DatosInvalidosException` | Suposición del equipo (apartado 11) | SP-EU-26 y los SP-PW marcados |
+| PF-3 | Nombre o apellidos de más de 255 caracteres se aceptan, aunque no caben en la base de datos | `DatosInvalidosException` | Suposición pendiente (apartado 11) | SP-EU-15, SP-EU-20 y los SP-PW marcados |
+| PF-4 | Se acepta una fecha de nacimiento del año 1 | `DatosInvalidosException` | Suposición pendiente (apartado 11) | SP-EU-26 y los SP-PW marcados |
 | PF-5 | Si el servidor responde `null`, el cliente HTTP devuelve null y el controlador lanza `NullPointerException` | El cliente HTTP lanza `ErrorComunicacionException` y el controlador muestra un error | `ClientePacientes` siempre devuelve una respuesta o lanza esa excepción. En el controlador, suposición del equipo (apartado 11) | CH-PW-05, 13 y 21; CA-PW-04 |
-| PF-6 | El repositorio en memoria sobrescribe al paciente si el DNI ya está | `PacienteDuplicadoException` | Suposición del equipo (apartado 11) | MG-PW-02 |
+| PF-6 | El repositorio en memoria sobrescribe al paciente si el DNI ya está | `PacienteDuplicadoException` | Suposición pendiente (apartado 11) | MG-PW-02 |
 | PF-7 | Con una URL sin `http://`, `darDeAlta` lanza `IllegalArgumentException`, que el controlador no captura | `ErrorComunicacionException` | `ClientePacientes`: «si no se puede contactar con el servidor» | CU-PF-01 |
 
 PF-6 y PF-7 aparecieron al hacer el diseño.
@@ -1240,19 +1240,18 @@ PF-6 y PF-7 aparecieron al hacer el diseño.
 ## Anexo B. Implementación (fase 2)
 
 - Los casos ✔ no se implementan. Los ✘ y los ◐ están en clases nuevas terminadas en `CdU22Test`; los ◐, con el oráculo completo. Los tests anteriores no se han tocado. Los «= ID» se implementan una sola vez.
-- Los casos se agrupan por criterio con `@Nested`. Los pairwise de SP y VA se leen de `src/test/resources/cdu22/`, generados a partir de las tablas del apartado 7. Los ⚠ van en métodos aparte (`posibleFallo...` y `posiblesFallos...`).
+- Los casos se agrupan por criterio con `@Nested`. Los pairwise de SP y VA se leen de `src/test/resources/cdu22/`, generados a partir de las tablas del apartado 7. Los ⚠ van en métodos aparte (`posibleFallo...` y `posiblesFallos...`). SP-PW-012 se ha sacado de `posiblesFallosPairwise` a un método propio, con las mismas entradas y el mismo oráculo, para poder desactivarlo sin desactivar SP-PW-050 y SP-PW-156.
 - Clases: `ServicioPacientesImplCdU22Test`, `PacienteRepositorioMySqlCdU22Test`, `PacienteRepositorioEnMemoriaCdU22Test` y `ControladorPacientesCdU22Test` (servidor); `ControladorAltaPacienteImplCdU22Test`, `ClientePacientesHttpCdU22Test` y `VentanaAltaPacienteCdU22Test` (cliente). Auxiliares: `CasoAlta` y `HttpClientFalso`.
 
 ### Regla de JaCoCo del CdU22
 
-Es la ejecución `comprobar-cdu22` del `pom.xml` padre. Exige el 80 % de LINE y de BRANCH (BRANCH equivale a la cobertura de decisiones) y detiene el build. Se aplica **clase a clase**, para que una clase muy cubierta no compense a otra. No se han tocado la regla del equipo ni los Surefire duplicados.
+Es la ejecución `comprobar-cdu22` del `pom.xml` padre. Exige el 80 % de LINE y de BRANCH (BRANCH equivale a la cobertura de decisiones), salvo las excepciones de la tabla, y detiene el build. Se aplica **clase a clase**, para que una clase muy cubierta no compense a otra. No se han tocado la regla del equipo ni los Surefire duplicados.
 
 | Excepción | Justificación |
 |---|---|
 | En `PacienteRepositorioMySql` solo se exige a `guardar` y `buscarPorDni` | El resto de la clase lee variables de entorno y está excluido (apartado 2). De sus 14 ramas se cubren 7: la clase se quedaría en el 50 % de BRANCH aunque los dos métodos del alta estén probados |
 | `VentanaAltaPaciente` queda fuera | Sus tests se omiten donde no hay pantalla, como en GitHub Actions. Allí su cobertura sería del 0 % y el build fallaría sin que hubiera ningún defecto. Su cobertura se mira en el informe local |
-
-**Pendiente de decidir.** `buscarPorDni` llega al 100 % de LINE, pero solo al 62 % de BRANCH (5 de 8), y la regla salta. Su única decisión, d2, está cubierta en true y en false. Las otras 6 ramas son los `if (recurso != null)` que genera el compilador para cerrar los `try-with-resources` cuando el método devuelve un valor. Las 3 que faltan no se pueden alcanzar: si el recurso fuera null, el método habría fallado antes de llegar ahí. Ningún caso de prueba puede subir esa cifra.
+| A `buscarPorDni` solo se le exige LINE | Llega al 100 % de LINE, pero solo al 62 % de BRANCH (5 de 8). Su única decisión, d2, está cubierta en true y en false. Las otras 6 ramas son los `if (recurso != null)` que genera el compilador para cerrar los `try-with-resources` cuando el método devuelve un valor. Las 3 que faltan no se pueden alcanzar: si el recurso fuera null, el método habría fallado antes de llegar ahí. Ningún caso de prueba puede subir esa cifra. `guardar` sigue con LINE y BRANCH |
 
 ### JaCoCo en rutas con caracteres no ASCII
 
@@ -1262,40 +1261,81 @@ En la carpeta de trabajo local, cuya ruta contiene `3º`, el agente escribe los 
 
 ## Anexo C. Resultados de la ejecución
 
-`mvn clean verify`, con los fallos de test ignorados para poder llegar al informe de JaCoCo de los dos módulos.
+Hubo dos ejecuciones de `mvn clean verify`. La primera, sobre el código sin corregir, destapó los fallos. La segunda es posterior a las correcciones, se hizo en una copia en una ruta sin `º` (anexo B) y termina en **BUILD SUCCESS** sin ignorar fallos de test.
 
-### Surefire
+### Primera ejecución: fallos encontrados
+
+791 tests, de los que 379 eran nuevos: pasaron 768 y fallaron 23. Los 23 eran exactamente los casos ⚠ distintos, así que **los siete posibles fallos se confirmaron**.
+
+| Código | Casos que fallaron | Qué hacía el código |
+|---|---|---|
+| PF-1 | VA-EU-17 (= VA-PW-65), VA-EU-19 (= VA-PW-73), VA-PW-66, 67, 68, 74, 75 y 76, CF-EU-07 | Leía `29/02/2001` como 28/02/2001 y `31/02/2000` como 29/02/2000 |
+| PF-2 | SP-EU-19, SP-EU-24, SP-PW-050 | Daba de alta al paciente sin rechazar el nombre ni los apellidos |
+| PF-3 | SP-EU-15, SP-EU-20 | Daba de alta con 256 caracteres |
+| PF-4 | SP-EU-26, SP-PW-012 | Aceptaba el 01/01/0001 (en SP-PW-012 seguía adelante y llegaba al fallo del repositorio) |
+| PF-2, PF-3 y PF-4 | SP-PW-156 | Daba de alta con los tres datos inválidos |
+| PF-5 | CH-PW-05, 13 y 21, CA-PW-04 | El cliente HTTP devolvía null y el controlador lanzaba `NullPointerException` |
+| PF-6 | MG-PW-02 | Sobrescribía al paciente sin avisar |
+| PF-7 | CU-PF-01 | Lanzaba `IllegalArgumentException` |
+
+### Fallos corregidos
+
+Las entradas y los oráculos de los tests no se han cambiado.
+
+| Código | Por qué se corrige | Corrección | Casos que ahora pasan |
+|---|---|---|---|
+| PF-1 | Incumple el contrato de `VistaAltaPaciente` | En `VentanaAltaPaciente`, el formato de fecha usa `ResolverStyle.STRICT`. Como así `yyyy` necesita una era, se fija la actual; con `uuuu` se habría pasado a aceptar el año 0 | Los 9 de PF-1 |
+| PF-2 | Incumple el contrato de `ServicioPacientes` | En `ServicioPacientesImpl.validarTexto`, `valor.isBlank()` pasa a `valor.trim().isBlank()`: se valida el mismo texto que se guarda | SP-EU-19, SP-EU-24, SP-PW-050 y SP-PW-156 |
+| PF-5 | La parte del cliente HTTP incumple el contrato de `ClientePacientes`; la del controlador es la suposición aceptada del apartado 11 | `ClientePacientesHttp` lanza `ErrorComunicacionException` si la respuesta es null. `ControladorAltaPacienteImpl` muestra el error de conexión si recibe null | CH-PW-05, 13 y 21, CA-PW-04 |
+| PF-7 | Incumple el contrato de `ClientePacientes` | `ClientePacientesHttp.darDeAlta` convierte también `IllegalArgumentException` en `ErrorComunicacionException` | CU-PF-01 |
+
+SP-PW-156 combina PF-2, PF-3 y PF-4. Pasa porque ahora se rechaza el nombre (PF-2), así que no dice nada sobre PF-3 ni PF-4.
+
+### Fallos sin corregir: tests desactivados
+
+Llevan `@Disabled("PF-x: pendiente de decisión del equipo, ver apartado 11")`. En estos tres, el código sigue haciendo lo mismo que en la primera ejecución.
+
+| Código | Casos desactivados | Por qué |
+|---|---|---|
+| PF-3 | SP-EU-15, SP-EU-20 | El contrato no fija una longitud máxima |
+| PF-4 | SP-EU-26, SP-PW-012 | El contrato no fija una fecha mínima |
+| PF-6 | MG-PW-02 | El contrato no dice qué hace `guardar` si el DNI ya existe |
+
+Son 5 casos en 4 métodos. Surefire cuenta 4 omitidos porque un test parametrizado desactivado (el de PF-3) cuenta como uno.
+
+### Qué cambian las correcciones en el diseño
+
+No hacen falta casos nuevos. Las decisiones que cambian ya están cubiertas:
+
+| Unidad | Decisión | true | false |
+|---|---|---|---|
+| SP | d4 pasa a `valor == null \|\| valor.trim().isBlank()` | SP-DC-03 | SP-DC-01 |
+| CA | nueva: respuesta null | CA-PW-04 | CA-PW-01 |
+| CH | nueva: respuesta null | CH-PW-05 | CH-PW-09 |
+
+En d4, los tres casos de MC/DC (9.1) siguen valiendo. Las dos decisiones nuevas tienen una sola condición, así que no necesitan MC/DC.
+
+### Surefire (segunda ejecución)
 
 | Módulo | Ejecutados | Pasan | Fallan | Omitidos |
 |---|---|---|---|---|
-| servidor | 465 (220 anteriores y 245 nuevos) | 456 | 9 | 0 |
-| cliente | 326 (192 anteriores y 134 nuevos) | 312 | 14 | 0 |
-| **Total** | **791** (412 anteriores y **379** nuevos) | **768** | **23** | **0** |
+| servidor | 464 (220 anteriores y 244 nuevos) | 460 | 0 | 4 |
+| cliente | 326 (192 anteriores y 134 nuevos) | 326 | 0 | 0 |
+| **Total** | **790** (412 anteriores y 378 nuevos) | **786** | **0** | **4** |
 
-| Clase nueva | Ejecutados | Fallan |
-|---|---|---|
-| `ServicioPacientesImplCdU22Test` | 198 | 8 |
-| `PacienteRepositorioMySqlCdU22Test` | 31 | 0 |
-| `PacienteRepositorioEnMemoriaCdU22Test` | 7 | 1 |
-| `ControladorPacientesCdU22Test` | 9 | 0 |
-| `ControladorAltaPacienteImplCdU22Test` | 9 | 1 |
-| `ClientePacientesHttpCdU22Test` | 32 | 4 |
-| `VentanaAltaPacienteCdU22Test` | 93 | 9 |
+La cuenta baja de 791 a 790 porque los dos casos del test parametrizado de PF-3 cuentan ahora como uno. «Ejecutados» incluye los omitidos, como en Surefire.
 
-Los 23 que fallan son exactamente los 23 casos ⚠ distintos: **los siete posibles fallos se confirman**. No falla ningún otro test. No se ha corregido producción ni se ha desactivado ningún test.
+| Clase nueva | Ejecutados | Fallan | Omitidos |
+|---|---|---|---|
+| `ServicioPacientesImplCdU22Test` | 197 | 0 | 3 (PF-3 y PF-4) |
+| `PacienteRepositorioMySqlCdU22Test` | 31 | 0 | 0 |
+| `PacienteRepositorioEnMemoriaCdU22Test` | 7 | 0 | 1 (PF-6) |
+| `ControladorPacientesCdU22Test` | 9 | 0 | 0 |
+| `ControladorAltaPacienteImplCdU22Test` | 9 | 0 | 0 |
+| `ClientePacientesHttpCdU22Test` | 32 | 0 | 0 |
+| `VentanaAltaPacienteCdU22Test` | 93 | 0 | 0 |
 
-| Código | Casos que fallan | Qué hace hoy el código |
-|---|---|---|
-| PF-1 | VA-EU-17 (= VA-PW-65), VA-EU-19 (= VA-PW-73), VA-PW-66, 67, 68, 74, 75 y 76, CF-EU-07 | Lee `29/02/2001` como 28/02/2001 y `31/02/2000` como 29/02/2000 |
-| PF-2 | SP-EU-19, SP-EU-24, SP-PW-050 | Da de alta al paciente sin rechazar el nombre ni los apellidos |
-| PF-3 | SP-EU-15, SP-EU-20 | Da de alta con 256 caracteres |
-| PF-4 | SP-EU-26, SP-PW-012 | Acepta el 01/01/0001 (en SP-PW-012 sigue adelante y llega al fallo del repositorio) |
-| PF-2, PF-3 y PF-4 | SP-PW-156 | Da de alta con los tres datos inválidos |
-| PF-5 | CH-PW-05, 13 y 21, CA-PW-04 | El cliente HTTP devuelve null y el controlador lanza `NullPointerException` |
-| PF-6 | MG-PW-02 | Sobrescribe al paciente sin avisar |
-| PF-7 | CU-PF-01 | Lanza `IllegalArgumentException` |
-
-### JaCoCo
+### JaCoCo (segunda ejecución)
 
 | Módulo | Clase | LINE | BRANCH | Regla |
 |---|---|---|---|---|
@@ -1304,12 +1344,12 @@ Los 23 que fallan son exactamente los 23 casos ⚠ distintos: **los siete posibl
 | servidor | `RutasPacientes` | 13/13 (100 %) | 2/2 (100 %) | cumple |
 | servidor | `PacienteRepositorioEnMemoria` | 5/5 (100 %) | sin ramas | cumple |
 | servidor | `PacienteRepositorioMySql.guardar` | 16/16 (100 %) | 2/2 (100 %) | cumple |
-| servidor | `PacienteRepositorioMySql.buscarPorDni` | 15/15 (100 %) | 5/8 (62 %) | **no cumple BRANCH** |
+| servidor | `PacienteRepositorioMySql.buscarPorDni` | 15/15 (100 %) | 5/8 (62 %) | cumple (solo LINE) |
 | servidor | `PacienteRepositorioMySql` (clase entera) | 34/45 (76 %) | 7/14 (50 %) | no se aplica |
-| cliente | `ControladorAltaPacienteImpl` | 17/17 (100 %) | 4/4 (100 %) | cumple |
-| cliente | `ClientePacientesHttp` | 23/23 (100 %) | sin ramas | cumple |
-| cliente | `VentanaAltaPaciente` | 48/57 (84 %) | 2/2 (100 %) | no se aplica |
+| cliente | `ControladorAltaPacienteImpl` | 19/19 (100 %) | 6/6 (100 %) | cumple |
+| cliente | `ClientePacientesHttp` | 26/26 (100 %) | 2/2 (100 %) | cumple |
+| cliente | `VentanaAltaPaciente` | 52/61 (85 %) | 2/2 (100 %) | no se aplica |
 | cliente | `VentanaAltaPaciente.ConversorFecha` | 6/6 (100 %) | 6/6 (100 %) | no se aplica |
 | ambos | records y excepciones del alta | 100 % | sin ramas | cumple |
 
-Módulo completo, con el código de todos los casos de uso: servidor, 82,7 % de LINE y 71,8 % de BRANCH; cliente, 74,3 % y 79,4 %. La regla del equipo (75 % de LINE, sin detener el build) avisa en el cliente.
+Módulo completo, con el código de todos los casos de uso: servidor, 82,7 % de LINE y 71,8 % de BRANCH; cliente, 74,5 % y 79,7 %. La regla del equipo (75 % de LINE, sin detener el build) avisa en el cliente.

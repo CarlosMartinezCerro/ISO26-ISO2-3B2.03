@@ -44,8 +44,12 @@ public class ClientePacientesHttp implements ClientePacientes {
                     .build();
             HttpResponse<String> respuesta = http.send(peticion, HttpResponse.BodyHandlers.ofString());
             // El servidor responde con un ResultadoAlta tanto si acepta (201) como si rechaza (400).
-            return json.readValue(respuesta.body(), ResultadoAlta.class);
-        } catch (IOException e) {
+            ResultadoAlta resultado = json.readValue(respuesta.body(), ResultadoAlta.class);
+            if (resultado == null) {
+                throw new ErrorComunicacionException("El servidor ha enviado una respuesta vacía", null);
+            }
+            return resultado;
+        } catch (IOException | IllegalArgumentException e) {
             throw new ErrorComunicacionException("No se pudo contactar con el servidor", e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
