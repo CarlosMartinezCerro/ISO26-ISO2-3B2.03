@@ -3,6 +3,7 @@ package es.uclm.esi.iso2.radiodiagnostico;
 
 import es.uclm.esi.iso2.radiodiagnostico.cita.ClienteCitasHttp;
 import es.uclm.esi.iso2.radiodiagnostico.cita.ClienteConfirmacionCitasHttp;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorSolicitarPruebaImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPacienteImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAsignarCita;
@@ -23,6 +24,7 @@ import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteImagenesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteInformesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.paciente.ClientePacientesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.prueba.ClienteSeguimientosHttp;
+import es.uclm.esi.iso2.radiodiagnostico.solicitud.ClienteSolicitudesHttp;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAsignarCita;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConfirmarCita;
@@ -31,6 +33,7 @@ import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConsultarImagen;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearInforme;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaSolicitarSeguimiento;
+import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaSolicitarPrueba;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
@@ -74,7 +77,9 @@ public class AplicacionCliente extends Application {
                 botonMenu("CdU2 · Confirmar cita",
                         () -> abrirConfirmarCita(url)),
                 botonMenu("CdU25 · Asignar cita solicitada",
-                        () -> abrirAsignarCita(url)));
+                        () -> abrirAsignarCita(url)),
+                botonMenu("CU12 · Solicitar prueba diagnóstica",
+                        () -> abrirSolicitarPrueba(url)));
 
         menu.setPadding(new Insets(16));
 
@@ -183,6 +188,15 @@ public class AplicacionCliente extends Application {
         vista.alPulsarConfirmar(controlador::confirmarCita);
 
         abrir(VentanaConfirmarCita.TITULO, vista);
+    }
+
+    private static void abrirSolicitarPrueba(String url) {
+        VentanaSolicitarPrueba vista = new VentanaSolicitarPrueba();
+        ControladorSolicitarPruebaImpl controlador = new ControladorSolicitarPruebaImpl(
+                vista, new ClienteSolicitudesHttp(url));
+        vista.alPulsarSolicitar(controlador::solicitar);
+        controlador.cargarPruebas();
+        abrir(VentanaSolicitarPrueba.TITULO, vista);
     }
 
     private static Button botonMenu(String texto, Runnable accion) {
