@@ -19,7 +19,7 @@ public interface HistorialClinico {
      * @throws IllegalArgumentException si el informe no contiene DNI o especialidad
      * @throws IllegalStateException si el sistema externo no está disponible
      */
-    void getAntecedentes(Informe informe);
+    Informe getAntecedentes(Informe informe);
 
     /**
      * Archiva el informe en el sistema externo de historial clínico.
@@ -28,7 +28,7 @@ public interface HistorialClinico {
      * @throws IllegalArgumentException si el informe no es válido
      * @throws IllegalStateException si el sistema externo no está disponible
      */
-    void archivar(Informe informe);
+    Informe archivar(Informe informe);
 
     List<InformeResumen> getInformes(String dniPaciente);
 

@@ -17,14 +17,12 @@ public class ServicioInformeImpl implements ServicioInforme {
 
     @Override
     public Informe crearInforme(Informe informe) {
-        historialClinico.archivar(informe);
-        return informe;
+        return historialClinico.archivar(informe);
     }
 
     @Override
-    public String obtenerAntecedentes(Informe informe) {
-        historialClinico.getAntecedentes(informe);
-        return informe.obtenerAntecedentes();
+    public Informe obtenerAntecedentes(Informe informe) {
+        return historialClinico.getAntecedentes(informe);
     }
 
     @Override

@@ -1,23 +1,19 @@
 package es.uclm.esi.iso2.radiodiagnostico.informe;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
+import java.lang.reflect.Method;
 
 import org.junit.jupiter.api.Test;
 
 import es.uclm.esi.iso2.radiodiagnostico.sistemasexternos.HistorialClinicoSimulado;
-import es.uclm.esi.iso2.radiodiagnostico.usuario.Medico;
-import es.uclm.esi.iso2.radiodiagnostico.usuario.Paciente;
-
 class ServicioInformeImplTest {
 
     private static Informe crearInforme() {
-        Medico medico = new Medico("Ana", "Ruiz", "12345678A", "", "", LocalDate.now(), "", "Radiologia");
-        Paciente paciente = new Paciente("Luis", "Perez", "87654321B", "", "", LocalDate.now(), "");
-        return new Informe(medico, paciente, "Radiologia", "Dolor", "Consulta actual",
+        return new Informe("12345678A", "87654321B", "Radiologia", "Dolor", "Consulta actual",
                 "Diagnostico", "Pruebas", "Tratamiento", false, LocalDate.now(), "Anamnesis");
     }
 
@@ -26,9 +22,11 @@ class ServicioInformeImplTest {
         HistorialClinicoSimulado historial = new HistorialClinicoSimulado();
         ServicioInforme servicio = new ServicioInformeImpl(historial);
         Informe informe = crearInforme();
-        int numInformes = historial.getInformes(informe.getPaciente().getDni()).size();
-        assertSame(informe, servicio.crearInforme(informe));
-        assertEquals(numInformes+1,historial.getInformes(informe.getPaciente().getDni()).size());
+        int numInformes = historial.getInformes(informe.dniPaciente()).size();
+        Informe creado = servicio.crearInforme(informe);
+        assertEquals(numInformes + 1,
+                historial.getInformes(informe.dniPaciente()).size());
+        assertTrue(creado.id() > 0);
     }
 
     @Test
@@ -37,11 +35,37 @@ class ServicioInformeImplTest {
         ServicioInforme servicio = new ServicioInformeImpl(historial);
         Informe informe = crearInforme();
 
-        String antecedentes = servicio.obtenerAntecedentes(informe);
+        Informe actualizado = servicio.obtenerAntecedentes(informe);
 
-        assertEquals("Antecedentes simulados del paciente 87654321B.", antecedentes);
-        assertEquals(antecedentes, informe.obtenerAntecedentes());
+        assertEquals("Antecedentes simulados del paciente 87654321B.",
+                actualizado.antecedentes());
         assertEquals("Historial simulado de Radiologia para el paciente 87654321B.",
-                informe.obtenerHistorial());
+                actualizado.historialEspecialidad());
+    }
+
+    @Test
+    void devuelveResumenConFechaYRecuperaInformePorId() {
+        HistorialClinicoSimulado historial = new HistorialClinicoSimulado();
+        ServicioInforme servicio = new ServicioInformeImpl(historial);
+        Informe creado = servicio.crearInforme(crearInforme());
+
+        var resumenes = servicio.listarInformes("87654321B");
+        Informe recuperado = servicio.obtenerInforme(creado.id());
+
+        assertTrue(resumenes.stream().anyMatch(resumen ->
+                resumen.id() == creado.id()
+                        && "Radiologia".equals(resumen.especialidad())
+                        && creado.fecha().equals(resumen.fecha())));
+        assertNotNull(recuperado);
+        assertEquals("87654321B", recuperado.dniPaciente());
+        assertEquals("12345678A", recuperado.dniMedico());
+    }
+
+    @Test
+    void informeEsInmutable() {
+        for (Method metodo : Informe.class.getMethods()) {
+            assertTrue(!metodo.getName().startsWith("set"),
+                    "Informe no debe tener setters");
+        }
     }
 }

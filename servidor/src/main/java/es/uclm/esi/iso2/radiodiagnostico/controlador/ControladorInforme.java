@@ -20,7 +20,7 @@ public class ControladorInforme {
         return servicio.crearInforme(informe);
     }
 
-    public String obtenerAntecedentes(Informe informe) {
+    public Informe obtenerAntecedentes(Informe informe) {
         return servicio.obtenerAntecedentes(informe);
     }
 

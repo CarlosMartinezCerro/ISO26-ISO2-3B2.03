@@ -19,7 +19,7 @@ public interface ServicioInforme {
      * @param informe informe al que se incorporaran los antecedentes
      * @return los antecedentes generales obtenidos
      */
-    String obtenerAntecedentes(Informe informe);
+    Informe obtenerAntecedentes(Informe informe);
 
     List<InformeResumen> listarInformes(String dni);
 
