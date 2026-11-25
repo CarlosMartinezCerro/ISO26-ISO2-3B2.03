@@ -103,7 +103,8 @@ public class ClienteInformesHttp implements ClienteInformes {
             HttpResponse<String> respuesta =
                     http.send(peticion, HttpResponse.BodyHandlers.ofString());
             if (respuesta.statusCode() != 200) {
-                return List.of();
+                throw new ErrorComunicacionException(
+                        "El servidor devolvió el código " + respuesta.statusCode(), null);
             }
             return json.readValue(respuesta.body(),
                     new TypeReference<List<InformeResumen>>() {
@@ -135,8 +136,8 @@ public class ClienteInformesHttp implements ClienteInformes {
                 return null;
             }
             if (respuesta.statusCode() != 200) {
-                throw new RuntimeException(
-                        "El servidor devolvio el codigo " + respuesta.statusCode());
+                throw new ErrorComunicacionException(
+                        "El servidor devolvió el código " + respuesta.statusCode(), null);
             }
             return json.readValue(respuesta.body(), InformeRespuesta.class);
         } catch (IOException excepcion) {
