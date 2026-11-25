@@ -61,7 +61,7 @@ public class ServicioPacientesImpl implements ServicioPacientes {
     }
 
     private void validarTexto(String valor, String campo) {
-        if (valor == null || valor.isBlank()) {
+        if (valor == null || valor.trim().isBlank()) {
             throw new DatosInvalidosException("El campo " + campo + " es obligatorio.");
         }
     }

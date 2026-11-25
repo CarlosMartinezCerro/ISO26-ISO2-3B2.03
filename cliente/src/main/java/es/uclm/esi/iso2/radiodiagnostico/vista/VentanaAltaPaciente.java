@@ -2,8 +2,12 @@ package es.uclm.esi.iso2.radiodiagnostico.vista;
 
 import es.uclm.esi.iso2.radiodiagnostico.paciente.DatosAltaPaciente;
 import java.time.LocalDate;
+import java.time.chrono.IsoEra;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
+import java.time.temporal.ChronoField;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -17,7 +21,12 @@ import javafx.util.StringConverter;
 public class VentanaAltaPaciente extends GridPane implements VistaAltaPaciente {
 
     public static final String TITULO = "Radiodiagnóstico - CdU22: Dar de alta paciente";
-    private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    /** STRICT para rechazar fechas imposibles (31/02); con yyyy exige una era y se fija la actual. */
+    private static final DateTimeFormatter FORMATO_FECHA = new DateTimeFormatterBuilder()
+            .appendPattern("dd/MM/yyyy")
+            .parseDefaulting(ChronoField.ERA, IsoEra.CE.getValue())
+            .toFormatter()
+            .withResolverStyle(ResolverStyle.STRICT);
 
     private final TextField campoDni = new TextField();
     private final TextField campoNombre = new TextField();

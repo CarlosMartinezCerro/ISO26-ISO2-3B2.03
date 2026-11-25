@@ -108,6 +108,59 @@
                             </limit></limits></rule></rules>
                         </configuration>
                     </execution>
+                    <!-- CdU22: LINE y BRANCH al 80 %; a diferencia de la regla anterior, detiene el build.
+                         Justificación en docs/testing/CdU22-diseno-pruebas.md (anexo B). -->
+                    <execution><id>comprobar-cdu22</id><goals><goal>check</goal></goals>
+                        <configuration>
+                            <haltOnFailure>true</haltOnFailure>
+                            <rules>
+                                <rule>
+                                    <element>CLASS</element>
+                                    <includes>
+                                        <!-- servidor -->
+                                        <include>es.uclm.esi.iso2.radiodiagnostico.paciente.ServicioPacientesImpl</include>
+                                        <include>es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioEnMemoria</include>
+                                        <include>es.uclm.esi.iso2.radiodiagnostico.paciente.Paciente</include>
+                                        <include>es.uclm.esi.iso2.radiodiagnostico.paciente.DatosInvalidosException</include>
+                                        <include>es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteDuplicadoException</include>
+                                        <include>es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorPacientes</include>
+                                        <include>es.uclm.esi.iso2.radiodiagnostico.controlador.RutasPacientes</include>
+                                        <!-- cliente -->
+                                        <include>es.uclm.esi.iso2.radiodiagnostico.paciente.ClientePacientesHttp</include>
+                                        <include>es.uclm.esi.iso2.radiodiagnostico.paciente.ErrorComunicacionException</include>
+                                        <include>es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorAltaPacienteImpl</include>
+                                        <!-- servidor y cliente -->
+                                        <include>es.uclm.esi.iso2.radiodiagnostico.paciente.DatosAltaPaciente</include>
+                                        <include>es.uclm.esi.iso2.radiodiagnostico.paciente.ResultadoAlta</include>
+                                    </includes>
+                                    <limits>
+                                        <limit><counter>LINE</counter><value>COVEREDRATIO</value><minimum>0.80</minimum></limit>
+                                        <limit><counter>BRANCH</counter><value>COVEREDRATIO</value><minimum>0.80</minimum></limit>
+                                    </limits>
+                                </rule>
+                                <rule>
+                                    <element>METHOD</element>
+                                    <includes>
+                                        <include>es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioMySql.guardar(*)</include>
+                                    </includes>
+                                    <limits>
+                                        <limit><counter>LINE</counter><value>COVEREDRATIO</value><minimum>0.80</minimum></limit>
+                                        <limit><counter>BRANCH</counter><value>COVEREDRATIO</value><minimum>0.80</minimum></limit>
+                                    </limits>
+                                </rule>
+                                <rule>
+                                    <!-- Solo LINE: sus ramas sin cubrir las genera el compilador (anexo B del diseño). -->
+                                    <element>METHOD</element>
+                                    <includes>
+                                        <include>es.uclm.esi.iso2.radiodiagnostico.paciente.PacienteRepositorioMySql.buscarPorDni(*)</include>
+                                    </includes>
+                                    <limits>
+                                        <limit><counter>LINE</counter><value>COVEREDRATIO</value><minimum>0.80</minimum></limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
                 </executions>
                 </plugin>
         </plugins>
