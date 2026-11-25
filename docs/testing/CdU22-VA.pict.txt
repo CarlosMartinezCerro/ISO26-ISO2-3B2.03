@@ -1,0 +1,20 @@
+# CdU22, unidad VA (VentanaAltaPaciente.obtenerDatos): modelo de entrada para PICT.
+# Los codigos son los del apartado 4.8 de CdU22-diseno-pruebas.md. No se usa el prefijo ~.
+#
+# Generar:    pict CdU22-VA.pict.txt
+# Comprobar:  pict CdU22-VA.pict.txt /e:CdU22-VA.semilla.txt
+#             La semilla son los 80 casos del apartado 7.2. Si cubren todos los pares,
+#             PICT no tiene que anadir ningun caso.
+#
+# fecha: W1 vacia, W2 tres espacios, W3 12/05/1990, W4 con espacios, W5 12-05-1990,
+#        W6 01/01/2000, W7 00/01/2000, W8 30/01/2000, W9 31/01/2000, W10 32/01/2000,
+#        W11 15/11/2000, W12 15/12/2000, W13 15/13/2000, W14 15/00/2000, W15 27/02/2001,
+#        W16 28/02/2001, W17 29/02/2001, W18 29/02/2000, W19 31/02/2000, W20 256 unos
+# dni, nombre, apellidos y telefono: X1 con texto, X2 vacio, X3 con espacios en los
+#        extremos, X4 256 caracteres
+
+fecha: W1, W2, W3, W4, W5, W6, W7, W8, W9, W10, W11, W12, W13, W14, W15, W16, W17, W18, W19, W20
+dni: X1, X2, X3, X4
+nombre: X1, X2, X3, X4
+apellidos: X1, X2, X3, X4
+telefono: X1, X2, X3, X4

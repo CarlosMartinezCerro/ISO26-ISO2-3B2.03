@@ -1,0 +1,30 @@
+# CdU22, unidad SP (ServicioPacientesImpl.darDeAlta): modelo de entrada para PICT.
+# Los codigos son los del apartado 4.1 de CdU22-diseno-pruebas.md. datos = null no entra
+# en las combinaciones (es el caso SP-EU-38). No se usa el prefijo ~ de PICT: en este
+# diseno tambien cuentan los pares de dos valores invalidos.
+#
+# Generar:    pict CdU22-SP.pict.txt
+# Comprobar:  pict CdU22-SP.pict.txt /e:CdU22-SP.semilla.txt
+#             La semilla son los 157 casos del apartado 7.1. Si cubren todos los pares,
+#             PICT no tiene que anadir ningun caso.
+#
+# dni:       D1 12345678Z, D2 con espacios y minuscula, D3 00000000T, D4 99999998T,
+#            D5 99999999R, D6 null, D7 vacio, D8 un espacio, D9 1234567Z, D10 100000000W,
+#            D11 123456789, D12 X1234567L, D13 12345678A, D14 256 unos
+# nombre:    N1 Alex, N2 con espacios, N3 1 caracter, N4 254, N5 255, N6 256, N7 null,
+#            N8 vacio, N9 un espacio, N10 caracter de control
+# apellidos: A1 Ejemplo, A2 a A10 como N2 a N10
+# fecha:     F1 12/05/1990, F2 H-1, F3 H, F4 H+1, F5 null, F6 01/01/0001
+# telefono:  T1 600000001, T2 null, T3 vacio, T4 un espacio, T5 con espacios, T6 8 digitos,
+#            T7 10 digitos, T8 con letra, T9 con prefijo, T10 256 digitos
+# repo:      R1 no existe, R2 ya existe, R3 falla al buscar, R4 falla al guardar,
+#            R5 otro alta se adelanta
+# hoy:       K1 H-1, K2 H, K3 H+1
+
+dni: D1, D2, D3, D4, D5, D6, D7, D8, D9, D10, D11, D12, D13, D14
+nombre: N1, N2, N3, N4, N5, N6, N7, N8, N9, N10
+apellidos: A1, A2, A3, A4, A5, A6, A7, A8, A9, A10
+telefono: T1, T2, T3, T4, T5, T6, T7, T8, T9, T10
+fechaNacimiento: F1, F2, F3, F4, F5, F6
+repositorio: R1, R2, R3, R4, R5
+hoy: K1, K2, K3

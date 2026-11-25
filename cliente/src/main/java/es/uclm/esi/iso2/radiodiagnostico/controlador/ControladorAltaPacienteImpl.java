@@ -31,7 +31,9 @@ public class ControladorAltaPacienteImpl implements ControladorAltaPaciente {
         }
         try {
             ResultadoAlta resultado = cliente.darDeAlta(datos);
-            if (resultado.correcto()) {
+            if (resultado == null) {
+                vista.mostrarError(MENSAJE_SIN_CONEXION);
+            } else if (resultado.correcto()) {
                 vista.mostrarExito(resultado.mensaje());
                 vista.limpiar();
             } else {
