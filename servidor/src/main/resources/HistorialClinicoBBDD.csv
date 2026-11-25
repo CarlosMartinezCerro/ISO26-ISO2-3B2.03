@@ -1,0 +1,3 @@
+id;dniMedico;dniPaciente;especialidad;motivoConsulta;antecedentes;historialEspecialidad;consultaActual;diagnostico;pruebas;tratamiento;alta;fecha;anamnesis
+1;12345678A;87654321B;Radiologia;Dolor;;;Consulta actual;Diagnostico;Pruebas;Tratamiento;false;2026-11-23;Anamnesis
+2;12345678A;87654321B;Radiologia;Dolor;;;Consulta actual;Diagnostico;Pruebas;Tratamiento;false;2026-11-23;Anamnesis

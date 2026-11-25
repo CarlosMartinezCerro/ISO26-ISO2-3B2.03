@@ -29,19 +29,19 @@ public class ControladorCrearInformeImpl implements ControladorCrearInforme {
             return;
         }
         DatosCreacionInforme datos = new DatosCreacionInforme(
-                informe.getMedico() == null ? null : informe.getMedico().getDni(),
-                informe.getPaciente() == null ? null : informe.getPaciente().getDni(),
-                informe.getEspecialidad(),
-                informe.getMotivoConsulta(),
-                informe.getConsultaActual(),
-                informe.getDiagnostico(),
-                informe.getPruebas(),
-                informe.gettratamiento(),
-                informe.isAlta(),
-                informe.getFecha(),
-                informe.getAnamnesis(),
-                informe.obtenerAntecedentes(),
-                informe.obtenerHistorial());
+                informe.dniMedico(),
+                informe.dniPaciente(),
+                informe.especialidad(),
+                informe.motivoConsulta(),
+                informe.consultaActual(),
+                informe.diagnostico(),
+                informe.pruebas(),
+                informe.tratamiento(),
+                informe.alta(),
+                informe.fecha(),
+                informe.anamnesis(),
+                informe.antecedentes(),
+                informe.historialEspecialidad());
         try {
             ResultadoCreacionInforme resultado = cliente.crearInforme(datos);
             if (resultado.correcto()) {

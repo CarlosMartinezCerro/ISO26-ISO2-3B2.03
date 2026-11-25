@@ -18,6 +18,8 @@ import es.uclm.esi.iso2.radiodiagnostico.informe.ClienteInformes;
 import es.uclm.esi.iso2.radiodiagnostico.informe.DatosCreacionInforme;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ErrorComunicacionException;
 import es.uclm.esi.iso2.radiodiagnostico.informe.Informe;
+import es.uclm.esi.iso2.radiodiagnostico.informe.InformeResumen;
+import es.uclm.esi.iso2.radiodiagnostico.informe.InformeRespuesta;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoAntecedentes;
 import es.uclm.esi.iso2.radiodiagnostico.informe.ResultadoCreacionInforme;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VistaCrearInforme;
@@ -145,9 +147,12 @@ class ControladorCrearInformeImplTest {
     @Test
     @DisplayName("Campos opcionales normales se envían al cliente")
     void crearInformeCamposOpcionalesNormales() {
-        Informe informe = informeValido(null, null);
-        informe.setMotivoConsulta("Dolor");
-        informe.setPruebas("Resonancia");
+        Informe base = informeValido(null, null);
+        Informe informe = new Informe(base.id(), base.dniMedico(), base.dniPaciente(),
+                base.especialidad(), "Dolor", base.antecedentes(),
+                base.historialEspecialidad(), base.consultaActual(),
+                base.diagnostico(), "Resonancia", base.tratamiento(),
+                base.alta(), base.fecha(), base.anamnesis());
         vista.informe = informe;
         cliente.resultadoCreacion = new ResultadoCreacionInforme(true, "Creado", null);
         controlador.crearInforme();
@@ -238,12 +243,11 @@ class ControladorCrearInformeImplTest {
     }
 
     private Informe informeValido(Medico medico, Paciente paciente) {
-        Informe informe = new Informe(medico, paciente, "Radiología", "",
-                "Consulta", "Diagnóstico", "", "", false,
+        String dniMedico = medico == null ? null : medico.dni();
+        String dniPaciente = paciente == null ? null : paciente.dni();
+        return new Informe(0L, dniMedico, dniPaciente, "Radiología", "",
+                "", "", "Consulta", "Diagnóstico", "", "", false,
                 LocalDate.of(2026, 11, 19), "");
-        informe.setAntecedentes("");
-        informe.setHistorialEspecialidad("");
-        return informe;
     }
 
     private static class VistaFalsa implements VistaCrearInforme {
@@ -328,6 +332,16 @@ class ControladorCrearInformeImplTest {
                 throw errorAntecedentes;
             }
             return resultadoAntecedentes;
+        }
+
+        @Override
+        public java.util.List<InformeResumen> listarInformes(String dniPaciente) {
+            return java.util.List.of();
+        }
+
+        @Override
+        public InformeRespuesta obtenerInforme(long idInforme) {
+            return null;
         }
     }
 }

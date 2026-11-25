@@ -90,14 +90,14 @@ class VentanaCrearInformeTest {
     @DisplayName("Fecha 31/12/2026 genera el informe")
     void fechaFinalAnualGeneraInforme() throws Exception {
         Informe resultado = prepararInformeValido("31/12/2026");
-        assertEquals(LocalDate.of(2026, 12, 31), resultado.getFecha());
+        assertEquals(LocalDate.of(2026, 12, 31), resultado.fecha());
     }
 
     @Test
     @DisplayName("Fecha bisiesta válida genera el informe")
     void fechaBisiestaValidaGeneraInforme() throws Exception {
         Informe resultado = prepararInformeValido("29/02/2024");
-        assertEquals(LocalDate.of(2024, 2, 29), resultado.getFecha());
+        assertEquals(LocalDate.of(2024, 2, 29), resultado.fecha());
     }
 
     @Test
@@ -108,21 +108,21 @@ class VentanaCrearInformeTest {
             fecha().getEditor().setText("29/02/2025");
             return ventana.obtenerInforme();
         });
-        assertEquals(LocalDate.of(2025, 2, 28), resultado.getFecha());
+        assertEquals(LocalDate.of(2025, 2, 28), resultado.fecha());
     }
 
     @Test
     @DisplayName("Fecha mínima representativa genera el informe")
     void fechaMinimaRepresentativaGeneraInforme() throws Exception {
         Informe resultado = prepararInformeValido("01/01/2026");
-        assertEquals(LocalDate.of(2026, 1, 1), resultado.getFecha());
+        assertEquals(LocalDate.of(2026, 1, 1), resultado.fecha());
     }
 
     @Test
     @DisplayName("Fecha máxima LocalDate genera el informe")
     void fechaMaximaGeneraInforme() throws Exception {
         Informe resultado = prepararInformeValido("31/12/9999");
-        assertEquals(LocalDate.of(9999, 12, 31), resultado.getFecha());
+        assertEquals(LocalDate.of(9999, 12, 31), resultado.fecha());
     }
 
     @Test
@@ -156,20 +156,20 @@ class VentanaCrearInformeTest {
             fecha().getEditor().setText("31/12/2026");
             return ventana.obtenerInforme();
         });
-        assertEquals("A", resultado.getConsultaActual());
-        assertEquals("B", resultado.getDiagnostico());
+        assertEquals("A", resultado.consultaActual());
+        assertEquals("B", resultado.diagnostico());
     }
 
     @Test
     @DisplayName("Campos opcionales vacíos generan cadenas vacías")
     void camposOpcionalesVacios() throws Exception {
         Informe resultado = prepararInformeValido("31/12/2026");
-        assertEquals("", resultado.getMotivoConsulta());
-        assertEquals("", resultado.obtenerAntecedentes());
-        assertEquals("", resultado.obtenerHistorial());
-        assertEquals("", resultado.getPruebas());
-        assertEquals("", resultado.gettratamiento());
-        assertEquals("", resultado.getAnamnesis());
+        assertEquals("", resultado.motivoConsulta());
+        assertEquals("", resultado.antecedentes());
+        assertEquals("", resultado.historialEspecialidad());
+        assertEquals("", resultado.pruebas());
+        assertEquals("", resultado.tratamiento());
+        assertEquals("", resultado.anamnesis());
     }
 
     @Test
@@ -182,8 +182,8 @@ class VentanaCrearInformeTest {
             fecha().getEditor().setText("31/12/2026");
             return ventana.obtenerInforme();
         });
-        assertEquals("Dolor", resultado.getMotivoConsulta());
-        assertEquals("Resonancia", resultado.getPruebas());
+        assertEquals("Dolor", resultado.motivoConsulta());
+        assertEquals("Resonancia", resultado.pruebas());
     }
 
     @Test
@@ -195,7 +195,7 @@ class VentanaCrearInformeTest {
             fecha().getEditor().setText("31/12/2026");
             return ventana.obtenerInforme();
         });
-        assertEquals("Ánimo & alergia: café", resultado.getAnamnesis());
+        assertEquals("Ánimo & alergia: café", resultado.anamnesis());
     }
 
     @Test
@@ -211,8 +211,8 @@ class VentanaCrearInformeTest {
             return creada;
         });
         Informe resultado = prepararInformeValido("31/12/2026");
-        assertEquals(medico, resultado.getMedico());
-        assertEquals(paciente, resultado.getPaciente());
+        assertEquals(medico.dni(), resultado.dniMedico());
+        assertEquals(paciente.dni(), resultado.dniPaciente());
     }
 
     @Test
@@ -227,8 +227,8 @@ class VentanaCrearInformeTest {
             return creada;
         });
         Informe resultado = prepararInformeValido("31/12/2026");
-        assertNull(resultado.getMedico());
-        assertEquals(paciente, resultado.getPaciente());
+        assertEquals("", resultado.dniMedico());
+        assertEquals(paciente.dni(), resultado.dniPaciente());
     }
 
     @Test
@@ -243,16 +243,16 @@ class VentanaCrearInformeTest {
             return creada;
         });
         Informe resultado = prepararInformeValido("31/12/2026");
-        assertEquals(medico, resultado.getMedico());
-        assertEquals("87654321B", resultado.getPaciente().getDni());
+        assertEquals(medico.dni(), resultado.dniMedico());
+        assertEquals("87654321B", resultado.dniPaciente());
     }
 
     @Test
     @DisplayName("Informe válido sin médico ni paciente")
     void informeSinUsuarios() throws Exception {
         Informe resultado = prepararInformeValido("31/12/2026");
-        assertNull(resultado.getMedico());
-        assertEquals("87654321B", resultado.getPaciente().getDni());
+        assertEquals("", resultado.dniMedico());
+        assertEquals("87654321B", resultado.dniPaciente());
     }
 
     @Test

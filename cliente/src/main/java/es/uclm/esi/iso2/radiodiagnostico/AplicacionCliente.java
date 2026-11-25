@@ -12,6 +12,8 @@ import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConfirmarCita;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConfirmarCitaImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarCitas;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarCitasImpl;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarInforme;
+import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarInformeImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarImagen;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorConsultarImagenImpl;
 import es.uclm.esi.iso2.radiodiagnostico.controlador.ControladorCrearImagen;
@@ -29,6 +31,7 @@ import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAltaPaciente;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaAsignarCita;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConfirmarCita;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConsultarCitas;
+import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConsultarInforme;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaConsultarImagen;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearImagen;
 import es.uclm.esi.iso2.radiodiagnostico.vista.VentanaCrearInforme;
@@ -70,6 +73,8 @@ public class AplicacionCliente extends Application {
                         () -> abrirConsultarImagen(url, medico())),
                 botonMenu("CdU · Crear informe",
                         () -> abrirCrearInforme(url)),
+                botonMenu("CU18 · Consultar informe",
+                        () -> abrirConsultarInforme(url)),
                 botonMenu("CU1 · Consultar citas",
                         () -> abrirConsultarCitas(url)),
                 botonMenu("CdU13 · Solicitar prueba de seguimiento",
@@ -162,6 +167,20 @@ public class AplicacionCliente extends Application {
         vista.alPulsarConsultar(controlador::consultarCitas);
 
         abrir("Radiodiagnóstico - Consultar citas", vista);
+    }
+
+    private static void abrirConsultarInforme(String url) {
+        VentanaConsultarInforme vista = new VentanaConsultarInforme();
+
+        ControladorConsultarInforme controlador =
+                new ControladorConsultarInformeImpl(
+                        vista,
+                        new ClienteInformesHttp(url));
+
+        vista.alPulsarListar(controlador::listarInformes);
+        vista.alSeleccionarInforme(controlador::obtenerInforme);
+
+        abrir(VentanaConsultarInforme.TITULO, vista);
     }
 
     private static void abrirSolicitarSeguimiento(String url) {

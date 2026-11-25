@@ -1,5 +1,7 @@
 package es.uclm.esi.iso2.radiodiagnostico.informe;
 
+import java.util.List;
+
 /** Operaciones del servicio de informes. */
 public interface ServicioInforme {
 
@@ -8,6 +10,9 @@ public interface ServicioInforme {
      *
      * @param informe informe que se desea crear
      * @return el informe creado
+     * @throws DatosInformeInvalidosException si faltan datos obligatorios
+     * @throws DniPacienteInvalidoException si falta el DNI del paciente
+     * @throws HistorialClinicoNoDisponibleException si no se puede archivar
      */
     Informe crearInforme(Informe informe);
 
@@ -16,6 +21,12 @@ public interface ServicioInforme {
      *
      * @param informe informe al que se incorporaran los antecedentes
      * @return los antecedentes generales obtenidos
+     * @throws DatosInformeInvalidosException si faltan datos obligatorios
+     * @throws DniPacienteInvalidoException si falta el DNI del paciente
      */
-    String obtenerAntecedentes(Informe informe);
+    Informe obtenerAntecedentes(Informe informe);
+
+    List<InformeResumen> listarInformes(String dni);
+
+    Informe obtenerInforme(long id);
 }

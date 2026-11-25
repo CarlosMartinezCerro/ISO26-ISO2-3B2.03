@@ -26,6 +26,7 @@ public class VentanaCrearInforme extends VBox implements VistaCrearInforme {
 
     private final Medico medico;
     private final Paciente paciente;
+    private final TextField campoDniMedico = new TextField();
     private final TextField campoDniPaciente = new TextField();
     private final TextField campoEspecialidad = new TextField();
     private final TextField campoMotivoConsulta = new TextField();
@@ -55,6 +56,7 @@ public class VentanaCrearInforme extends VBox implements VistaCrearInforme {
         formulario.setHgap(10);
         formulario.setVgap(8);
 
+        campoDniMedico.setId("campoDniMedico");
         campoDniPaciente.setId("campoDniPaciente");
         campoEspecialidad.setId("campoEspecialidad");
         campoMotivoConsulta.setId("campoMotivoConsulta");
@@ -69,19 +71,24 @@ public class VentanaCrearInforme extends VBox implements VistaCrearInforme {
         botonCrear.setId("botonCrearInforme");
         botonCargarAntecedentes.setId("botonCargarAntecedentes");
 
+        campoDniMedico.setPromptText("DNI del médico");
         campoDniPaciente.setPromptText("DNI del paciente");
         campoEspecialidad.setPromptText("Especialidad");
         campoMotivoConsulta.setPromptText("Motivo de consulta");
         campoFecha.setPromptText("dd/mm/aaaa");
         campoFecha.setConverter(new ConversorFecha());
-        if (paciente != null && paciente.getDni() != null) {
-            campoDniPaciente.setText(paciente.getDni());
+        if (medico != null && medico.dni() != null) {
+            campoDniMedico.setText(medico.dni());
         }
-        if (medico != null && medico.getEspecialidad() != null) {
-            campoEspecialidad.setText(medico.getEspecialidad());
+        if (paciente != null && paciente.dni() != null) {
+            campoDniPaciente.setText(paciente.dni());
+        }
+        if (medico != null && medico.especialidad() != null) {
+            campoEspecialidad.setText(medico.especialidad());
         }
 
         int fila = 0;
+        agregarCampo(formulario, fila++, "DNI del médico:", campoDniMedico);
         agregarCampo(formulario, fila++, "DNI del paciente:", campoDniPaciente);
         agregarCampo(formulario, fila++, "Especialidad:", campoEspecialidad);
         formulario.add(botonCargarAntecedentes, 1, fila++);
@@ -157,22 +164,17 @@ public class VentanaCrearInforme extends VBox implements VistaCrearInforme {
             return null;
         }
 
-        Paciente pacienteInforme = paciente;
-        if (pacienteInforme == null
-                || !campoDniPaciente.getText().trim().equals(
-                        pacienteInforme.getDni() == null ? "" : pacienteInforme.getDni())) {
-            pacienteInforme = new Paciente("", "", campoDniPaciente.getText().trim(),
-                    "", "", null, "");
-        }
-        Informe informe = new Informe(medico, pacienteInforme,
+        String dniMedico = campoDniMedico.getText().trim();
+        String dniPaciente = campoDniPaciente.getText().trim();
+        Informe informe = new Informe(dniMedico, dniPaciente,
                 campoEspecialidad.getText().trim(),
                 campoMotivoConsulta.getText().trim(), campoConsultaActual.getText().trim(),
                 campoDiagnostico.getText().trim(), campoPruebas.getText().trim(),
                 campoTratamiento.getText().trim(), false, fecha,
                 campoAnamnesis.getText().trim());
-        informe.setAntecedentes(campoAntecedentes.getText().trim());
-        informe.setHistorialEspecialidad(campoHistorialEspecialidad.getText().trim());
-        return informe;
+        return informe.conAntecedentes(
+                campoAntecedentes.getText().trim(),
+                campoHistorialEspecialidad.getText().trim());
     }
 
     @Override
@@ -187,6 +189,7 @@ public class VentanaCrearInforme extends VBox implements VistaCrearInforme {
 
     @Override
     public void limpiar() {
+        campoDniMedico.clear();
         campoDniPaciente.clear();
         campoEspecialidad.clear();
         campoMotivoConsulta.clear();

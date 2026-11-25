@@ -1,16 +1,28 @@
 package es.uclm.esi.iso2.radiodiagnostico.informe;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.Authenticator;
+import java.net.CookieHandler;
 import java.net.InetSocketAddress;
+import java.net.ProxySelector;
 import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -309,6 +321,276 @@ class ClienteInformesHttpTest {
         String url = url();
         assertThrows(ErrorComunicacionException.class,
                 () -> new ClienteInformesHttp(url).obtenerAntecedentes("87654321B", "Radiología"));
+    }
+
+    @Test
+    @DisplayName("Listar informes devuelve lista deserializada")
+    void listarInformesListaConDatos() {
+        codigo = 200;
+        cuerpo = "[{\"id\":1,\"especialidad\":\"Radiología\",\"fecha\":\"2026-11-19\"}]";
+
+        var informes = new ClienteInformesHttp(url()).listarInformes("87654321B");
+
+        assertEquals(1, informes.size());
+        assertEquals(new InformeResumen(
+                1, "Radiología", LocalDate.of(2026, 11, 19)), informes.get(0));
+        assertEquals("GET", metodo);
+        assertEquals("/informes?dniPaciente=87654321B", ruta);
+    }
+
+    @Test
+    @DisplayName("DNI vacío o blanco no provoca petición al listar")
+    void listarInformesDniAusente() {
+        ClienteInformesHttp cliente = new ClienteInformesHttp(url());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> cliente.listarInformes(null));
+        assertThrows(IllegalArgumentException.class,
+                () -> cliente.listarInformes(""));
+        assertThrows(IllegalArgumentException.class,
+                () -> cliente.listarInformes("   "));
+        assertNull(metodo);
+    }
+
+    @Test
+    @DisplayName("DNI con espacios exteriores se recorta y codifica")
+    void listarInformesCodificaDni() {
+        codigo = 200;
+        cuerpo = "[]";
+
+        new ClienteInformesHttp(url()).listarInformes(" DÑI & ");
+
+        assertEquals("/informes?dniPaciente=D%C3%91I+%26", ruta);
+    }
+
+    @Test
+    @DisplayName("Lista vacía y JSON null se deserializan")
+    void listarInformesListaVaciaYNull() {
+        codigo = 200;
+        cuerpo = "[]";
+        assertTrue(new ClienteInformesHttp(url())
+                .listarInformes("87654321B").isEmpty());
+
+        cuerpo = "null";
+        assertNull(new ClienteInformesHttp(url())
+                .listarInformes("87654321B"));
+    }
+
+    @Test
+    @DisplayName("Estado HTTP distinto de 200 produce error con código")
+    void listarInformesEstadoNoExitoso() {
+        for (int estado : new int[] {404, 500, 503}) {
+            codigo = estado;
+            cuerpo = "respuesta inválida";
+            ErrorComunicacionException error = assertThrows(
+                    ErrorComunicacionException.class,
+                    () -> new ClienteInformesHttp(url())
+                            .listarInformes("87654321B"));
+            assertTrue(error.getMessage().contains(Integer.toString(estado)));
+        }
+    }
+
+    @Test
+    @DisplayName("JSON inválido al listar se convierte en error de comunicación")
+    void listarInformesJsonInvalido() {
+        codigo = 200;
+        cuerpo = "{";
+        assertThrows(ErrorComunicacionException.class,
+                () -> new ClienteInformesHttp(url())
+                        .listarInformes("87654321B"));
+    }
+
+    @Test
+    @DisplayName("Fallo de red al listar se convierte en error de comunicación")
+    void listarInformesFalloDeRed() {
+        String servidorNoDisponible = url();
+        servidor.stop(0);
+
+        assertThrows(ErrorComunicacionException.class,
+                () -> new ClienteInformesHttp(servidorNoDisponible)
+                        .listarInformes("87654321B"));
+    }
+
+    @Test
+    @DisplayName("Interrupción al listar conserva el estado interrupt")
+    void listarInformesInterrumpido() {
+        try {
+            assertThrows(ErrorComunicacionException.class,
+                    () -> new ClienteInformesHttp(url(), httpInterrumpido())
+                            .listarInformes("87654321B"));
+            assertTrue(Thread.currentThread().isInterrupted());
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    @Test
+    @DisplayName("ID no positivo no provoca petición al obtener informe")
+    void obtenerInformeIdNoValido() {
+        ClienteInformesHttp cliente = new ClienteInformesHttp(url());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> cliente.obtenerInforme(0));
+        assertThrows(IllegalArgumentException.class,
+                () -> cliente.obtenerInforme(-1));
+        assertNull(metodo);
+    }
+
+    @Test
+    @DisplayName("ID válido devuelve el detalle deserializado")
+    void obtenerInformeDetalleValido() {
+        codigo = 200;
+        cuerpo = "{\"id\":1,\"dniMedico\":\"12345678A\","
+                + "\"dniPaciente\":\"87654321B\",\"especialidad\":\"Radiología\","
+                + "\"motivoConsulta\":\"Dolor\",\"antecedentes\":\"A\","
+                + "\"historialEspecialidad\":\"H\",\"consultaActual\":\"Consulta\","
+                + "\"diagnostico\":\"Diagnóstico\",\"pruebas\":\"Pruebas\","
+                + "\"tratamiento\":\"Tratamiento\",\"alta\":true,"
+                + "\"fecha\":\"2026-11-19\",\"anamnesis\":\"Anamnesis\"}";
+
+        InformeRespuesta informe =
+                new ClienteInformesHttp(url()).obtenerInforme(1);
+
+        assertEquals(1, informe.id());
+        assertEquals("87654321B", informe.dniPaciente());
+        assertEquals(LocalDate.of(2026, 11, 19), informe.fecha());
+        assertEquals("GET", metodo);
+        assertEquals("/informes/1", ruta);
+    }
+
+    @Test
+    @DisplayName("ID máximo de long se incluye en la ruta")
+    void obtenerInformeIdMaximo() {
+        codigo = 404;
+        cuerpo = "{";
+
+        assertNull(new ClienteInformesHttp(url())
+                .obtenerInforme(Long.MAX_VALUE));
+        assertEquals("/informes/" + Long.MAX_VALUE, ruta);
+    }
+
+    @Test
+    @DisplayName("404 devuelve null sin deserializar el cuerpo")
+    void obtenerInformeNoEncontrado() {
+        codigo = 404;
+        cuerpo = "{";
+
+        assertNull(new ClienteInformesHttp(url()).obtenerInforme(1));
+    }
+
+    @Test
+    @DisplayName("Estado HTTP no exitoso conserva el código aunque el JSON sea inválido")
+    void obtenerInformeEstadoNoExitoso() {
+        for (int estado : new int[] {500, 503}) {
+            codigo = estado;
+            cuerpo = "{";
+            ErrorComunicacionException error = assertThrows(
+                    ErrorComunicacionException.class,
+                    () -> new ClienteInformesHttp(url()).obtenerInforme(1));
+            assertTrue(error.getMessage().contains(Integer.toString(estado)));
+        }
+    }
+
+    @Test
+    @DisplayName("JSON inválido con estado 200 al obtener informe produce error")
+    void obtenerInformeJsonInvalido() {
+        codigo = 200;
+        cuerpo = "{";
+        assertThrows(ErrorComunicacionException.class,
+                () -> new ClienteInformesHttp(url()).obtenerInforme(1));
+    }
+
+    @Test
+    @DisplayName("Fallo de red al obtener informe se convierte en error de comunicación")
+    void obtenerInformeFalloDeRed() {
+        String servidorNoDisponible = url();
+        servidor.stop(0);
+
+        assertThrows(ErrorComunicacionException.class,
+                () -> new ClienteInformesHttp(servidorNoDisponible)
+                        .obtenerInforme(1));
+    }
+
+    @Test
+    @DisplayName("Interrupción al obtener informe conserva el estado interrupt")
+    void obtenerInformeInterrumpido() {
+        try {
+            assertThrows(ErrorComunicacionException.class,
+                    () -> new ClienteInformesHttp(url(), httpInterrumpido())
+                            .obtenerInforme(1));
+            assertTrue(Thread.currentThread().isInterrupted());
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    private static HttpClient httpInterrumpido() {
+        return new HttpClient() {
+            @Override
+            public Optional<CookieHandler> cookieHandler() {
+                return Optional.empty();
+            }
+
+            @Override
+            public Optional<Duration> connectTimeout() {
+                return Optional.empty();
+            }
+
+            @Override
+            public Redirect followRedirects() {
+                return Redirect.NEVER;
+            }
+
+            @Override
+            public Optional<ProxySelector> proxy() {
+                return Optional.empty();
+            }
+
+            @Override
+            public SSLContext sslContext() {
+                return null;
+            }
+
+            @Override
+            public SSLParameters sslParameters() {
+                return new SSLParameters();
+            }
+
+            @Override
+            public Optional<Authenticator> authenticator() {
+                return Optional.empty();
+            }
+
+            @Override
+            public Optional<Executor> executor() {
+                return Optional.empty();
+            }
+
+            @Override
+            public Version version() {
+                return Version.HTTP_1_1;
+            }
+
+            @Override
+            public <T> HttpResponse<T> send(
+                    HttpRequest request, HttpResponse.BodyHandler<T> handler)
+                    throws IOException, InterruptedException {
+                throw new InterruptedException("interrumpida");
+            }
+
+            @Override
+            public <T> CompletableFuture<HttpResponse<T>> sendAsync(
+                    HttpRequest request, HttpResponse.BodyHandler<T> handler) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public <T> CompletableFuture<HttpResponse<T>> sendAsync(
+                    HttpRequest request, HttpResponse.BodyHandler<T> handler,
+                    HttpResponse.PushPromiseHandler<T> pushHandler) {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
 
     private String url() {

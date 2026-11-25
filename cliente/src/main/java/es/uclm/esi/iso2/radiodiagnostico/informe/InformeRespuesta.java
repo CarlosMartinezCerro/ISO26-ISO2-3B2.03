@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 /** Respuesta REST de un informe. */
 public record InformeRespuesta(
+        long id,
         String dniMedico,
         String dniPaciente,
         String especialidad,
