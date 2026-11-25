@@ -43,7 +43,9 @@ public class ControladorSolicitarSeguimientoImpl implements ControladorSolicitar
         }
         try {
             ResultadoSolicitudSeguimiento resultado = cliente.solicitar(datos);
-            if (resultado.correcto()) {
+            if (resultado == null) {
+                vista.mostrarError(MENSAJE_SIN_CONEXION);
+            } else if (resultado.correcto()) {
                 vista.mostrarRepeticiones(resultado.mensaje(), resultado.repeticiones());
             } else {
                 vista.mostrarError(resultado.mensaje());
