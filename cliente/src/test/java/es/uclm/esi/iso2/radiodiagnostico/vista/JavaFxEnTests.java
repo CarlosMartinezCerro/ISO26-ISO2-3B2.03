@@ -24,7 +24,7 @@ final class JavaFxEnTests {
     static synchronized void arrancarOOmitir() {
         if (disponible == null) {
             try {
-                Platform.startup(() -> { });
+                Platform.startup(() -> Platform.setImplicitExit(false));
                 disponible = true;
             } catch (IllegalStateException yaArrancado) {
                 disponible = true;
